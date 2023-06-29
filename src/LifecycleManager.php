@@ -1,14 +1,14 @@
 <?php
 
-namespace Axm\LiveAxm;
+namespace Axm\Raxm;
 
 use Axm;
-use Axm\LiveAxm\LiveaxmManager;
-use Axm\LiveAxm\ComponentCheckSum;
-use Axm\LiveAxm\ComponentProperties;
+use Axm\Raxm\RaxmManager;
+use Axm\Raxm\ComponentCheckSum;
+use Axm\Raxm\ComponentProperties;
 
 
-class LifecycleManager extends LiveaxmManager
+class LifecycleManager extends RaxmManager
 {
   protected static $id;
   protected static $initialData;
@@ -71,5 +71,4 @@ class LifecycleManager extends LiveaxmManager
 
     return $properties;
   }
-  
 }

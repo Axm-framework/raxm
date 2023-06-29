@@ -1,15 +1,15 @@
 <?php
 
-namespace Axm\LiveAxm;
+namespace Axm\Raxm;
 
 use Axm;
 use Axm\Views\View;
 use Axm\Http\Request;
 use Axm\Http\Response;
 use Axm\Exception\AxmException;
-use Axm\LiveAxm\ComponentCheckSum;
-use Axm\LiveAxm\ComponentProperties;
-use Axm\LiveAxm\LifecycleManager;
+use Axm\Raxm\ComponentCheckSum;
+use Axm\Raxm\ComponentProperties;
+use Axm\Raxm\LifecycleManager;
 use App\Controllers\BaseController;
 
 
@@ -122,7 +122,7 @@ abstract class Component extends BaseController
         }
 
         if (!(ComponentProperties::methodIsPublic($this, $method))) {  // Added braces for readability 
-            throw new AxmException(Axm::t('Liveaxm', "Unable to set component data. Public method {method()} not found on component: {component}", ['{method()}' => $method, '{component}' => $this->component]));  // Added braces for readability 
+            throw new AxmException(Axm::t('Raxm', "Unable to set component data. Public method {method()} not found on component: {component}", ['{method()}' => $method, '{component}' => $this->component]));  // Added braces for readability 
         }
 
         return $this->$method(...$params);
@@ -145,7 +145,7 @@ abstract class Component extends BaseController
     {
         // Check if the property exists
         if (!property_exists($this, $propertyName)) {
-            throw new AxmException(Axm::t('Liveaxm', "Unable to set component data. The public property \${property} was not found on the component: {component}", ['{property}' => $propertyName, '{component}' => $this->component]));
+            throw new AxmException(Axm::t('Raxm', "Unable to set component data. The public property \${property} was not found on the component: {component}", ['{property}' => $propertyName, '{component}' => $this->component]));
         }
 
         $this->mount([$propertyName => $value]);
@@ -226,7 +226,7 @@ abstract class Component extends BaseController
         $params = ComponentProperties::getPublicProperties($this);
         $view   = method_exists($this, 'render')
             ? $this->callRender()
-            : View::getView('liveaxm' . $this->fingerprint['name'], $params);
+            : View::getView('Raxm' . $this->fingerprint['name'], $params);
 
         if ($view instanceof View)
             throw new AxmException('"render" method on [' . $this->component . '] must return instance of [' . View::class . ']');
@@ -282,7 +282,7 @@ abstract class Component extends BaseController
     protected function checkSumAndGenerate($checksum, $fingerprint, $memo)
     {
         if (ComponentCheckSum::check($checksum, $fingerprint, $memo))
-            throw new AxmException("Liveaxm encountered corrupt data when trying to hydrate the $this->component component. \n" . "Ensure that the [name, id, data] of the Liveaxm component wasn't tampered with between requests.");
+            throw new AxmException("Raxm encountered corrupt data when trying to hydrate the $this->component component. \n" . "Ensure that the [name, id, data] of the Raxm component wasn't tampered with between requests.");
 
         return ComponentCheckSum::generate($fingerprint, $memo);
     }
@@ -319,13 +319,13 @@ abstract class Component extends BaseController
     {
         $methodReserved = ['mount', 'hydrate', 'dehydrate', 'updating', 'updated'];
         if (in_array($method, $methodReserved)) {
-            throw new AxmException(Axm::t('Liveaxm', 'This methods is reserved for Liveaxm: {methods}', ['{methods}' => implode(',', $methodReserved)]));
+            throw new AxmException(Axm::t('Raxm', 'This methods is reserved for Raxm: {methods}', ['{methods}' => implode(',', $methodReserved)]));
         }
 
         if (is_array($params)) {
             $params = '(' . implode(',', $params) . ')';
         }
 
-        throw new AxmException(Axm::t('Liveaxm', 'El método "{class}::{method}' . $params . '" no existe.', ['{class}' => static::class, '{method}' => $method]));
+        throw new AxmException(Axm::t('Raxm', 'El método "{class}::{method}' . $params . '" no existe.', ['{class}' => static::class, '{method}' => $method]));
     }
 }

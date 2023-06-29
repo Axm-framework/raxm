@@ -1,6 +1,6 @@
 <?php
 
-namespace Axm\LiveAxm;
+namespace Axm\Raxm;
 
 class ComponentCheckSum
 {
@@ -20,7 +20,7 @@ class ComponentCheckSum
         return hash_hmac('sha256', $stringForHashing, 'secret');
     }
 
-    
+
     public static function check($checksum, $fingerprint, $memo)
     {
         return hash_equals(static::generate($fingerprint, $memo), $checksum ?? '');

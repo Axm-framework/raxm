@@ -1,13 +1,13 @@
 <?php
 
-namespace Axm\LiveAxm;
+namespace Axm\Raxm;
 
 use Axm;
-use Axm\LiveAxm\Component;
+use Axm\Raxm\Component;
 use Axm\Exception\AxmException;
 
 
-class LiveaxmManager
+class RaxmManager
 {
 
     protected static string $componentName;
@@ -20,7 +20,7 @@ class LiveaxmManager
     public static function getInstance(string $componentName): Component
     {
         self::$ucfirstComponentName = ucfirst(strtolower($componentName));
-        $className = '\App\LiveAxm\\' . self::$ucfirstComponentName;
+        $className = '\App\Raxm\\' . self::$ucfirstComponentName;
 
         if (!class_exists($className)) {
             throw new AxmException("No se encontró la clase $className.");
@@ -55,7 +55,7 @@ class LiveaxmManager
     public static function initialComponent(string $component): void
     {
         $component = ucfirst($component);
-        $_instance = LiveaxmManager::getInstance($component);
+        $_instance = RaxmManager::getInstance($component);
 
         if (!$_instance instanceof $component) {
             $id   = bin2hex(random_bytes(10));
@@ -72,7 +72,7 @@ class LiveaxmManager
     /**
      * 
      */
-    public static function liveaxmScripts(array $options = [])
+    public static function RaxmScripts(array $options = [])
     {
         $options = array_merge([
             'nonce' => 'nonce-value'
@@ -92,7 +92,7 @@ class LiveaxmManager
     protected static function javaScriptAssets(array $options = [])
     {
         $app = Axm::app();
-        $app->config()->load(APP_PATH . '/Config/Liveaxm.php');
+        $app->config()->load(APP_PATH . '/Config/Raxm.php');
         $assetUrl = $app->config()->get('asset_url');
         $fileName = $app->config()->get('fileName');
 
@@ -100,7 +100,7 @@ class LiveaxmManager
         $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
 
         // Added assetWarning variable to store the warning message if app debug is set to true. 
-        $assetWarning = $app->config()->get('app.debug') ? "if (window.liveaxm) { console.warn('Liveaxm: It looks like Liveaxm\'s @liveaxmScripts JavaScript assets have already been loaded. Make sure you aren\'t loading them twice.'); }" : '';
+        $assetWarning = $app->config()->get('app.debug') ? "if (window.Raxm) { console.warn('Raxm: It looks like Raxm\'s @RaxmScripts JavaScript assets have already been loaded. Make sure you aren\'t loading them twice.'); }" : '';
 
         // Added randomId variable to generate a random id for the asset path url using crc32 and rand functions. 
         $randomId = crc32(rand(1000000, 99999999));
@@ -114,7 +114,7 @@ class LiveaxmManager
         HTML;
     }
 
-    
+
     /**
      * 
      */

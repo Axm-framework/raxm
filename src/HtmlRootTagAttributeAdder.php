@@ -1,6 +1,6 @@
 <?php
 
-namespace Axm\LiveAxm;
+namespace Axm\Raxm;
 
 // use \Collection;
 // use \Arr;
@@ -28,7 +28,7 @@ class HtmlRootTagAttributeAdder
     //     $positionOfFirstCharacterInTagName = $matches[1][1];
 
     //     if (!count($matches)) throw new AxmException(
-    //         "Liveaxm encountered a missing root tag when trying to render a " .
+    //         "Raxm encountered a missing root tag when trying to render a " .
     //             "component. \n When rendering a Blade view, make sure it contains a root HTML tag."
     //     );
 
@@ -62,7 +62,7 @@ class HtmlRootTagAttributeAdder
 
         if (!count($matches)) {
             throw new AxmException(
-                'Liveaxm encountered a missing root tag when trying to render a ' .
+                'Raxm encountered a missing root tag when trying to render a ' .
                     "component. \n When rendering a Blade view, make sure it contains a root HTML tag."
             );
         }

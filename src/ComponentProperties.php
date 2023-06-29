@@ -1,6 +1,6 @@
 <?php
 
-namespace Axm\LiveAxm;
+namespace Axm\Raxm;
 
 
 class ComponentProperties
