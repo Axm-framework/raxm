@@ -92,27 +92,42 @@ class RaxmManager
     protected static function javaScriptAssets(array $options = [])
     {
         $app = Axm::app();
-        $app->config()->load(APP_PATH . '/Config/Raxm.php');
-        $assetUrl = $app->config()->get('asset_url');
-        $fileName = $app->config()->get('fileName');
+        $config = $app->config();
+        $config->load(APP_PATH . '/Config/Raxm.php');
+        $assetUrl = $config->get('asset_url');
+        $fileName = $config->get('fileName');
 
-        // Added nonce variable to store the nonce value if it is set in the options array. 
-        $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
+        $defaultOptions = [
+            'nonce' => null,
+        ];
 
-        // Added assetWarning variable to store the warning message if app debug is set to true. 
-        $assetWarning = $app->config()->get('app.debug') ? "if (window.Raxm) { console.warn('Raxm: It looks like Raxm\'s @RaxmScripts JavaScript assets have already been loaded. Make sure you aren\'t loading them twice.'); }" : '';
+        $options = array_merge($defaultOptions, $options);
 
-        // Added randomId variable to generate a random id for the asset path url using crc32 and rand functions. 
-        $randomId = crc32(rand(1000000, 99999999));
+        $assetWarning = '';
+        if ($config->get('app.debug')) {
+            $assetWarning = "if (window.Raxm) { console.warn('Raxm: It looks like Raxm\'s @RaxmScripts JavaScript assets have already been loaded. Make sure you aren\'t loading them twice.'); }";
+        }
 
-        // Added fullAssetPath variable to store the full asset path url with the random id generated in the previous step. 
-        $fullAssetPath = baseUrl("{$assetUrl}{$fileName}?id={$randomId}");
+        $randomId = sha1(uniqid());
+        $fullAssetPath = self::generateAssetUrl($assetUrl, $fileName, $randomId);
+
+        $nonceAttribute = $options['nonce'] ? "nonce=\"{$options['nonce']}\"" : '';
 
         return <<<HTML
             {$assetWarning}
-            <script type="module" src="{$fullAssetPath}" {$nonce}></script>
+            <script type="module" src="{$fullAssetPath}" {$nonceAttribute}></script>
         HTML;
     }
+
+
+    protected static function generateAssetUrl($assetUrl, $fileName, $randomId)
+    {
+        // Concatenar la URL base del asset con el nombre del archivo y el ID aleatorio
+        $fullAssetPath = $assetUrl . $fileName . '?id=' . $randomId;
+
+        return $fullAssetPath;
+    }
+
 
 
     /**
