@@ -19,9 +19,10 @@ class LifecycleManager extends RaxmManager
   public static function initialFingerprint(): array
   {
     $app = Axm::app();
+    $hash = hash('sha256', random_bytes(16));
 
     return [
-      'id'     => randomHash(20, false),
+      'id'     => $hash,
       'name'   => strtolower(self::$ucfirstComponentName),
       'locale' => 'EN',
       'path'   => ltrim($app->request->getUriString(), '/'),
@@ -53,10 +54,12 @@ class LifecycleManager extends RaxmManager
 
   public static function initialServerMemo(): array
   {
+    $hash = hash('sha256', random_bytes(16));
+
     return [
       'children' => [],
       'errors'   => [],
-      'htmlHash' => randomHash(8, false),
+      'htmlHash' => $hash,
       'data'     => static::addDatatoInitialResponse(),
       'dataMeta' => [],
     ];
