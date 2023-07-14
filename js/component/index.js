@@ -18,11 +18,12 @@ import DeferredModelAction from '../action/deferred-model.js'
 import MessageBus from '../MessageBus.js'
 import { alpinifyElementsForMorphdom, getEntangleFunction } from './SupportAlpine.js'
 
+import { compareNodeNames, createElementNS, doc, moveChildren, toElement } from '../dom/morphdom/util.js';
 
 export default class Component {
 
     constructor(el, connection) {
-        el.__axm = this
+        el.__raxm = this
 
         this.el = el
 
@@ -38,8 +39,8 @@ export default class Component {
         this.el.removeAttribute('axm:initial-data')
 
         this.fingerprint = initialData.fingerprint
-        this.serverMemo = initialData.serverMemo
-        this.effects = initialData.effects
+        this.serverMemo  = initialData.serverMemo
+        this.effects     = initialData.effects
 
         this.listeners = this.effects.listeners
         this.updateQueue = []
@@ -49,7 +50,7 @@ export default class Component {
 
         this.scopedListeners = new MessageBus()
         this.prefetchManager = new PrefetchManager(this)
-        this.uploadManager = new UploadManager(this)
+        this.uploadManager   = new UploadManager(this)
         this.watchers = {}
 
         store.callHook('component.initialized', this)
@@ -89,7 +90,7 @@ export default class Component {
         }
 
         if (countElementsBeforeMarker(this.el.nextSibling) > 0) {
-            console.warn(`Axm: Multiple root elements detected. This is not supported. See docs for more information https://laravel-liveaxm.com/docs/2.x/troubleshooting#root-element-issues`, this.el)
+            console.warn(`Axm: Multiple root elements detected. This is not supported. See docs for more information https://laravel-Raxm.com/docs/2.x/troubleshooting#root-element-issues`, this.el)
         }
     }
 
@@ -120,7 +121,7 @@ export default class Component {
 
     updateServerMemoFromResponseAndMergeBackIntoResponse(message) {
         // We have to do a fair amount of object merging here, but we can't use expressive syntax like {...}
-        // because browsers mess with the object key order which will break Liveaxm request checksum checks.
+        // because browsers mess with the object key order which will break Raxm request checksum checks.
 
         Object.entries(message.response.serverMemo).forEach(([key, value]) => {
 
@@ -132,7 +133,7 @@ export default class Component {
 
                     if (message.shouldSkipWatcherForDataKey(dataKey)) return
 
-                    // Because Liveaxm (for payload reduction purposes) only returns the data that has changed,
+                    // Because Raxm (for payload reduction purposes) only returns the data that has changed,
                     // we can use all the data keys from the response as watcher triggers.
                     Object.entries(this.watchers).forEach(([key, watchers]) => {
                         let originalSplitKey = key.split('.')
@@ -194,7 +195,7 @@ export default class Component {
             this.addAction(action)
 
             action.onResolve(thing => resolve(thing))
-            action.onReject(thing => reject(thing))
+            action.onReject(thing  => reject(thing))
         })
     }
 
@@ -285,7 +286,7 @@ export default class Component {
             this.fireMessage()
         }
 
-        dispatch('liveaxm:update')
+        dispatch('Raxm:update')
     }
 
     handleResponse(message) {
@@ -300,10 +301,13 @@ export default class Component {
             this.lastFreshHtml = response.effects.html
 
             this.handleMorph(response.effects.html.trim())
+                
+
         } else {
             // It's important to still "morphdom" even when the server HTML hasn't changed,
             // because Alpine needs to be given the chance to update.
             this.handleMorph(this.lastFreshHtml)
+
         }
 
         if (response.effects.dirty) {
@@ -400,7 +404,7 @@ export default class Component {
             getNodeKey: node => {
                 // This allows the tracking of elements by the "key" attribute, like in VueJs.
                 return node.hasAttribute(`axm:key`)
-                    ? node.getAttribute(`axm:key`)
+                    ?  node.getAttribute(`axm:key`)
                     : // If no "key", then first check for "axm:id", then "id"
                     node.hasAttribute(`axm:id`)
                         ? node.getAttribute(`axm:id`)
@@ -426,8 +430,8 @@ export default class Component {
             onNodeDiscarded: node => {
                 store.callHook('element.removed', node, this)
 
-                if (node.__liveaxm) {
-                    store.removeComponent(node.__liveaxm)
+                if (node.__raxm) {
+                    store.removeComponent(node.__raxm)
                 }
 
                 this.morphChanges.removed.push(node)
@@ -459,18 +463,18 @@ export default class Component {
 
                 let fromDirectives = axmDirectives(from)
 
-                // Honor the "axm:ignore" attribute or the .__liveaxm_ignore element property.
+                // Honor the "axm:ignore" attribute or the .__raxm_ignore element property.
                 if (
-                    fromDirectives.has('ignore') ||
-                    from.__liveaxm_ignore === true ||
-                    from.__liveaxm_ignore_self === true
+                    fromDirectives.has('ignore')   ||
+                    from.__raxm_ignore === true ||
+                    from.__raxm_ignore_self === true
                 ) {
                     if (
                         (fromDirectives.has('ignore') &&
                             fromDirectives
                                 .get('ignore')
                                 .modifiers.includes('self')) ||
-                        from.__liveaxm_ignore_self === true
+                        from.__raxm_ignore_self === true
                     ) {
                         // Don't update children of "axm:ignore.self" attribute.
                         from.skipElUpdatingButStillUpdateChildren = true
@@ -479,19 +483,22 @@ export default class Component {
                     }
                 }
 
-                // Children will update themselves.
-                if (DOM.isComponentRootEl(from) && from.getAttribute('axm:id') !== this.id) return false
 
-                // Give the root Liveaxm "to" element, the same object reference as the "from"
+                 //REVISARRRR ESTOOO
+                // Children will update themselves.
+               // if (DOM.isComponentRootEl(from) && from.getAttribute('axm:id') !== this.id) return false
+
+                
+                // Give the root Raxm "to" element, the same object reference as the "from"
                 // element. This ensures new Alpine magics like $axm and @entangle can
-                // initialize in the context of a real Liveaxm component object.
-                if (DOM.isComponentRootEl(from)) to.__liveaxm = this
+                // initialize in the context of a real Raxm component object.
+                if (DOM.isComponentRootEl(from)) to.__raxm = this
 
                 alpinifyElementsForMorphdom(from, to)
             },
 
             onElUpdated: node => {
-                this.morphChanges.changed.push(node)
+                // this.morphChanges.changed.push(node)
 
                 store.callHook('element.updated', node, this)
             },
@@ -517,6 +524,7 @@ export default class Component {
 
         window.skipShow = false
     }
+
 
     walk(callback, callbackWhenNewComponentIsEncountered = el => { }) {
         walk(this.el, el => {
@@ -604,8 +612,8 @@ export default class Component {
     upload(
         name,
         file,
-        finishCallback = () => { },
-        errorCallback = () => { },
+        finishCallback   = () => { },
+        errorCallback    = () => { },
         progressCallback = () => { }
     ) {
         this.uploadManager.upload(
@@ -620,8 +628,8 @@ export default class Component {
     uploadMultiple(
         name,
         files,
-        finishCallback = () => { },
-        errorCallback = () => { },
+        finishCallback   = () => { },
+        errorCallback    = () => { },
         progressCallback = () => { }
     ) {
         this.uploadManager.uploadMultiple(
@@ -637,7 +645,7 @@ export default class Component {
         name,
         tmpFilename,
         finishCallback = () => { },
-        errorCallback = () => { }
+        errorCallback  = () => { }
     ) {
         this.uploadManager.removeUpload(
             name,
@@ -664,10 +672,10 @@ export default class Component {
 
                 if (property === '__instance') return component
 
-                // Forward "emits" to base Liveaxm object.
+                // Forward "emits" to base Raxm object.
                 if (typeof property === 'string' && property.match(/^emit.*/)) return function (...args) {
                     if (property === 'emitSelf') return store.emitSelf(component.id, ...args)
-                    if (property === 'emitUp') return store.emitUp(component.el, ...args)
+                    if (property === 'emitUp')   return store.emitUp(component.el, ...args)
 
                     return store[property](...args)
                 }

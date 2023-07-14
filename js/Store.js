@@ -1,6 +1,6 @@
 import EventAction from './action/event.js'
 import HookManager from './HookManager.js'
-import MessageBus from './MessageBus.js'
+import MessageBus  from './MessageBus.js'
 import DirectiveManager from './DirectiveManager.js'
 
 const store = {

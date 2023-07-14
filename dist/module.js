@@ -1,3 +1,3 @@
-import Axm from './../src/index.js'
+import Axm from './../js/index.js'
 
 export default Axm

@@ -37,15 +37,13 @@ abstract class Component extends BaseController
     public function __construct()
     {
         $app = Axm::app();
-        $this->request  = $app->request ?? null;
+        $this->request  = $app->request  ?? null;
         $this->response = $app->response ?? null;
     }
 
 
     public function run()
     {
-        helpers('enumerable', true);
-
         $this->extractDataRequest($this->request);
         $this->hydrateFromServerMemo();
         $this->hydratePayload();
@@ -77,10 +75,8 @@ abstract class Component extends BaseController
             $payload      = $item['payload'];
             $this->type   = $item['type'];
             $this->id_p   = $payload['id'];
-            // $this->name = $payload['name'] ?? null;
             $this->method = $payload['method'] ?? null;
             $this->params = $payload['params'] ?? null;
-            // $this->value  = $payload['value']  ?? null;
         }
     }
 
@@ -311,7 +307,7 @@ abstract class Component extends BaseController
     protected function prepareAndSendJsonResponse()
     {
         $response = $this->prepareResponse();
-        return $this->response->outJson($response);
+        return $this->response->toJson($response);
     }
 
 

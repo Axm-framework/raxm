@@ -115,7 +115,7 @@ export default {
             if (e.animationName !== 'axmautofill') return
 
             e.target.dispatchEvent(new Event('change', { bubbles: true }))
-            e.target.dispatchEvent(new Event('input', { bubbles: true }))
+            e.target.dispatchEvent(new Event('input',  { bubbles: true }))
         })
     },
 

@@ -4,9 +4,9 @@ export default function () {
     store.registerHook('interceptAxmModelAttachListener', (directive, el, component) => {
         if (! (el.tagName.toLowerCase() === 'input' && el.type === 'file')) return
 
-        let start = () => el.dispatchEvent(new CustomEvent('axm-upload-start', { bubbles: true }))
+        let start  = () => el.dispatchEvent(new CustomEvent('axm-upload-start', { bubbles: true }))
         let finish = () => el.dispatchEvent(new CustomEvent('axm-upload-finish', { bubbles: true }))
-        let error = () => el.dispatchEvent(new CustomEvent('axm-upload-error', { bubbles: true }))
+        let error  = () => el.dispatchEvent(new CustomEvent('axm-upload-error', { bubbles: true }))
         let progress = (progressEvent) => {
             var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total )
 

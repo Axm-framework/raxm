@@ -29,22 +29,21 @@ export default class Connection {
     }
 
     sendMessage(message) {
-        let payload = message.payload()
+        let payload   = message.payload()
         let csrfToken = getCsrfToken()
-        let socketId = this.getSocketId()
+        let socketId  = this.getSocketId()
 
         if (window.__testing_request_interceptor) {
             return window.__testing_request_interceptor(payload, this)
         }
 
         // let url = store.findComponent(3383).path;
-        let url = '';
+        let url = '/axmapp';
 
         // Forward the query string for the ajax requests.
         fetch(
 
             `${url}/${payload.fingerprint.name}`,
-            // `${url}/${payload.fingerprint.name}`,
             {
                 method: 'POST',
                 body: JSON.stringify(payload),
@@ -62,7 +61,7 @@ export default class Connection {
                     // We'll set this explicitly to mitigate potential interference from ad-blockers/etc.
                     'Referer': window.location.href,
                     ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
-                    ...(socketId && { 'X-Socket-ID': socketId })
+                    ...(socketId  && { 'X-Socket-ID' : socketId })
                 },
             }
         )
@@ -75,7 +74,7 @@ export default class Connection {
                         } else {
                             // console.log(JSON.parse(response));
                             this.onMessage(message, JSON.parse(response))
-                            response
+
                         }
                     })
                 } else {
@@ -126,9 +125,9 @@ export default class Connection {
             modal = document.createElement('div')
             modal.id = 'axm-exeption'
             modal.style.position = 'fixed'
-            modal.style.width = '100vw'
-            modal.style.height = '100vh'
-            modal.style.padding = '50px'
+            modal.style.width    = '100vw'
+            modal.style.height   = '100vh'
+            modal.style.padding  = '50px'
             modal.style.backgroundColor = 'rgba(0, 0, 0, .6)'
             modal.style.zIndex = 200000
         }
@@ -136,7 +135,7 @@ export default class Connection {
         let iframe = document.createElement('iframe')
         iframe.style.backgroundColor = '#17161A'
         iframe.style.borderRadius = '5px'
-        iframe.style.width = '100%'
+        iframe.style.width  = '100%'
         iframe.style.height = '100%'
         modal.appendChild(iframe)
 

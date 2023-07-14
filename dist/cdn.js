@@ -1,4 +1,4 @@
-import Axm from './../src/index.js'
+import Axm from './../js/index.js'
 
 window.Axm = new Axm()
 

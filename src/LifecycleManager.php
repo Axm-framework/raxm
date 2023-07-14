@@ -18,14 +18,14 @@ class LifecycleManager extends RaxmManager
 
   public static function initialFingerprint(): array
   {
-    $app = Axm::app();
+    $app  = Axm::app();
     $hash = hash('sha256', random_bytes(16));
 
     return [
       'id'     => $hash,
       'name'   => strtolower(self::$ucfirstComponentName),
       'locale' => 'EN',
-      'path'   => ltrim($app->request->getUriString(), '/'),
+      'path'   => $app->request->getUri(),
       'method' => $app->request->getMethod()
     ];
   }
