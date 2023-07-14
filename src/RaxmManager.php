@@ -93,11 +93,7 @@ class RaxmManager
     {
         $app = Axm::app();
         $app->config()->load(APP_PATH . '/Config/Raxm.php');
-        // $assetUrl = $app->config()->get('asset_url');
-        // $fileName = $app->config()->get('fileName');
-        // $assetUrl = generateUrl('/axm/raxm/dist/') . '/';
-        // $assetUrl = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . PATH_CLEAR_URI . 'vendor/axm/raxm/dist/';
-        $assetUrl = generateUrl(PATH_CLEAR_URI . 'vendor/axm/raxm/dist') . '/';
+        $assetUrl = $app->config()->get('asset_url');
         $fileName = $app->config()->get('fileName');
 
         // Added nonce variable to store the nonce value if it is set in the options array. 
