@@ -61,7 +61,7 @@ export default class Connection {
                     // We'll set this explicitly to mitigate potential interference from ad-blockers/etc.
                     'Referer': window.location.href,
                     ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
-                    ...(socketId  && { 'X-Socket-ID' : socketId })
+                    ...(socketId  && { 'X-Socket-ID' : socketId  })
                 },
             }
         )
@@ -72,7 +72,7 @@ export default class Connection {
                             this.onError(message)
                             this.showHtmlModal(response)
                         } else {
-                            // console.log(JSON.parse(response));
+
                             this.onMessage(message, JSON.parse(response))
 
                         }

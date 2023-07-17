@@ -95,9 +95,9 @@ class RaxmManager
         $app->config()->load(APP_PATH . '/Config/Raxm.php');
         $assetUrl = $app->config()->get('asset_url');
         $fileName = $app->config()->get('fileName');
-        $app_url  = $app->config()->get('app_url');
+        $appUrl   = $app->config()->get('app_url');
 
-        $jsRaxmToken = "'" .$app()->getCsrfToken() . "'"  ??  'null';
+        $jsRaxmToken = "'" . $app->getCsrfToken() . "'"  ??  'null';
 
         // Added nonce variable to store the nonce value if it is set in the options array. 
         $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
@@ -115,46 +115,9 @@ class RaxmManager
             {$assetWarning}
             <script type="module" src="{$fullAssetPath}" {$nonce}></script>
             <script>
-                window.raxm = new Raxm({$jsonEncodedOptions});
-                window.Raxm = window.raxm;
                 window.raxm_app_url = '{$appUrl}';
                 window.raxm_token = {$jsRaxmToken};
             </script>
         HTML;
-    }
-
-
-    /**
-     * 
-     */
-    public static function js($expression)
-    {
-        if (is_object($expression) || is_array($expression)) {
-            $json = json_encode($expression);
-            return "JSON.parse(" . htmlspecialchars($json, ENT_QUOTES, 'UTF-8') . ")";
-        } elseif (is_string($expression)) {
-            $escapedExpression = str_replace("\"", "\\\"", $expression);
-            return "\"" . htmlspecialchars($escapedExpression, ENT_QUOTES, 'UTF-8') . "\"";
-        } else {
-            $json = json_encode($expression);
-            return htmlspecialchars($json, ENT_QUOTES, 'UTF-8');
-        }
-    }
-
-
-    /**
-     * 
-     */
-    public function cssStyle($includeStyleTag = true)
-    {
-    }
-
-
-    /**
-     * 
-     */
-    protected static function minify(string $string): string
-    {
-        return preg_replace('/\s+/', '', $string);
     }
 }
