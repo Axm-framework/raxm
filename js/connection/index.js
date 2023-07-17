@@ -38,7 +38,7 @@ export default class Connection {
         }
 
         // let url = store.findComponent(3383).path;
-        let url = '/axmapp';
+        let url = window.raxm_app_url;
 
         // Forward the query string for the ajax requests.
         fetch(

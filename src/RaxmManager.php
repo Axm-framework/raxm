@@ -95,6 +95,9 @@ class RaxmManager
         $app->config()->load(APP_PATH . '/Config/Raxm.php');
         $assetUrl = $app->config()->get('asset_url');
         $fileName = $app->config()->get('fileName');
+        $app_url  = $app->config()->get('app_url');
+
+        $jsRaxmToken = "'" .$app()->getCsrfToken() . "'"  ??  'null';
 
         // Added nonce variable to store the nonce value if it is set in the options array. 
         $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
@@ -111,6 +114,12 @@ class RaxmManager
         return <<<HTML
             {$assetWarning}
             <script type="module" src="{$fullAssetPath}" {$nonce}></script>
+            <script>
+                window.raxm = new Raxm({$jsonEncodedOptions});
+                window.Raxm = window.raxm;
+                window.raxm_app_url = '{$appUrl}';
+                window.raxm_token = {$jsRaxmToken};
+            </script>
         HTML;
     }
 
