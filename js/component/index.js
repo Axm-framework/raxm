@@ -1,10 +1,9 @@
 import Message from '../Message.js'
-import dataGet from "../util/get-value.js";
-
 import PrefetchMessage from '../PrefetchMessage.js'
+import dataGet from '../util/get-value.js';
 import dispatch from '../util/dispatch.js'
 import debounce from '../util/debounce.js'
-import raxmDirectives from '../util/raxm-directives.js'
+import raxmDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/raxm-directives.js';
 import walk from '../util/walk.js'
 import morphdom from '../dom/morphdom/index.js'
 import DOM from '../dom/dom.js'
@@ -27,14 +26,15 @@ export default class Component {
 
         this.lastFreshHtml = this.el.outerHTML
 
-        this.id = this.el.getAttribute('axm:id')
+        this.id = this.el.getAttribute(`${PREFIX_DISPLAY}id`)
 
         this.checkForMultipleRootElements()
 
         this.connection = connection
 
-        const initialData = JSON.parse(this.el.getAttribute('axm:initial-data'))
-        this.el.removeAttribute('axm:initial-data')
+        const initialData = JSON.parse(this.el.getAttribute(`${PREFIX_DISPLAY}initial-data`))
+
+        this.el.removeAttribute(`${PREFIX_DISPLAY}initial-data`)
 
         this.fingerprint = initialData.fingerprint
         this.serverMemo  = initialData.serverMemo
@@ -80,7 +80,7 @@ export default class Component {
             if (!el) return carryCount
 
             // If we see the "end" marker, we can return the number of elements in between we've seen.
-            if (el.nodeType === Node.COMMENT_NODE && el.textContent.includes(`axm-end:${this.id}`)) return carryCount
+            if (el.nodeType === Node.COMMENT_NODE && el.textContent.includes(`${PREFIX_STRING}-end:${this.id}`)) return carryCount
 
             let newlyDiscoveredEls = el.nodeType === Node.ELEMENT_NODE ? 1 : 0
 
@@ -401,11 +401,11 @@ export default class Component {
 
             getNodeKey: node => {
                 // This allows the tracking of elements by the "key" attribute, like in VueJs.
-                return node.hasAttribute(`axm:key`)
-                    ?  node.getAttribute(`axm:key`)
+                return node.hasAttribute(`${PREFIX_REGEX}key`)
+                    ?  node.getAttribute(`${PREFIX_REGEX}key`)
                     : // If no "key", then first check for "axm:id", then "id"
-                    node.hasAttribute(`axm:id`)
-                        ? node.getAttribute(`axm:id`)
+                    node.hasAttribute(`${PREFIX_DISPLAY}id`)
+                        ? node.getAttribute(`${PREFIX_REGEX}id`)
                         : node.id
             },
 
@@ -453,7 +453,7 @@ export default class Component {
                 // "to" node before doing the diff, so that the options
                 // have the proper in-memory .selected value set.
                 if (
-                    from.hasAttribute('axm:model') &&
+                    from.hasAttribute(`${PREFIX_REGEX}model`) &&
                     from.tagName.toUpperCase() === 'SELECT'
                 ) {
                     to.selectedIndex = -1
@@ -463,15 +463,16 @@ export default class Component {
 
                 // Honor the "axm:ignore" attribute or the .__raxm_ignore element property.
                 if (
-                    fromDirectives.has('ignore')   ||
-                    from.__raxm_ignore === true ||
+                    fromDirectives.has('ignore')      ||
+                    from.__raxm_ignore      === true  ||
                     from.__raxm_ignore_self === true
                 ) {
                     if (
                         (fromDirectives.has('ignore') &&
                             fromDirectives
                                 .get('ignore')
-                                .modifiers.includes('self')) ||
+                                .modifiers.includes('self')
+                        ) ||
                         from.__raxm_ignore_self === true
                     ) {
                         // Don't update children of "axm:ignore.self" attribute.
@@ -481,10 +482,8 @@ export default class Component {
                     }
                 }
 
-
-                 //REVISARRRR ESTOOO
-                // Children will update themselves.
-               // if (DOM.isComponentRootEl(from) && from.getAttribute('axm:id') !== this.id) return false
+                //Children will update themselves.
+               if (DOM.isComponentRootEl(from) && from.getAttribute(`${PREFIX_DISPLAY}id`) !== this.id) return false
 
                 
                 // Give the root Raxm "to" element, the same object reference as the "from"
@@ -502,7 +501,7 @@ export default class Component {
             },
 
             onNodeAdded: node => {
-                const closestComponentId = DOM.closestRoot(node).getAttribute('axm:id')
+                const closestComponentId = DOM.closestRoot(node).getAttribute(`${PREFIX_REGEX}id`)
 
                 if (closestComponentId === this.id) {
                     if (nodeInitializer.initialize(node, this) === false) {
@@ -533,7 +532,7 @@ export default class Component {
             }
 
             // If we encounter a nested component, skip walking that tree.
-            if (el.hasAttribute('axm:id')) {
+            if (el.hasAttribute(`${PREFIX_DISPLAY}id`)) {
                 callbackWhenNewComponentIsEncountered(el)
 
                 return false
@@ -556,7 +555,7 @@ export default class Component {
         if (!this.modelDebounceCallbacks) this.modelDebounceCallbacks = []
 
         // This is a "null" callback. Each axm:model will resister one of these upon initialization.
-        let callbackRegister = { callback: () => { } }
+        let callbackRegister = { callback: () => {} }
         this.modelDebounceCallbacks.push(callbackRegister)
 
         // This is a normal "timeout" for a debounce function.
@@ -571,7 +570,7 @@ export default class Component {
 
                 // Because we just called the callback, let's return the
                 // callback register to it's normal "null" state.
-                callbackRegister.callback = () => { }
+                callbackRegister.callback = () => {}
             }, time)
 
             // Register the current callback in the register as a kind-of "escape-hatch".
@@ -592,7 +591,7 @@ export default class Component {
         if (this.modelDebounceCallbacks) {
             this.modelDebounceCallbacks.forEach(callbackRegister => {
                 callbackRegister.callback()
-                callbackRegister.callback = () => { }
+                callbackRegister.callback = () => {}
             })
         }
 
@@ -610,9 +609,9 @@ export default class Component {
     upload(
         name,
         file,
-        finishCallback   = () => { },
-        errorCallback    = () => { },
-        progressCallback = () => { }
+        finishCallback   = () => {},
+        errorCallback    = () => {},
+        progressCallback = () => {}
     ) {
         this.uploadManager.upload(
             name,
@@ -626,9 +625,9 @@ export default class Component {
     uploadMultiple(
         name,
         files,
-        finishCallback   = () => { },
-        errorCallback    = () => { },
-        progressCallback = () => { }
+        finishCallback   = () => {},
+        errorCallback    = () => {},
+        progressCallback = () => {}
     ) {
         this.uploadManager.uploadMultiple(
             name,
@@ -642,8 +641,8 @@ export default class Component {
     removeUpload(
         name,
         tmpFilename,
-        finishCallback = () => { },
-        errorCallback  = () => { }
+        finishCallback = () => {},
+        errorCallback  = () => {}
     ) {
         this.uploadManager.removeUpload(
             name,

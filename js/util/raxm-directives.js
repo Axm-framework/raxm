@@ -1,3 +1,7 @@
+export const PREFIX_STRING  = 'axm'
+export const PREFIX_REGEX   = PREFIX_STRING + '\\:';
+export const PREFIX_DISPLAY = PREFIX_STRING + ':';
+
 export default function raxmDirectives(el) {
     return new DirectiveManager(el)
 }
@@ -27,15 +31,17 @@ class DirectiveManager {
     extractTypeModifiersAndValue() {
 
         return Array.from(this.el.getAttributeNames()
-            // Filter only the liveaxm directives.
-            .filter(name => name.match(new RegExp('axm:')))
+            // Filter only the raxm directives.
+            .filter(name => name.match(new RegExp(PREFIX_REGEX)))
             // Parse out the type, modifiers, and value from it.
             .map(name => {
-                const [type, ...modifiers] = name.replace(new RegExp('axm:'), '').split('.')
+                const [type, ...modifiers] = name.replace(new RegExp(PREFIX_REGEX), '').split('.')
 
                 return new Directive(type, modifiers, name, this.el)
-            }))
+            })
+        )
     }
+
 }
 
 class Directive {
@@ -70,7 +76,7 @@ class Directive {
     durationOr(defaultDuration) {
         let durationInMilliSeconds
         const durationInMilliSecondsString = this.modifiers.find(mod => mod.match(/([0-9]+)ms/))
-        const durationInSecondsString = this.modifiers.find(mod => mod.match(/([0-9]+)s/))
+        const durationInSecondsString      = this.modifiers.find(mod => mod.match(/([0-9]+)s/))
 
         if (durationInMilliSecondsString) {
             durationInMilliSeconds = Number(durationInMilliSecondsString.replace('ms', ''))
@@ -90,7 +96,7 @@ class Directive {
             method = methodAndParamString[1]
 
             // Use a function that returns it's arguments to parse and eval all params
-            // This "$event" is for use inside the liveaxm event handler.
+            // This "$event" is for use inside the raxm event handler.
             let func = new Function('$event', `return (function () {
                 for (var l=arguments.length, p=new Array(l), k=0; k<l; k++) {
                     p[k] = arguments[k];
@@ -105,10 +111,11 @@ class Directive {
     }
 
     cardinalDirectionOr(fallback = 'right') {
-        if (this.modifiers.includes('up')) return 'up'
-        if (this.modifiers.includes('down')) return 'down'
-        if (this.modifiers.includes('left')) return 'left'
+        if (this.modifiers.includes('up'))    return 'up'
+        if (this.modifiers.includes('down'))  return 'down'
+        if (this.modifiers.includes('left'))  return 'left'
         if (this.modifiers.includes('right')) return 'right'
+        
         return fallback
     }
 }

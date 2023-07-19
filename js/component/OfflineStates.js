@@ -11,7 +11,7 @@ export default function () {
     })
 
     window.addEventListener('offline', () => {
-        store.axmIsOffline = true
+        store.raxmIsOffline = true
 
         offlineEls.forEach(el => {
             toggleOffline(el, true)
@@ -19,7 +19,7 @@ export default function () {
     })
 
     window.addEventListener('online', () => {
-        store.axmIsOffline = false
+        store.raxmIsOffline = false
 
         offlineEls.forEach(el => {
             toggleOffline(el, false)

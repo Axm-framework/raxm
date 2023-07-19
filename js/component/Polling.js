@@ -50,7 +50,7 @@ function fireActionOnInterval(node, component) {
 
         // Don't poll when the tab is in the background.
         // (unless the "axm:poll.keep-alive" modifier is attached)
-        if (store.axmIsInBackground && !directive.modifiers.includes('keep-alive')) {
+        if (store.raxmIsInBackground && !directive.modifiers.includes('keep-alive')) {
             // This "Math.random" business effectivlly prevents 95% of requests
             // from executing. We still want "some" requests to get through.
             if (Math.random() < .95) return
@@ -63,7 +63,7 @@ function fireActionOnInterval(node, component) {
         }
 
         // Don't poll if liveaxm is offline as well.
-        if (store.axmIsOffline) return
+        if (store.raxmIsOffline) return
 
         component.addAction(new MethodAction(method, directive.params, node))
     }, interval);

@@ -1,7 +1,6 @@
 import { kebabCase } from './util/index.js'
 import debounce from './util/debounce.js'
-import raxmDirectives from './util/raxm-directives.js'
-
+import raxmDirectives, { PREFIX_REGEX } from './util/raxm-directives.js';
 import ModelAction from './action/model.js'
 import DeferredModelAction from './action/deferred-model.js'
 import MethodAction from './action/method.js'
@@ -16,15 +15,15 @@ export default {
         }
 
         raxmDirectives(el).all().forEach(directive => {
-
             switch (directive.type) {
                 case 'init':
                     this.fireActionRightAway(el, directive, component)
                     break
 
                 case 'model':
+                    
                     if (!directive.value) {
-                        console.warn('Raxm: [axm:model] is missing a value.', el)
+                        console.warn(`Raxm: [${PREFIX_REGEX}:model] is missing a value.`, el)
                         break
                     }
 
@@ -112,7 +111,7 @@ export default {
         // a user "autofills" a axm:model(.lazy) field. So we are
         // firing them manually for assurance.
         isSafari && el.addEventListener('animationstart', e => {
-            if (e.animationName !== 'axmautofill') return
+            if (e.animationName !== 'raxmautofill') return
 
             e.target.dispatchEvent(new Event('change', { bubbles: true }))
             e.target.dispatchEvent(new Event('input',  { bubbles: true }))

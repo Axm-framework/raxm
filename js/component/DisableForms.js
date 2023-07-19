@@ -1,5 +1,5 @@
 import store from '../Store.js'
-import raxmDirectives from '../util/raxm-directives.js'
+import raxmDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
 
 let cleanupStackByComponentId = {}
 
@@ -18,8 +18,8 @@ export default function () {
             component.walk(node => {
                 if (!el.contains(node)) return
 
-                if (node.hasAttribute('axm:ignore')) return false
-
+                if (node.hasAttribute(`${PREFIX_REGEX}ignore`)) return false
+                
                 if (
                     // <button type="submit">
                     (node.tagName.toLowerCase() === 'button' &&
@@ -53,7 +53,7 @@ export default function () {
         })
     })
 
-    store.registerHook('message.failed', (message, component) => cleanup(component))
+    store.registerHook('message.failed',   (message, component) => cleanup(component))
     store.registerHook('message.received', (message, component) => cleanup(component))
 }
 

@@ -1,7 +1,5 @@
-import raxmDirectives from '../util/raxm-directives.js'
+import raxmDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
 import get from "../util/get-value.js";
-// import get from "../util/raxm-directives.js";
-
 import store from '../Store.js'
 
 /**
@@ -11,7 +9,7 @@ import store from '../Store.js'
  */
 export default {
     rootComponentElements() {
-        return Array.from(document.querySelectorAll(`[axm\\:id]`))
+        return Array.from(document.querySelectorAll(`[${PREFIX_REGEX}id]`))
     },
 
     rootComponentElementsWithNoParents(node = null) {
@@ -25,18 +23,18 @@ export default {
         // have a root ancestor, then select all roots that DONT, then diff the two.
 
         // Convert NodeLists to Arrays so we can use ".includes()". Ew.
-        const allEls = Array.from(node.querySelectorAll(`[axm\\:initial-data]`))
-        const onlyChildEls = Array.from(node.querySelectorAll(`[axm\\:initial-data] [axm\\:initial-data]`))
+        const allEls = Array.from(node.querySelectorAll(`[${PREFIX_REGEX}initial-data]`))
+        const onlyChildEls = Array.from(node.querySelectorAll(`[${PREFIX_REGEX}initial-data] [${PREFIX_REGEX}initial-data]`))
 
         return allEls.filter(el => !onlyChildEls.includes(el))
     },
 
     allModelElementsInside(root) {
-        return Array.from(root.querySelectorAll(`[axm\\:model]`))
+        return Array.from(root.querySelectorAll(`[${PREFIX_REGEX}model]`))
     },
 
     getByAttributeAndValue(attribute, value) {
-        return document.querySelector(`[axm\\:${attribute}="${value}"]`)
+        return document.querySelector(`[${PREFIX_REGEX}${attribute}="${value}"]`)
     },
 
     nextFrame(fn) {
@@ -50,14 +48,14 @@ export default {
     },
 
     closestByAttribute(el, attribute) {
-        const closestEl = el.closest(`[axm\\:${attribute}]`)
+        const closestEl = el.closest(`[${PREFIX_REGEX}${attribute}]`)
 
         if (!closestEl) {
             throw `
-    Liveaxm Error:\n
-    Cannot find parent element in DOM tree containing attribute: [axm:${attribute}].\n
-    Usually this is caused by Liveaxm's DOM-differ not being able to properly track changes.\n
-    Reference the following guide for common causes: https://axm-liveaxm.com/docs/troubleshooting \n
+   Raxm Error:\n
+    Cannot find parent element in DOM tree containing attribute: [${PREFIX_REGEX}${attribute}].\n
+    Usually this is caused by Raxm's DOM-differ not being able to properly track changes.\n
+    Reference the following guide for common causes: https://axm-raxm.com/docs/troubleshooting \n
     Referenced element:\n
             ${el.outerHTML}`
         }
@@ -70,19 +68,19 @@ export default {
     },
 
     hasAttribute(el, attribute) {
-        return el.hasAttribute(`axm:${attribute}`)
+        return el.hasAttribute(`${PREFIX_REGEX}${attribute}`)
     },
 
     getAttribute(el, attribute) {
-        return el.getAttribute(`axm:${attribute}`)
+        return el.getAttribute(`${PREFIX_REGEX}${attribute}`)
     },
 
     removeAttribute(el, attribute) {
-        return el.removeAttribute(`axm:${attribute}`)
+        return el.removeAttribute(`${PREFIX_REGEX}${attribute}`)
     },
 
     setAttribute(el, attribute, value) {
-        return el.setAttribute(`axm:${attribute}`, value)
+        return el.setAttribute(`${PREFIX_REGEX}${attribute}`, value)
     },
 
     hasFocus(el) {
@@ -98,7 +96,7 @@ export default {
     isTextInput(el) {
         return (
             ['INPUT', 'TEXTAREA'].includes(el.tagName.toUpperCase()) &&
-            !['checkbox', 'radio'].includes(el.type)
+           !['checkbox', 'radio'].includes(el.type)
         )
     },
 

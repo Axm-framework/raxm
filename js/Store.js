@@ -2,13 +2,14 @@ import EventAction from './action/event.js'
 import HookManager from './HookManager.js'
 import MessageBus  from './MessageBus.js'
 import DirectiveManager from './DirectiveManager.js'
+import { PREFIX_REGEX } from './util/raxm-directives.js';
 
 const store = {
     componentsById: {},
     listeners: new MessageBus(),
     initialRenderIsFinished: false,
-    axmIsInBackground: false,
-    axmIsOffline: false,
+    raxmIsInBackground: false,
+    raxmIsOffline: false,
     sessionHasExpired: false,
     sessionHasExpiredCallback: undefined,
     directives: DirectiveManager,
@@ -87,12 +88,12 @@ const store = {
     componentsListeningForEventThatAreTreeAncestors(el, event) {
         var parentIds = []
 
-        var parent = el.parentElement.closest('[axm\\:id]')
+        var parent = el.parentElement.closest(`[${PREFIX_REGEX}id]`)
 
         while (parent) {
-            parentIds.push(parent.getAttribute('axm:id'))
+            parentIds.push(parent.getAttribute(`${PREFIX_REGEX}id`))
 
-            parent = parent.parentElement.closest('[axm\\:id]')
+            parent = parent.parentElement.closest(`[${PREFIX_REGEX}id]`)
         }
 
         return this.components().filter(component => {

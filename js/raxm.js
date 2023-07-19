@@ -98,7 +98,7 @@ class Raxm {
         document.addEventListener(
             'visibilitychange',
             () => {
-                this.components.RaxmIsInBackground = document.hidden
+                this.components.RraxmIsInBackground = document.hidden
             },
             false
         )
