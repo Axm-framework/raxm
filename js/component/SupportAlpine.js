@@ -5,15 +5,15 @@ export default function () {
     window.addEventListener('axm:load', () => {
         if (!window.Alpine) return
 
-        refreshAlpineAfterEveryAxmRequest()
+        refreshAlpineAfterEveryRaxmRequest()
 
-        addDollarSignAxm()
+        addDollarSignRaxm()
 
         supportEntangle()
     })
 }
 
-function refreshAlpineAfterEveryAxmRequest() {
+function refreshAlpineAfterEveryRaxmRequest() {
     if (isV3()) {
         store.registerHook('message.processed', (message, axmComponent) => {
             walk(axmComponent.el, el => {
@@ -40,19 +40,19 @@ function refreshAlpineAfterEveryAxmRequest() {
     })
 }
 
-function addDollarSignAxm() {
+function addDollarSignRaxm() {
     if (isV3()) {
         window.Alpine.magic('axm', function (el) {
             let axmEl = el.closest('[axm\\:id]')
 
             if (!axmEl)
                 console.warn(
-                    'Alpine: Cannot reference "$axm" outside a Axm component.'
+                    'Alpine: Cannot reference "$raxm" outside a Raxm component.'
                 )
 
             let component = axmEl.__axm
 
-            return component.$axm
+            return component.$raxm
         })
         return
     }
@@ -64,12 +64,12 @@ function addDollarSignAxm() {
 
         if (!axmEl)
             console.warn(
-                'Alpine: Cannot reference "$axm" outside a Axm component.'
+                'Alpine: Cannot reference "$raxm" outside a Raxm component.'
             )
 
         let component = axmEl.__axm
 
-        return component.$axm
+        return component.$raxm
     })
 }
 
@@ -89,37 +89,37 @@ function supportEntangle() {
                         typeof value === 'object' &&
                         value.axmEntangle
                     ) {
-                        // Ok, it looks like someone set an Alpine property to $axm.entangle or @entangle.
+                        // Ok, it looks like someone set an Alpine property to $raxm.entangle or @entangle.
                         let axmProperty = value.axmEntangle
                         let isDeferred = value.isDeferred
                         let axmComponent = axmEl.__axm
 
                         let axmPropertyValue = axmEl.__axm.get(axmProperty)
 
-                        // Check to see if the Axm property exists and if not log a console error
+                        // Check to see if the Raxm property exists and if not log a console error
                         // and return so everything else keeps running.
                         if (typeof axmPropertyValue === 'undefined') {
-                            console.error(`Axm Entangle Error: Axm property '${axmProperty}' cannot be found`)
+                            console.error(`Raxm Entangle Error: Raxm property '${axmProperty}' cannot be found`)
                             return
                         }
 
-                        // Let's set the initial value of the Alpine prop to the Axm prop's value.
+                        // Let's set the initial value of the Alpine prop to the Raxm prop's value.
                         component.unobservedData[key]
                             // We need to stringify and parse it though to get a deep clone.
                             = JSON.parse(JSON.stringify(axmPropertyValue))
 
                         let blockAlpineWatcher = false
 
-                        // Now, we'll watch for changes to the Alpine prop, and fire the update to Axm.
+                        // Now, we'll watch for changes to the Alpine prop, and fire the update to Raxm.
                         component.unobservedData.$watch(key, value => {
-                            // Let's also make sure that this watcher isn't a result of a Axm response.
-                            // If it is, we don't need to "re-update" Axm. (sending an extra useless) request.
+                            // Let's also make sure that this watcher isn't a result of a Raxm response.
+                            // If it is, we don't need to "re-update" Raxm. (sending an extra useless) request.
                             if (blockAlpineWatcher === true) {
                                 blockAlpineWatcher = false
                                 return
                             }
 
-                            // If the Alpine value is the same as the Axm value, we'll skip the update for 2 reasons:
+                            // If the Alpine value is the same as the Raxm value, we'll skip the update for 2 reasons:
                             // - It's just more efficient, why send needless requests.
                             // - This prevents a circular dependancy with the other watcher below.
                             // - Due to the deep clone using stringify, we need to do the same here to compare.
@@ -132,24 +132,24 @@ function supportEntangle() {
                                 )
                             ) return
 
-                            // We'll tell Axm to update the property, but we'll also tell Axm
+                            // We'll tell Raxm to update the property, but we'll also tell Raxm
                             // to not call the normal property watchers on the way back to prevent another
                             // circular dependancy.
                             axmComponent.set(
                                 axmProperty,
                                 value,
                                 isDeferred,
-                                // Block firing of Axm watchers for this data key when the request comes back.
+                                // Block firing of Raxm watchers for this data key when the request comes back.
                                 // Unless it is deferred, in which cause we don't know if the state will be the same, so let it run.
                                 isDeferred ? false : true
                             )
                         })
 
-                        // We'll also listen for changes to the Axm prop, and set them in Alpine.
+                        // We'll also listen for changes to the Raxm prop, and set them in Alpine.
                         axmComponent.watch(
                             axmProperty,
                             value => {
-                                // Ensure data is deep cloned otherwise Alpine mutates Axm data
+                                // Ensure data is deep cloned otherwise Alpine mutates Raxm data
                                 component.$data[key] = typeof value !== 'undefined' ? JSON.parse(JSON.stringify(value)) : value
                             }
                         )
@@ -169,21 +169,21 @@ export function getEntangleFunction(component) {
             let axmPropertyValue = component.get(axmProperty)
 
             let interceptor = Alpine.interceptor((initialValue, getter, setter, path, key) => {
-                // Check to see if the Axm property exists and if not log a console error
+                // Check to see if the Raxm property exists and if not log a console error
                 // and return so everything else keeps running.
                 if (typeof axmPropertyValue === 'undefined') {
-                    console.error(`Axm Entangle Error: Axm property '${axmProperty}' cannot be found`)
+                    console.error(`Raxm Entangle Error: Raxm property '${axmProperty}' cannot be found`)
                     return
                 }
 
-                // Let's set the initial value of the Alpine prop to the Axm prop's value.
+                // Let's set the initial value of the Alpine prop to the Raxm prop's value.
                 let value
                     // We need to stringify and parse it though to get a deep clone.
                     = JSON.parse(JSON.stringify(axmPropertyValue))
 
                 setter(value)
 
-                // Now, we'll watch for changes to the Alpine prop, and fire the update to Axm.
+                // Now, we'll watch for changes to the Alpine prop, and fire the update to Raxm.
                 window.Alpine.effect(() => {
                     let value = getter()
 
@@ -196,24 +196,24 @@ export function getEntangleFunction(component) {
                         )
                     ) return
 
-                    // We'll tell Axm to update the property, but we'll also tell Axm
+                    // We'll tell Raxm to update the property, but we'll also tell Raxm
                     // to not call the normal property watchers on the way back to prevent another
                     // circular dependancy.
                     axmComponent.set(
                         axmProperty,
                         value,
                         isDeferred,
-                        // Block firing of Axm watchers for this data key when the request comes back.
+                        // Block firing of Raxm watchers for this data key when the request comes back.
                         // Unless it is deferred, in which cause we don't know if the state will be the same, so let it run.
                         isDeferred ? false : true
                     )
                 })
 
-                // We'll also listen for changes to the Axm prop, and set them in Alpine.
+                // We'll also listen for changes to the Raxm prop, and set them in Alpine.
                 axmComponent.watch(
                     axmProperty,
                     value => {
-                        // Ensure data is deep cloned otherwise Alpine mutates Axm data
+                        // Ensure data is deep cloned otherwise Alpine mutates Raxm data
                         window.Alpine.disableEffectScheduling(() => {
                             setter(typeof value !== 'undefined' ? JSON.parse(JSON.stringify(value)) : value)
                         })
@@ -253,7 +253,7 @@ export function alpinifyElementsForMorphdom(from, to) {
     // If the element we are updating is an Alpine component...
     if (from.__x) {
         // Then temporarily clone it (with it's data) to the "to" element.
-        // This should simulate backend Axm being aware of Alpine changes.
+        // This should simulate backend Raxm being aware of Alpine changes.
         window.Alpine.clone(from.__x, to)
     }
 
@@ -267,7 +267,7 @@ export function alpinifyElementsForMorphdom(from, to) {
             // This covers @entangle('something')
             from.skipElUpdatingButStillUpdateChildren = true
         } else {
-            // This covers x-show="$axm.something"
+            // This covers x-show="$raxm.something"
             //
             // If the element has x-show, we need to "reverse" the damage done by "clone",
             // so that if/when the element has a transition on it, it will occur naturally.
@@ -290,7 +290,7 @@ function alpinifyElementsForMorphdomV3(from, to) {
     // If the element we are updating is an Alpine component...
     if (from._x_dataStack) {
         // Then temporarily clone it (with it's data) to the "to" element.
-        // This should simulate backend Axm being aware of Alpine changes.
+        // This should simulate backend Raxm being aware of Alpine changes.
         window.Alpine.clone(from, to)
     }
 }

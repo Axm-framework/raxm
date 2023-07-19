@@ -1,11 +1,11 @@
 import store from '../Store.js'
-import axmDirectives from '../util/axm-directives.js'
+import raxmDirectives from '../util/raxm-directives.js'
 
 let cleanupStackByComponentId = {}
 
 export default function () {
     store.registerHook('element.initialized', (el, component) => {
-        let directives = axmDirectives(el)
+        let directives = raxmDirectives(el)
 
         if (directives.missing('submit')) return
 

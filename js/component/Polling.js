@@ -1,10 +1,10 @@
 import MethodAction from '../action/method.js'
-import axmDirectives from '../util/axm-directives.js'
+import raxmDirectives from '../util/raxm-directives.js'
 import store from '../Store.js'
 
 export default function () {
     store.registerHook('element.initialized', (el, component) => {
-        let directives = axmDirectives(el)
+        let directives = raxmDirectives(el)
 
         if (directives.missing('poll')) return
 
@@ -20,7 +20,7 @@ export default function () {
     store.registerHook('element.updating', (from, to, component) => {
         if (from.__axm_polling_interval !== undefined) return
 
-        if (axmDirectives(from).missing('poll') && axmDirectives(to).has('poll')) {
+        if (raxmDirectives(from).missing('poll') && raxmDirectives(to).has('poll')) {
             setTimeout(() => {
                 let intervalId = fireActionOnInterval(from, component)
 
@@ -35,12 +35,12 @@ export default function () {
 }
 
 function fireActionOnInterval(node, component) {
-    let interval = axmDirectives(node).get('poll').durationOr(2000);
+    let interval = raxmDirectives(node).get('poll').durationOr(2000);
 
     return setInterval(() => {
         if (node.isConnected === false) return
 
-        let directives = axmDirectives(node)
+        let directives = raxmDirectives(node)
 
         // Don't poll when directive is removed from element.
         if (directives.missing('poll')) return

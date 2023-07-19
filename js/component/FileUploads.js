@@ -1,7 +1,7 @@
 import store from '../Store.js'
 
 export default function () {
-    store.registerHook('interceptAxmModelAttachListener', (directive, el, component) => {
+    store.registerHook('interceptRaxmModelAttachListener', (directive, el, component) => {
         if (! (el.tagName.toLowerCase() === 'input' && el.type === 'file')) return
 
         let start  = () => el.dispatchEvent(new CustomEvent('axm-upload-start', { bubbles: true }))

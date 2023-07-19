@@ -18,8 +18,8 @@ export default {
         /**
          * Private Hooks
          */
-        'interceptAxmModelSetValue',
-        'interceptAxmModelAttachListener',
+        'interceptRaxmModelSetValue',
+        'interceptRaxmModelAttachListener',
         'beforeReplaceState',
         'beforePushState',
     ],
@@ -28,7 +28,7 @@ export default {
 
     register(name, callback) {
         if (! this.availableHooks.includes(name)) {
-            throw `Axm: Referencing unknown hook: [${name}]`
+            throw `Raxm: Referencing unknown hook: [${name}]`
         }
 
         this.bus.register(name, callback)

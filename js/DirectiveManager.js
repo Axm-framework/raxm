@@ -5,7 +5,7 @@ export default {
 
     register(name, callback) {
         if (this.has(name)) {
-            throw `Axm: Directive already registered: [${name}]`
+            throw `Raxm: Directive already registered: [${name}]`
         }
 
         this.directives.register(name, callback)

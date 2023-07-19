@@ -4,7 +4,7 @@ import dataGet from "../util/get-value.js";
 import PrefetchMessage from '../PrefetchMessage.js'
 import dispatch from '../util/dispatch.js'
 import debounce from '../util/debounce.js'
-import axmDirectives from '../util/axm-directives.js'
+import raxmDirectives from '../util/raxm-directives.js'
 import walk from '../util/walk.js'
 import morphdom from '../dom/morphdom/index.js'
 import DOM from '../dom/dom.js'
@@ -17,8 +17,6 @@ import ModelAction from '../action/model.js'
 import DeferredModelAction from '../action/deferred-model.js'
 import MessageBus from '../MessageBus.js'
 import { alpinifyElementsForMorphdom, getEntangleFunction } from './SupportAlpine.js'
-
-import { compareNodeNames, createElementNS, doc, moveChildren, toElement } from '../dom/morphdom/util.js';
 
 export default class Component {
 
@@ -90,7 +88,7 @@ export default class Component {
         }
 
         if (countElementsBeforeMarker(this.el.nextSibling) > 0) {
-            console.warn(`Axm: Multiple root elements detected. This is not supported. See docs for more information https://laravel-Raxm.com/docs/2.x/troubleshooting#root-element-issues`, this.el)
+            console.warn(`Raxm: Multiple root elements detected. This is not supported. See docs for more information https://laravel-Raxm.com/docs/2.x/troubleshooting#root-element-issues`, this.el)
         }
     }
 
@@ -372,7 +370,7 @@ export default class Component {
 
     forceRefreshDataBoundElementsMarkedAsDirty(dirtyInputs) {
         this.walk(el => {
-            let directives = axmDirectives(el)
+            let directives = raxmDirectives(el)
             if (directives.missing('model')) return
 
             const modelValue = directives.get('model').value
@@ -461,7 +459,7 @@ export default class Component {
                     to.selectedIndex = -1
                 }
 
-                let fromDirectives = axmDirectives(from)
+                let fromDirectives = raxmDirectives(from)
 
                 // Honor the "axm:ignore" attribute or the .__raxm_ignore element property.
                 if (
@@ -490,7 +488,7 @@ export default class Component {
 
                 
                 // Give the root Raxm "to" element, the same object reference as the "from"
-                // element. This ensures new Alpine magics like $axm and @entangle can
+                // element. This ensures new Alpine magics like $raxm and @entangle can
                 // initialize in the context of a real Raxm component object.
                 if (DOM.isComponentRootEl(from)) to.__raxm = this
 
@@ -655,7 +653,7 @@ export default class Component {
         )
     }
 
-    get $axm() {
+    get $raxm() {
         if (this.dollaraxmProxy) return this.dollaraxmProxy
 
         let refObj = {}

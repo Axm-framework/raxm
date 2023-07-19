@@ -6,7 +6,7 @@ export default function () {
             component.listeners.forEach(event => {
                 if (event.startsWith('echo')) {
                     if (typeof Echo === 'undefined') {
-                        console.warn('Axm Echo cannot be found')
+                        console.warn('Raxm Echo cannot be found')
                         return
                     }
 

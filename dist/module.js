@@ -1,3 +1,3 @@
-import Axm from './../js/index.js'
+import Raxm from './../js/raxm.js'
 
-export default Axm
+export default Raxm

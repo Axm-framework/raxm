@@ -1,6 +1,6 @@
 import { kebabCase } from './util/index.js'
 import debounce from './util/debounce.js'
-import axmDirectives from './util/axm-directives.js'
+import raxmDirectives from './util/raxm-directives.js'
 
 import ModelAction from './action/model.js'
 import DeferredModelAction from './action/deferred-model.js'
@@ -15,7 +15,7 @@ export default {
             return false
         }
 
-        axmDirectives(el).all().forEach(directive => {
+        raxmDirectives(el).all().forEach(directive => {
 
             switch (directive.type) {
                 case 'init':
@@ -24,7 +24,7 @@ export default {
 
                 case 'model':
                     if (!directive.value) {
-                        console.warn('Axm: [axm:model] is missing a value.', el)
+                        console.warn('Raxm: [axm:model] is missing a value.', el)
                         break
                     }
 
@@ -59,7 +59,7 @@ export default {
 
     attachModelListener(el, directive, component) {
         // This is used by morphdom: morphdom.js:391
-        el.isAxmModel = true
+        el.isRaxmModel = true
 
         const isLazy = directive.modifiers.includes('lazy')
         const debounceIf = (condition, callback, time) => {
@@ -69,7 +69,7 @@ export default {
         }
         const hasDebounceModifier = directive.modifiers.includes('debounce')
 
-        store.callHook('interceptAxmModelAttachListener', directive, el, component)
+        store.callHook('interceptRaxmModelAttachListener', directive, el, component)
 
         // File uploads are handled by UploadFiles.js.
         if (el.tagName.toLowerCase() === 'input' && el.type === 'file') return

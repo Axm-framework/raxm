@@ -1,7 +1,7 @@
-import Axm from './../js/index.js'
+import Raxm from './../js/raxm.js'
 
-window.Axm = new Axm()
+window.Raxm = new Raxm()
 
-queueMicrotask(() => {
-    window.Axm.start()
+document.addEventListener("DOMContentLoaded", () => {
+    window.Raxm.start();
 })
