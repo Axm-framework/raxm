@@ -1,6 +1,6 @@
 import { kebabCase } from './util/index.js'
 import debounce from './util/debounce.js'
-import getDirectives, { PREFIX_REGEX } from './util/raxm-directives.js';
+import getDirectives, { PREFIX_REGEX } from './util/directives.js';
 import ModelAction from './action/model.js'
 import DeferredModelAction from './action/deferred-model.js'
 import MethodAction from './action/method.js'

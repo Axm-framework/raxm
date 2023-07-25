@@ -3,7 +3,7 @@ import PrefetchMessage from '../PrefetchMessage.js'
 import dataGet from '../util/get-value.js';
 import dispatch from '../util/dispatch.js'
 import debounce from '../util/debounce.js'
-import getDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/raxm-directives.js';
+import getDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/directives.js';
 import walk from '../util/walk.js'
 import morphdom from '../dom/morphdom/index.js'
 import DOM from '../dom/dom.js'

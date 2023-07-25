@@ -1,6 +1,6 @@
 import store from '../Store.js'
 import DOM from '../dom/dom.js'
-import getDirectives from '../util/raxm-directives.js'
+import getDirectives from '../util/directives.js'
 
 export default function () {
     store.registerHook('component.initialized', component => {

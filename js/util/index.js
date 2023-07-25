@@ -1,6 +1,6 @@
 
 import debounce from './debounce.js'
-import getDirectives from './raxm-directives.js'
+import getDirectives from './directives.js'
 import walk from './walk.js'
 import dispatch from './dispatch.js'
 import getCsrfToken from './getCsrfToken.js'

@@ -1,4 +1,4 @@
-import getDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
+import getDirectives, { PREFIX_REGEX } from '../util/directives.js';
 import get from "../util/get-value.js";
 import store from '../Store.js'
 

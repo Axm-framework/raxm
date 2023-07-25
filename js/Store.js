@@ -2,7 +2,7 @@ import EventAction from './action/event.js'
 import HookManager from './HookManager.js'
 import MessageBus  from './MessageBus.js'
 import DirectiveManager from './DirectiveManager.js'
-import { PREFIX_REGEX } from './util/raxm-directives.js';
+import { PREFIX_REGEX } from './util/directives.js';
 
 const store = {
     componentsById: {},

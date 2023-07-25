@@ -5,7 +5,7 @@ import Connection from './connection/index.js'
 import Polling from './component/Polling.js'
 import Component from './component/index.js'
 import dispatch from './util/dispatch.js'
-import getDirectives from './util/raxm-directives.js'
+import getDirectives from './util/directives.js'
 
 import FileUploads from './component/FileUploads.js'
 import LaravelEcho from './component/LaravelEcho.js'

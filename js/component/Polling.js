@@ -1,5 +1,5 @@
 import MethodAction from '../action/method.js'
-import getDirectives from '../util/raxm-directives.js'
+import getDirectives from '../util/directives.js'
 import store from '../Store.js'
 
 export default function () {

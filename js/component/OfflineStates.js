@@ -1,5 +1,5 @@
 import store from '../Store.js'
-import getDirectives from '../util/raxm-directives.js'
+import getDirectives from '../util/directives.js'
 
 var offlineEls = [];
 

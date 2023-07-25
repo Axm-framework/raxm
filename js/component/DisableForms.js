@@ -1,5 +1,5 @@
 import store from '../Store.js'
-import getDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
+import getDirectives, { PREFIX_REGEX } from '../util/directives.js';
 
 let cleanupStackByComponentId = {}
 
