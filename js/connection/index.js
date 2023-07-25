@@ -1,5 +1,4 @@
-import store from '../Store.js'
-import componentStore from '../Store.js'
+import store, { componentStore } from '../Store.js'
 import getCsrfToken from '../util/getCsrfToken.js'
 import { showHtmlModal } from '../util/modal.js'
 
@@ -40,64 +39,70 @@ export default class Connection {
 
         let url = window.raxm_app_url;
 
-        // Forward the query string for the ajax requests.
-        fetch(
+        try {
+            
+            const response = await fetch(
 
-            `${url}/${payload.fingerprint.name}`,
-            {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                // This enables "cookies".
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'text/html, application/xhtml+xml',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-Axm': true,
+                `${url}/${payload.fingerprint.name}`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    // This enables "cookies".
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/html, application/xhtml+xml',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-Axm': true,
 
-                    // set Custom Headers
-                    ...(this.headers),
+                        // set Custom Headers
+                        ...(this.headers),
 
-                    // We'll set this explicitly to mitigate potential interference from ad-blockers/etc.
-                    'Referer': window.location.href,
-                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
-                    ...(socketId  && { 'X-Socket-ID' : socketId  })
-                },
-            }
-        )
-            .then(response => {
-                if (response.ok) {
-                    response.text().then(response => {
-                        if (this.isOutputFromDump(response)) {
-                            this.onError(message)
-                            showHtmlModal(response)
-                        } else {
-
-                            this.onMessage(message, JSON.parse(response))
-
-                        }
-                    })
-                } else {
-                    if (this.onError(message, response.status, response) === false) return
-
-                    if (response.status === 419) {
-                        if (store.sessionHasExpired) return
-
-                        store.sessionHasExpired = true
-
-                        this.showExpiredMessage(response, message)
-                    } else {
-                        response.text().then(response => {
-                            showHtmlModal(response)
-                        })
-                    }
+                        // We'll set this explicitly to mitigate potential interference from ad-blockers/etc.
+                        'Referer': window.location.href,
+                        ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken }),
+                        ...(socketId  && { 'X-Socket-ID' : socketId  })
+                    },
                 }
-            })
-            .catch(() => {
-                this.onError(message)
-            })
+            )
+
+            if (response.ok) {
+                const responseText = await response.text();
+              
+                if (this.isOutputFromDump(responseText)) {
+                    this.onError(message);
+                    showHtmlModal(responseText);
+                } else {
+                    this.onMessage(message, JSON.parse(responseText));
+                }
+
+            } else {
+                await this.handleErrorResponse(response, message);
+            }
+
+        } catch (error) {
+            this.onError(message)
+        }
     }
 
+    async handleErrorResponse(response, message) {
+        const { status }    = response;
+        const responseBody  = await response.text();
+        const onErrorResult = this.componentStore.onErrorCallback(status, responseBody);
+      
+        if (onErrorResult === false) return;
+    
+        if (status === 419) {
+            if (this.store.sessionHasExpired) return;
+    
+            this.store.sessionHasExpired = true;
+            this.showExpiredMessage(response, message);
+
+        } else {
+            showHtmlModal(responseBody);
+        }
+    }
+    
     isOutputFromDump(output) {
         return !!output.match(/<script>Sfdump\(".+"\)<\/script>/)
     }
