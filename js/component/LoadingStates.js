@@ -1,5 +1,5 @@
 import store from '../Store.js'
-import raxmDirectives from '../util/raxm-directives.js'
+import getDirectives from '../util/raxm-directives.js'
 
 export default function () {
     store.registerHook('component.initialized', component => {
@@ -10,7 +10,7 @@ export default function () {
     })
 
     store.registerHook('element.initialized', (el, component) => {
-        let directives = raxmDirectives(el)
+        let directives = getDirectives(el)
 
         if (directives.missing('loading')) return
 
@@ -89,7 +89,7 @@ function processLoadingDirective(component, el, directive) {
 
     var actionNames = false
 
-    let directives = raxmDirectives(el)
+    let directives = getDirectives(el)
 
     if (directives.get('target')) {
         let target = directives.get('target')
@@ -107,7 +107,7 @@ function processLoadingDirective(component, el, directive) {
     } else {
         // If there is no axm:target, let's check for the existance of a axm:click="foo" or something,
         // and automatically scope this loading directive to that action.
-        const nonActionOrModelLiveraxmDirectives = [
+        const nonActionOrModelLivegetDirectives = [
             'init',
             'dirty',
             'offline',
@@ -121,7 +121,7 @@ function processLoadingDirective(component, el, directive) {
 
         actionNames = directives
             .all()
-            .filter(i => !nonActionOrModelLiveraxmDirectives.includes(i.type))
+            .filter(i => !nonActionOrModelLivegetDirectives.includes(i.type))
             .map(i => i.method)
 
         // If we found nothing, just set the loading directive to the global component. (run on every request)

@@ -5,7 +5,7 @@ import Connection from './connection/index.js'
 import Polling from './component/Polling.js'
 import Component from './component/index.js'
 import dispatch from './util/dispatch.js'
-import raxmDirectives from './util/raxm-directives.js'
+import getDirectives from './util/raxm-directives.js'
 
 import FileUploads from './component/FileUploads.js'
 import LaravelEcho from './component/LaravelEcho.js'
@@ -108,7 +108,7 @@ class Raxm {
 
     rescan(node = null) {
         DOM.rootComponentElementsWithNoParents(node).forEach(el => {
-            const componentId = raxmDirectives(el).get('id').value
+            const componentId = getDirectives(el).get('id').value
 
             if (this.components.hasComponent(componentId)) return
 

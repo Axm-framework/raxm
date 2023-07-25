@@ -1,11 +1,11 @@
 import store from '../Store.js'
-import raxmDirectives from '../util/raxm-directives.js'
+import getDirectives from '../util/raxm-directives.js'
 
 var offlineEls = [];
 
 export default function () {
     store.registerHook('element.initialized', el => {
-        if (raxmDirectives(el).missing('offline')) return
+        if (getDirectives(el).missing('offline')) return
 
         offlineEls.push(el)
     })
@@ -32,7 +32,7 @@ export default function () {
 }
 
 function toggleOffline(el, isOffline) {
-    let directives = raxmDirectives(el)
+    let directives = getDirectives(el)
     let directive = directives.get('offline')
 
     if (directive.modifiers.includes('class')) {

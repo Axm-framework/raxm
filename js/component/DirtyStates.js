@@ -1,6 +1,6 @@
 import store from '../Store.js'
 import DOM from '../dom/dom.js'
-import raxmDirectives from '../util/raxm-directives.js'
+import getDirectives from '../util/raxm-directives.js'
 
 export default function () {
     store.registerHook('component.initialized', component => {
@@ -8,7 +8,7 @@ export default function () {
     })
 
     store.registerHook('element.initialized', (el, component) => {
-        if (raxmDirectives(el).missing('dirty')) return
+        if (getDirectives(el).missing('dirty')) return
 
         component.dirtyEls.push(el)
     })
@@ -20,7 +20,7 @@ export default function () {
 
             el.addEventListener('input', () => {
                 component.dirtyEls.forEach(dirtyEl => {
-                    let directives = raxmDirectives(dirtyEl)
+                    let directives = getDirectives(dirtyEl)
                     if (
                         (directives.has('model') &&
                             directives.get('model').value ===
@@ -60,7 +60,7 @@ export default function () {
 }
 
 function setDirtyState(el, isDirty) {
-    const directive = raxmDirectives(el).get('dirty')
+    const directive = getDirectives(el).get('dirty')
 
     if (directive.modifiers.includes('class')) {
         const classes = directive.value.split(' ')
@@ -81,7 +81,7 @@ function setDirtyState(el, isDirty) {
             el.__axm_dirty_cleanup = () =>
                 el.setAttribute(directive.value, true)
         }
-    } else if (!raxmDirectives(el).get('model')) {
+    } else if (!getDirectives(el).get('model')) {
         el.style.display = isDirty ? 'inline-block' : 'none'
         el.__axm_dirty_cleanup = () =>
             (el.style.display = isDirty ? 'none' : 'inline-block')

@@ -2,7 +2,7 @@ export const PREFIX_STRING  = 'axm'
 export const PREFIX_REGEX   = PREFIX_STRING + '\\:';
 export const PREFIX_DISPLAY = PREFIX_STRING + ':';
 
-export default function raxmDirectives(el) {
+export default function getDirectives(el) {
     return new DirectiveManager(el)
 }
 

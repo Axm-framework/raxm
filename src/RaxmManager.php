@@ -11,7 +11,7 @@ class RaxmManager
 {
 
     protected static string $componentName;
-    private static $instances;
+    private static array $instances = [];
     protected static $ucfirstComponentName;
 
     /**
@@ -72,7 +72,7 @@ class RaxmManager
     /**
      * 
      */
-    public static function RaxmScripts(array $options = [])
+    public static function raxmScripts(array $options = [])
     {
         $options = array_merge([
             'nonce' => 'nonce-value'
@@ -119,5 +119,14 @@ class RaxmManager
                 window.raxm_token = {$jsRaxmToken};
             </script>
         HTML;
+    }
+
+
+    /**
+     * 
+     */
+    protected static function getComponentClass(string $componentName): string
+    {
+        return '\\App\\Raxm\\' . ucfirst(strtolower($componentName));
     }
 }

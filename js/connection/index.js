@@ -1,6 +1,7 @@
 import store from '../Store.js'
 import componentStore from '../Store.js'
 import getCsrfToken from '../util/getCsrfToken.js'
+import { showHtmlModal } from '../util/modal.js'
 
 export default class Connection {
     constructor() {
@@ -28,7 +29,7 @@ export default class Connection {
         }
     }
 
-    sendMessage(message) {
+    async sendMessage(message) {
         let payload   = message.payload()
         let csrfToken = getCsrfToken()
         let socketId  = this.getSocketId()
@@ -37,7 +38,6 @@ export default class Connection {
             return window.__testing_request_interceptor(payload, this)
         }
 
-        // let url = store.findComponent(3383).path;
         let url = window.raxm_app_url;
 
         // Forward the query string for the ajax requests.
@@ -70,7 +70,7 @@ export default class Connection {
                     response.text().then(response => {
                         if (this.isOutputFromDump(response)) {
                             this.onError(message)
-                            this.showHtmlModal(response)
+                            showHtmlModal(response)
                         } else {
 
                             this.onMessage(message, JSON.parse(response))
@@ -88,7 +88,7 @@ export default class Connection {
                         this.showExpiredMessage(response, message)
                     } else {
                         response.text().then(response => {
-                            this.showHtmlModal(response)
+                            showHtmlModal(response)
                         })
                     }
                 }
@@ -106,58 +106,5 @@ export default class Connection {
         if (typeof Echo !== 'undefined') {
             return Echo.socketId()
         }
-    }
-
-    // This code and concept is all Jonathan Reinink - thanks main!
-    showHtmlModal(html) {
-        let page = document.createElement('html')
-        page.innerHTML = html
-        page.querySelectorAll('a').forEach(a =>
-            a.setAttribute('target', '_top')
-        )
-
-        let modal = document.getElementById('axm-exeption')
-
-        if (typeof modal != 'undefined' && modal != null) {
-            // Modal already exists.
-            modal.innerHTML = ''
-        } else {
-            modal = document.createElement('div')
-            modal.id = 'axm-exeption'
-            modal.style.position = 'fixed'
-            modal.style.width    = '100vw'
-            modal.style.height   = '100vh'
-            modal.style.padding  = '50px'
-            modal.style.backgroundColor = 'rgba(0, 0, 0, .6)'
-            modal.style.zIndex = 200000
-        }
-
-        let iframe = document.createElement('iframe')
-        iframe.style.backgroundColor = '#17161A'
-        iframe.style.borderRadius = '5px'
-        iframe.style.width  = '100%'
-        iframe.style.height = '100%'
-        modal.appendChild(iframe)
-
-        document.body.prepend(modal)
-        document.body.style.overflow = 'hidden'
-        iframe.contentWindow.document.open()
-        iframe.contentWindow.document.write(page.outerHTML)
-        iframe.contentWindow.document.close()
-
-        // Close on click.
-        modal.addEventListener('click', () => this.hideHtmlModal(modal))
-
-        // Close on escape key press.
-        modal.setAttribute('tabindex', 0)
-        modal.addEventListener('keydown', e => {
-            if (e.key === 'Escape') this.hideHtmlModal(modal)
-        })
-        modal.focus()
-    }
-
-    hideHtmlModal(modal) {
-        modal.outerHTML = ''
-        document.body.style.overflow = 'visible'
     }
 }

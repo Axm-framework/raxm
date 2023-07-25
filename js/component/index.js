@@ -3,7 +3,7 @@ import PrefetchMessage from '../PrefetchMessage.js'
 import dataGet from '../util/get-value.js';
 import dispatch from '../util/dispatch.js'
 import debounce from '../util/debounce.js'
-import raxmDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/raxm-directives.js';
+import getDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/raxm-directives.js';
 import walk from '../util/walk.js'
 import morphdom from '../dom/morphdom/index.js'
 import DOM from '../dom/dom.js'
@@ -370,7 +370,7 @@ export default class Component {
 
     forceRefreshDataBoundElementsMarkedAsDirty(dirtyInputs) {
         this.walk(el => {
-            let directives = raxmDirectives(el)
+            let directives = getDirectives(el)
             if (directives.missing('model')) return
 
             const modelValue = directives.get('model').value
@@ -459,7 +459,7 @@ export default class Component {
                     to.selectedIndex = -1
                 }
 
-                let fromDirectives = raxmDirectives(from)
+                let fromDirectives = getDirectives(from)
 
                 // Honor the "axm:ignore" attribute or the .__raxm_ignore element property.
                 if (
