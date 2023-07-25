@@ -201,8 +201,6 @@ export default {
                 return
             }
 
-            if (directive.modifiers.includes('front')) return this.callFunc(directive.value)  //mio
-
             component.callAfterModelDebounce(() => {
                 const el = e.target
 
