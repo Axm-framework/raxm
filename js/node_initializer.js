@@ -210,7 +210,7 @@ export default {
                 // a value still prevents default.
                 this.preventAndStop(e, directive.modifiers)
                 const method = directive.method
-                let params = directive.params
+                let params   = directive.params
 
                 if (
                     params.length === 0 &&
