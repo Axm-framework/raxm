@@ -34,6 +34,10 @@ export default class Component {
 
         const initialData = JSON.parse(this.el.getAttribute(`${PREFIX_DISPLAY}initial-data`))
 
+        if (! initialData) {
+            throw new `Initial data missing on Axm component with id: ` + this.id
+        }
+
         this.el.removeAttribute(`${PREFIX_DISPLAY}initial-data`)
 
         this.fingerprint = initialData.fingerprint
