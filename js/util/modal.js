@@ -6,14 +6,14 @@ export function showHtmlModal(html) {
         a.setAttribute('target', '_top')
     )
 
-    let modal = document.getElementById('livewire-error')
+    let modal = document.getElementById('raxm-error')
 
     if (typeof modal != 'undefined' && modal != null) {
         // Modal already exists.
         modal.innerHTML = ''
     } else {
         modal = document.createElement('div')
-        modal.id = 'livewire-error'
+        modal.id = 'raxm-error'
         modal.style.position = 'fixed'
         modal.style.width = '100vw'
         modal.style.height = '100vh'
