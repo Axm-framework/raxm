@@ -1,5 +1,4 @@
 import store from '../Store.js'
-import componentStore from '../Store.js'
 import getCsrfToken from '../util/getCsrfToken.js'
 import { showHtmlModal } from '../util/modal.js'
 
@@ -16,7 +15,7 @@ export default class Connection {
     onError(message, status, response) {
         message.component.messageSendFailed()
 
-        return componentStore.onErrorCallback(status, response)
+        return store.onErrorCallback(status, response)
     }
 
     showExpiredMessage(response, message) {
@@ -89,7 +88,7 @@ export default class Connection {
     async handleErrorResponse(response, message) {
         const { status }    = response;
         const responseBody  = await response.text();
-        const onErrorResult = this.componentStore.onErrorCallback(status, responseBody);
+        const onErrorResult = this.store.onErrorCallback(status, responseBody);
       
         if (onErrorResult === false) return;
     
