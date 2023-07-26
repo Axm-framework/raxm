@@ -1,4 +1,5 @@
-import store, { componentStore } from '../Store.js'
+import store from '../Store.js'
+import componentStore from '../Store.js'
 import getCsrfToken from '../util/getCsrfToken.js'
 import { showHtmlModal } from '../util/modal.js'
 
