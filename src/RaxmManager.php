@@ -65,7 +65,7 @@ class RaxmManager
             $html = $new_instance->html();
         }
 
-        echo $html;
+        echo $html . PHP_EOL;
     }
 
 
@@ -82,7 +82,12 @@ class RaxmManager
             'nonce' => $options['nonce'],
         ]);
 
-        echo $scriptTag;
+        $styleTag = static::styles([
+            'nonce' => $options['nonce'],
+        ]);
+
+        echo $scriptTag . PHP_EOL;
+        echo $styleTag  . PHP_EOL;
     }
 
 
@@ -137,7 +142,7 @@ class RaxmManager
             }
 
             [axm\:loading\.delay\.shortest], [axm\:loading\.delay\.shorter], [axm\:loading\.delay\.short], [axm\:loading\.delay\.long], [axm\:loading\.delay\.longer], [axm\:loading\.delay\.longest] {
-                display:none;
+                display: none;
             }
 
             [axm\:offline] {
