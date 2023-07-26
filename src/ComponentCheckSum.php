@@ -2,8 +2,6 @@
 
 namespace Axm\Raxm;
 
-use Axm\Encryption\Encrypter;
-
 class ComponentCheckSum
 {
 
@@ -30,15 +28,10 @@ class ComponentCheckSum
     /**
      * 
      */
-    protected static function getKey()
+    protected static function getKey(): string
     {
-        $encryptionKey = random_bytes(8);
-
-        // Generar una nueva clave de encriptación
-        $encrypter = new Encrypter;
-        $encryptedData = $encrypter->encrypt($encryptionKey);
-
-        return $encryptedData ;
+        $random = random_bytes(32);
+        return $random;
     }
 
     /**
