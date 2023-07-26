@@ -125,8 +125,48 @@ class RaxmManager
     /**
      * 
      */
+    public static function styles($options = [])
+    {
+        $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
+
+        $html = <<<HTML
+        <!-- Raxm Styles -->
+        <style {$nonce}>
+            [axm\:loading], [axm\:loading\.delay], [axm\:loading\.inline-block], [axm\:loading\.inline], [axm\:loading\.block], [axm\:loading\.flex], [axm\:loading\.table], [axm\:loading\.grid], [axm\:loading\.inline-flex] {
+                display: none;
+            }
+
+            [axm\:loading\.delay\.shortest], [axm\:loading\.delay\.shorter], [axm\:loading\.delay\.short], [axm\:loading\.delay\.long], [axm\:loading\.delay\.longer], [axm\:loading\.delay\.longest] {
+                display:none;
+            }
+
+            [axm\:offline] {
+                display: none;
+            }
+
+            [axm\:dirty]:not(textarea):not(input):not(select) {
+                display: none;
+            }
+        </style>
+        HTML;
+
+        return static::minify($html);
+    }
+
+
+    /**
+     * 
+     */
     protected static function getComponentClass(string $componentName): string
     {
         return '\\App\\Raxm\\' . ucfirst(strtolower($componentName));
+    }
+
+    /**
+     * 
+     */
+    protected static function minify($subject)
+    {
+        return preg_replace('~(\v|\t|\s{2,})~m', '', $subject);
     }
 }

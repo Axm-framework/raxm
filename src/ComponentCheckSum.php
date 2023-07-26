@@ -2,9 +2,14 @@
 
 namespace Axm\Raxm;
 
+use Axm\Encryption\Encrypter;
+
 class ComponentCheckSum
 {
 
+    /**
+     * 
+     */
     public static function generate($fingerprint, $memo)
     {
 
@@ -17,10 +22,28 @@ class ComponentCheckSum
             . json_encode($fingerprint)
             . json_encode($memoSansChildren);
 
-        return hash_hmac('sha256', $stringForHashing, 'secret');
+        $hashKey = static::getKey();
+
+        return hash_hmac('sha256', $stringForHashing, $hashKey);
     }
 
+    /**
+     * 
+     */
+    protected static function getKey()
+    {
+        $encryptionKey = random_bytes(8);
 
+        // Generar una nueva clave de encriptación
+        $encrypter = new Encrypter;
+        $encryptedData = $encrypter->encrypt($encryptionKey);
+
+        return $encryptedData ;
+    }
+
+    /**
+     * 
+     */
     public static function check($checksum, $fingerprint, $memo)
     {
         return hash_equals(static::generate($fingerprint, $memo), $checksum ?? '');
