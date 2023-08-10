@@ -1,11 +1,11 @@
 import store from '../Store.js'
-import getDirectives, { PREFIX_REGEX } from '../util/directives.js';
+import raxmDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
 
 let cleanupStackByComponentId = {}
 
 export default function () {
     store.registerHook('element.initialized', (el, component) => {
-        let directives = getDirectives(el)
+        let directives = raxmDirectives(el)
 
         if (directives.missing('submit')) return
 

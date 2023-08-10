@@ -3,7 +3,7 @@ import PrefetchMessage from '../PrefetchMessage.js'
 import dataGet from '../util/get-value.js';
 import dispatch from '../util/dispatch.js'
 import debounce from '../util/debounce.js'
-import getDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/directives.js';
+import raxmDirectives, { PREFIX_REGEX, PREFIX_STRING, PREFIX_DISPLAY} from '../util/raxm-directives.js';
 import walk from '../util/walk.js'
 import morphdom from '../dom/morphdom/index.js'
 import DOM from '../dom/dom.js'
@@ -33,10 +33,6 @@ export default class Component {
         this.connection = connection
 
         const initialData = JSON.parse(this.el.getAttribute(`${PREFIX_DISPLAY}initial-data`))
-
-        if (! initialData) {
-            throw new `Initial data missing on Axm component with id: ` + this.id
-        }
 
         this.el.removeAttribute(`${PREFIX_DISPLAY}initial-data`)
 
@@ -374,7 +370,7 @@ export default class Component {
 
     forceRefreshDataBoundElementsMarkedAsDirty(dirtyInputs) {
         this.walk(el => {
-            let directives = getDirectives(el)
+            let directives = raxmDirectives(el)
             if (directives.missing('model')) return
 
             const modelValue = directives.get('model').value
@@ -463,7 +459,7 @@ export default class Component {
                     to.selectedIndex = -1
                 }
 
-                let fromDirectives = getDirectives(from)
+                let fromDirectives = raxmDirectives(from)
 
                 // Honor the "axm:ignore" attribute or the .__raxm_ignore element property.
                 if (

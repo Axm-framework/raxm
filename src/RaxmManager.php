@@ -11,7 +11,7 @@ class RaxmManager
 {
 
     protected static string $componentName;
-    private static array $instances = [];
+    private static $instances;
     protected static $ucfirstComponentName;
 
     /**
@@ -65,29 +65,56 @@ class RaxmManager
             $html = $new_instance->html();
         }
 
-        echo $html . PHP_EOL;
+        echo $html;
+    }
+
+
+
+
+    /**
+     * 
+     */
+
+    public static function injectAssets($html)
+    {
+        $raxmStyles  = static::styles();
+        $raxmScripts = static::javaScriptAssets();
+
+        $html = strval($html);
+
+        if (preg_match('/<\s*\/\s*head\s*>/i', $html) && preg_match('/<\s*\/\s*body\s*>/i', $html)) {
+            $html = preg_replace('/(<\s*\/\s*head\s*>)/i', $raxmStyles . '$1', $html);
+            $html = preg_replace('/(<\s*\/\s*body\s*>)/i', $raxmScripts . '$1', $html);
+
+            return $html;
+        }
+
+        $html = preg_replace('/(<\s*html(?:\s[^>])*>)/i', '$1' . $raxmStyles, $html);
+        $html = preg_replace('/(<\s*\/\s*html\s*>)/i', $raxmScripts . '$1', $html);
+
+        return $html;
     }
 
 
     /**
      * 
      */
-    public static function raxmScripts(array $options = [])
+    public static function RaxmScripts(array $options = [])
     {
         $options = array_merge([
             'nonce' => 'nonce-value'
         ], $options);
 
+        $stylesTag = static::styles([
+            'nonce' => $options['nonce'],
+        ]);
+
         $scriptTag = static::javaScriptAssets([
             'nonce' => $options['nonce'],
         ]);
 
-        $styleTag = static::styles([
-            'nonce' => $options['nonce'],
-        ]);
-
+        echo $stylesTag . PHP_EOL;
         echo $scriptTag . PHP_EOL;
-        echo $styleTag  . PHP_EOL;
     }
 
 
@@ -117,6 +144,7 @@ class RaxmManager
         $fullAssetPath = ("{$assetUrl}{$fileName}?id={$randomId}");
 
         return <<<HTML
+        <!-- Raxm Script -->
             {$assetWarning}
             <script type="module" src="{$fullAssetPath}" {$nonce}></script>
             <script>
@@ -125,7 +153,6 @@ class RaxmManager
             </script>
         HTML;
     }
-
 
     /**
      * 
@@ -142,7 +169,7 @@ class RaxmManager
             }
 
             [axm\:loading\.delay\.shortest], [axm\:loading\.delay\.shorter], [axm\:loading\.delay\.short], [axm\:loading\.delay\.long], [axm\:loading\.delay\.longer], [axm\:loading\.delay\.longest] {
-                display: none;
+                display:none;
             }
 
             [axm\:offline] {
@@ -152,24 +179,16 @@ class RaxmManager
             [axm\:dirty]:not(textarea):not(input):not(select) {
                 display: none;
             }
+
+            [x-cloak] {
+                display: none;
+            }
         </style>
         HTML;
 
         return static::minify($html);
     }
 
-
-    /**
-     * 
-     */
-    protected static function getComponentClass(string $componentName): string
-    {
-        return '\\App\\Raxm\\' . ucfirst(strtolower($componentName));
-    }
-
-    /**
-     * 
-     */
     protected static function minify($subject)
     {
         return preg_replace('~(\v|\t|\s{2,})~m', '', $subject);

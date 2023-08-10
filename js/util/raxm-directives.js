@@ -2,29 +2,7 @@ export const PREFIX_STRING  = 'axm'
 export const PREFIX_REGEX   = PREFIX_STRING + '\\:';
 export const PREFIX_DISPLAY = PREFIX_STRING + ':';
 
-let directives = {}
-
-export function directive(name, callback) {
-    directives[name] = callback
-}
-
-export function initDirectives(el, component) {
-    let elDirectives = getDirectives(el)
-
-    Object.entries(directives).forEach(([name, callback]) => {
-        elDirectives.directives
-            .filter(({ value }) => value === name)
-            .forEach(directive => {
-                callback({
-                    el,
-                    directive,
-                    component
-                })
-            })
-    })
-}
-
-export default function getDirectives(el) {
+export default function raxmDirectives(el) {
     return new DirectiveManager(el)
 }
 

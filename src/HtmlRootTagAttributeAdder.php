@@ -2,45 +2,11 @@
 
 namespace Axm\Raxm;
 
-// use \Collection;
-// use \Arr;
 use Axm\Exception\AxmException;
 
 class HtmlRootTagAttributeAdder
 
 {
-
-    // public function __invoke($dom, $data)
-    // {
-    //     helpers('enumerable', true);
-
-    //     $stateInitial = collect($data)
-    //         ->mapWithKeys(function ($value, $key) {
-    //             return ["axm:{$key}" => static::escapeStringForHtml($value)];
-    //         })->map(function ($value, $key) {
-    //             return sprintf('%s="%s"', $key, $value);
-    //         })->implode(' ');
-
-    //     preg_match('/(?:\n\s*|^\s*)<([a-zA-Z0-9\-]+)/', $dom, $matches, PREG_OFFSET_CAPTURE);
-
-    //     $tagName = $matches[1][0];
-    //     $lengthOfTagName = strlen($tagName);
-    //     $positionOfFirstCharacterInTagName = $matches[1][1];
-
-    //     if (!count($matches)) throw new AxmException(
-    //         "Raxm encountered a missing root tag when trying to render a " .
-    //             "component. \n When rendering a Blade view, make sure it contains a root HTML tag."
-    //     );
-
-    //     return
-    //         substr_replace(
-    //             $dom,
-    //             ' ' . $stateInitial,
-    //             $positionOfFirstCharacterInTagName + $lengthOfTagName,
-    //             0
-    //         );
-    // }
-
     public function __invoke($dom, $data)
     {
         $stateInitial = [];

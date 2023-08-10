@@ -1,6 +1,6 @@
 import { kebabCase } from './util/index.js'
 import debounce from './util/debounce.js'
-import getDirectives, { PREFIX_REGEX } from './util/directives.js';
+import raxmDirectives, { PREFIX_REGEX } from './util/raxm-directives.js';
 import ModelAction from './action/model.js'
 import DeferredModelAction from './action/deferred-model.js'
 import MethodAction from './action/method.js'
@@ -14,7 +14,7 @@ export default {
             return false
         }
 
-        getDirectives(el).all().forEach(directive => {
+        raxmDirectives(el).all().forEach(directive => {
             switch (directive.type) {
                 case 'init':
                     this.fireActionRightAway(el, directive, component)
@@ -201,6 +201,8 @@ export default {
                 return
             }
 
+            if (directive.modifiers.includes('front')) return this.callFunc(directive.value)  //mio
+
             component.callAfterModelDebounce(() => {
                 const el = e.target
 
@@ -210,7 +212,7 @@ export default {
                 // a value still prevents default.
                 this.preventAndStop(e, directive.modifiers)
                 const method = directive.method
-                let params   = directive.params
+                let params = directive.params
 
                 if (
                     params.length === 0 &&

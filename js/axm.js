@@ -5,7 +5,7 @@ import Connection from './connection/index.js'
 import Polling from './component/Polling.js'
 import Component from './component/index.js'
 import dispatch from './util/dispatch.js'
-import raxmDirectives from './util/raxm-directives.js'
+import axmDirectives from './util/axm-directives.js'
 
 import FileUploads from './component/FileUploads.js'
 import LaravelEcho from './component/LaravelEcho.js'
@@ -19,26 +19,27 @@ import SupportAlpine from './component/SupportAlpine.js'
 import SupportStacks from './component/SupportStacks.js'
 
 
-class Raxm {
+class Axm {
     constructor() {
         this.connection = new Connection()
         this.components = store
         this.devToolsEnabled = false
         this.onLoadCallback = () => { }
-        console.log('Raxm 🚀')
+        console.log('I ❤️ Axm')
+        console.log('🚀')
     }
 
     first() {
-        return Object.values(this.components.componentsById)[0].$raxm
+        return Object.values(this.components.componentsById)[0].$axm
     }
 
     find(componentId) {
-        return this.components.componentsById[componentId].$raxm
+        return this.components.componentsById[componentId].$axm
     }
 
     all() {
         return Object.values(this.components.componentsById).map(
-            component => component.$raxm
+            component => component.$axm
         )
     }
 
@@ -93,12 +94,12 @@ class Raxm {
         })
 
         this.onLoadCallback()
-        dispatch('raxm:load')
+        dispatch('Axm:load')
 
         document.addEventListener(
             'visibilitychange',
             () => {
-                this.components.RraxmIsInBackground = document.hidden
+                this.components.AxmIsInBackground = document.hidden
             },
             false
         )
@@ -108,7 +109,7 @@ class Raxm {
 
     rescan(node = null) {
         DOM.rootComponentElementsWithNoParents(node).forEach(el => {
-            const componentId = raxmDirectives(el).get('id').value
+            const componentId = axmDirectives(el).get('id').value
 
             if (this.components.hasComponent(componentId)) return
 
@@ -133,6 +134,6 @@ LaravelEcho()
 DirtyStates()
 Polling()
 
-dispatch('Raxm:available')
+dispatch('Axm:available')
 
-export default Raxm
+export default Axm

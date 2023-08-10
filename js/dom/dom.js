@@ -1,4 +1,4 @@
-import getDirectives, { PREFIX_REGEX } from '../util/directives.js';
+import raxmDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
 import get from "../util/get-value.js";
 import store from '../Store.js'
 
@@ -103,7 +103,7 @@ export default {
     valueFromInput(el, component) {
 
         if (el.type === 'checkbox') {
-            let modelName = getDirectives(el).get('model').value
+            let modelName = raxmDirectives(el).get('model').value
             // If there is an update from axm:model.defer in the chamber,
             // we need to pretend that is the actual data from the server.
             let modelValue = component.deferredActions[modelName]
@@ -137,7 +137,7 @@ export default {
     },
 
     setInputValueFromModel(el, component) {
-        const modelString = getDirectives(el).get('model').value
+        const modelString = raxmDirectives(el).get('model').value
         const modelValue = get(component.data, modelString)
 
         // Don't manually set file input's values.
