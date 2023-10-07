@@ -7,71 +7,99 @@ use Axm\Raxm\RaxmManager;
 use Axm\Raxm\ComponentCheckSum;
 use Axm\Raxm\ComponentProperties;
 
-
+/**
+ * Class LifecycleManager
+ *
+ * This class extends RaxmManager and provides methods for managing the lifecycle of a component.
+ */
 class LifecycleManager extends RaxmManager
 {
-  protected static $id;
-  protected static $initialData;
-  protected static $effects = [];
-  public static $initialresponse;
+	protected static $id;
+	protected static $initialData;
+	protected static $effects = [];
+	public static $initialresponse;
 
 
-  public static function initialFingerprint(): array
-  {
-    $app  = Axm::app();
-    $hash = hash('sha256', random_bytes(16));
+	/**
+	 * Generate the initial fingerprint for the component.
+	 *
+	 * @return array The initial fingerprint.
+	 */
+	public static function initialFingerprint(): array
+	{
+		$app  = Axm::app();
+		$hash = hash('sha256', random_bytes(16));
 
-    return [
-      'id'     => $hash,
-      'name'   => strtolower(self::$ucfirstComponentName),
-      'locale' => 'EN',
-      'path'   => $app->request->getUri(),
-      'method' => $app->request->getMethod()
-    ];
-  }
-
-
-  public static function initialEffects(): array
-  {
-    return [
-      'listeners' => []
-    ];
-  }
+		return [
+			'id'     => $hash,
+			'name'   => strtolower(self::$ucfirstComponentName),
+			'locale' => 'EN',
+			'path'   => $app->request->getUri(),
+			'method' => $app->request->getMethod()
+		];
+	}
 
 
-  public static function createDataServerMemo(): array
-  {
-    $checksum = [
-      'checksum' => ComponentCheckSum::generate(
-        static::initialFingerprint(),
-        static::initialServerMemo()
-      )
-    ];
-
-    return array_merge(static::initialServerMemo(), $checksum);
-  }
-
-
-  public static function initialServerMemo(): array
-  {
-    $hash = hash('sha256', random_bytes(16));
-
-    return [
-      'children' => [],
-      'errors'   => [],
-      'htmlHash' => $hash,
-      'data'     => static::addDatatoInitialResponse(),
-      'dataMeta' => [],
-    ];
-  }
+	/**
+	 * Generate the initial effects for the component.
+	 *
+	 * @return array The initial effects.
+	 */
+	public static function initialEffects(): array
+	{
+		return [
+			'listeners' => []
+		];
+	}
 
 
-  public static function addDatatoInitialResponse(): array
-  {
-    $properties = [];
-    $publicProperties = ComponentProperties::getPublicProperties(static::getInstanceNowComponent()) ?? [];
-    $properties = array_merge($properties, $publicProperties);
+	/**
+	 * Create the data server memo for the component.
+	 *
+	 * @return array The data server memo.
+	 */
+	public static function createDataServerMemo(): array
+	{
+		$checksum = [
+			'checksum' => ComponentCheckSum::generate(
+				static::initialFingerprint(),
+				static::initialServerMemo()
+			)
+		];
 
-    return $properties;
-  }
+		return array_merge(static::initialServerMemo(), $checksum);
+	}
+
+
+	/**
+	 * Generate the initial server memo for the component.
+	 *
+	 * @return array The initial server memo.
+	 */
+	public static function initialServerMemo(): array
+	{
+		// Generate a random HTML hash
+		$hash = hash('sha256', random_bytes(16));
+
+		return [
+			'children' => [],
+			'errors'   => [],
+			'htmlHash' => $hash,
+			'data'     => static::addDataToInitialResponse(),
+			'dataMeta' => [],
+		];
+	}
+
+
+	/**
+	 * Add data to the initial response.
+	 *
+	 * @return array The initial response with added data.
+	 */
+	public static function addDataToInitialResponse(): array
+	{
+		$properties = ComponentProperties::getPublicProperties(static::getInstanceNowComponent()) ?? [];
+
+		return $properties;
+	}
 }

@@ -5,7 +5,7 @@
  *
  * 1) Changed all the "isSameNode"s to "isEqualNode"s so that morhing doesn't check by reference, only by equality.
  * 2) Automatically filter out any non-"ElementNode"s from the lifecycle hooks.
- * 3) Tagged other changes with "@liveaxmModification".
+ * 3) Tagged other changes with "@raxmModification".
  */
 
 'use strict';
@@ -200,7 +200,7 @@ export default function morphdomFactory(morphAttrs) {
                     return;
                 }
 
-                // @liveaxmModification.
+                // @raxmModification.
                 // I added this check to enable axm:ignore.self to not fire
                 // morphAttrs, but not skip updating children as well.
                 // A task that's currently impossible with the provided hooks.
@@ -219,7 +219,7 @@ export default function morphdomFactory(morphAttrs) {
                 morphChildren(fromEl, toEl);
             } else {
                 if (fromEl.innerHTML != toEl.innerHTML) {
-                    // @liveaxmModification
+                    // @raxmModification
                     // Only mess with the "value" of textarea if the new dom has something
                     // inside the <textarea></textarea> tag.
                     specialElHandlers.TEXTAREA(fromEl, toEl);
@@ -314,7 +314,7 @@ export default function morphdomFactory(morphAttrs) {
 
                             isCompatible = isCompatible !== false && compareNodeNames(curFromNodeChild, curToNodeChild);
                             if (isCompatible) {
-                                // @liveaxmModification
+                                // @raxmModification
                                 // If the two nodes are different, but the next element is an exact match,
                                 // we can assume that the new node is meant to be inserted, instead of
                                 // used as a morph target.
@@ -352,7 +352,7 @@ export default function morphdomFactory(morphAttrs) {
                         continue outer;
                     }
 
-                    // @liveaxmModification
+                    // @raxmModification
                     // Before we just remove the original element, let's see if it's the very next
                     // element in the "to" list. If it is, we can assume we can insert the new
                     // element before the original one instead of removing it. This is kind of

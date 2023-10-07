@@ -1,10 +1,10 @@
-import { isFunction } from './utils/index.js'
+import { isFunction } from './util/utils.js'
 
 /**
  * Dispatch a custom browser event...
  */
 export function dispatch(event, payload) {
-    document.dispatchEvent(new CustomEvent('synthetic:'+event, { detail: payload }))
+    document.dispatchEvent(new CustomEvent('raxm:'+event, { detail: payload }))
 }
 
 /**
@@ -15,15 +15,44 @@ let listeners = []
 /**
  * Register a callback to run when an event is triggered...
  */
-export function on(name, callback) {
-    if (! listeners[name]) listeners[name] = []
+// export function on(name, callback) {
+//     if (! listeners[name]) listeners[name] = []
 
-    listeners[name].push(callback)
+//     listeners[name].push(callback)
 
-    // Return an "off" callback to remove the listener...
-    return () => {
-        listeners[name] = listeners[name].filter(i => i !== callback)
+//     // Return an "off" callback to remove the listener...
+//     return () => {
+//         listeners[name] = listeners[name].filter(i => i !== callback)
+//     }
+// }
+
+/**
+ * Register a callback for one or more events. 
+ * @param {string|string[]} events - Name or names of the events. 
+ * @param {function} callback - Callback to execute when the event is triggered. 
+ * @returns {function} - Function to remove the listener.
+ */
+export function on(events, callback) {
+    // If events is a string, convert it to an array
+    if (typeof events === 'string') {
+        events = [events];
     }
+  
+    events.forEach((eventName) => {
+        if (!listeners[eventName]) {
+            listeners[eventName] = [];
+        }
+        listeners[eventName].push(callback);
+    });
+  
+    // Returns a function to delete the listener
+    return () => {
+        events.forEach((eventName) => {
+            if (listeners[eventName]) {
+                listeners[eventName] = listeners[eventName].filter((listener) => listener !== callback);
+            }
+        });
+    };
 }
 
 /**
@@ -76,3 +105,8 @@ export function trigger(name, ...params) {
         return latest
     }
 }
+
+export function hasEvent(name) {
+    return listeners[name] !== false;
+}
+

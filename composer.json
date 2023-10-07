@@ -11,6 +11,9 @@
 	"homepage": "https://axmphp.com",
 	"type": "library",
 	"license": "MIT",
+	"require": {
+        "php": "^8.0"
+    },
     "authors": [
         {
             "name": "Juan Cristobal",

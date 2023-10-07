@@ -1,5 +1,4 @@
-import { setUploadLoading, unsetUploadLoading } from './LoadingStates.js'
-import getCsrfToken from '../util/getCsrfToken.js'
+import { getCsrfToken } from '../util/utils.js'
 import MessageBag from '../MessageBag.js'
 
 class UploadManager {
@@ -26,8 +25,8 @@ class UploadManager {
         })
 
         this.component.on('upload:finished', (name, tmpFilenames) => this.markUploadFinished(name, tmpFilenames))
-        this.component.on('upload:errored', (name) => this.markUploadErrored(name))
-        this.component.on('upload:removed', (name, tmpFilename) => this.removeBag.shift(name).finishCallback(tmpFilename))
+        this.component.on('upload:errored',  (name) => this.markUploadErrored(name))
+        this.component.on('upload:removed',  (name, tmpFilename) => this.removeBag.shift(name).finishCallback(tmpFilename))
     }
 
     upload(name, file, finishCallback, errorCallback, progressCallback) {
@@ -59,19 +58,24 @@ class UploadManager {
     }
 
     setUpload(name, uploadObject) {
+
         this.uploadBag.add(name, uploadObject)
 
         if (this.uploadBag.get(name).length === 1) {
+    
             this.startUpload(name, uploadObject)
         }
     }
 
     handleSignedUrl(name, url) {
+
         let formData = new FormData()
         Array.from(this.uploadBag.first(name).files).forEach(file => formData.append('files[]', file, file.name))
-
+    
         let headers = {
             'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Axm': true,
         }
 
         let csrfToken = getCsrfToken()
@@ -85,8 +89,8 @@ class UploadManager {
 
     handleS3PreSignedUrl(name, payload) {
         let formData = this.uploadBag.first(name).files[0]
+        let headers  = payload.headers
 
-        let headers = payload.headers
         if ('Host' in headers) delete headers.Host
         let url = payload.url
 
@@ -96,6 +100,7 @@ class UploadManager {
     }
 
     makeRequest(name, formData, method, url, headers, retrievePaths) {
+
         let request = new XMLHttpRequest()
         request.open(method, url)
 
@@ -160,3 +165,11 @@ class UploadManager {
 }
 
 export default UploadManager
+
+function setUploadLoading() {
+    // @todo
+}
+
+function unsetUploadLoading() {
+    // @todo
+}

@@ -6,6 +6,7 @@ export default {
          * Public Hooks
          */
         'component.initialized',
+        'directive.initialized',
         'element.initialized',
         'element.updating',
         'element.updated',
@@ -14,6 +15,9 @@ export default {
         'message.failed',
         'message.received',
         'message.processed',
+        'raxm.navigate',
+        // 'raxm.navigated',
+
 
         /**
          * Private Hooks

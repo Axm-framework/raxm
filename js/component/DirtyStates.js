@@ -1,6 +1,6 @@
-import store from '../Store.js'
+import store from '../store.js'
 import DOM from '../dom/dom.js'
-import getDirectives from '../util/raxm-directives.js'
+import { getDirectives } from '../directives.js'
 
 export default function () {
     store.registerHook('component.initialized', component => {
@@ -41,7 +41,7 @@ export default function () {
         }
     )
 
-    store.registerHook('message.received', (message, component) => {
+    store.registerHook('message.received', (message, component) => {   
         component.dirtyEls.forEach(element => {
             if (element.__axm_dirty_cleanup) {
                 element.__axm_dirty_cleanup()
@@ -51,6 +51,9 @@ export default function () {
     })
 
     store.registerHook('element.removed', (el, component) => {
+        if (!component.dirtyEls ) {
+            return; 
+        }
         component.dirtyEls.forEach((element, index) => {
             if (element.isSameNode(el)) {
                 component.dirtyEls.splice(index, 1)

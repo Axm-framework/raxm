@@ -2,8 +2,8 @@ export default class {
     constructor(el, skipWatcher = false) {
         this.el = el
         this.skipWatcher = skipWatcher
-        this.resolveCallback = () => { }
-        this.rejectCallback = () => { }
+        this.resolveCallback = () => {}
+        this.rejectCallback  = () => {}
         this.signature = (Math.random() + 1).toString(36).substring(8)
     }
 

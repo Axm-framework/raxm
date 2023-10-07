@@ -1,4 +1,3 @@
-
 export default class MessageBus {
     constructor() {
         this.listeners = {}

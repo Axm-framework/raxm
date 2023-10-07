@@ -27,7 +27,7 @@ export default class {
         }
 
         // Otherwise see if there was a defered update for a data key.
-        // In that case, we want to skip running the Liveaxm watcher.
+        // In that case, we want to skip running the Raxm watcher.
         return this.updateQueue
             .filter(update => compareBeforeFirstDot(update.name, dataKey))
             .some(update => update.skipWatcher)

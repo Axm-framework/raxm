@@ -1,17 +1,18 @@
-import store from '../Store.js'
+import store from '../store.js'
 
 export default function () {
-    store.registerHook('interceptRaxmModelAttachListener', (directive, el, component) => {
-        if (! (el.tagName.toLowerCase() === 'input' && el.type === 'file')) return
+    store.registerHook('interceptRaxmModelAttachListener', (directive, el, component, property) => {
+        if (! (el.tagName === 'INPUT' && el.type === 'file')) return
 
-        let start  = () => el.dispatchEvent(new CustomEvent('axm-upload-start', { bubbles: true }))
-        let finish = () => el.dispatchEvent(new CustomEvent('axm-upload-finish', { bubbles: true }))
-        let error  = () => el.dispatchEvent(new CustomEvent('axm-upload-error', { bubbles: true }))
+        let start  = () => el.dispatchEvent(new CustomEvent('raxm-upload-start',  { bubbles: true, detail: { id: component.id, property}}))
+        let finish = () => el.dispatchEvent(new CustomEvent('raxm-upload-finish', { bubbles: true, detail: { id: component.id, property}}))
+        let error  = () => el.dispatchEvent(new CustomEvent('raxm-upload-error',  { bubbles: true, detail: { id: component.id, property}}))
+        
         let progress = (progressEvent) => {
             var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total )
 
             el.dispatchEvent(
-                new CustomEvent('axm-upload-progress', {
+                new CustomEvent('raxm-upload-progress', {
                     bubbles: true, detail: { progress: percentCompleted }
                 })
             )

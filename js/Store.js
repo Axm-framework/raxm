@@ -2,7 +2,8 @@ import EventAction from './action/event.js'
 import HookManager from './HookManager.js'
 import MessageBus  from './MessageBus.js'
 import DirectiveManager from './DirectiveManager.js'
-import { PREFIX_REGEX } from './util/raxm-directives.js';
+import { PREFIX_REGEX } from './directives.js'
+
 
 const store = {
     componentsById: {},
@@ -12,9 +13,10 @@ const store = {
     raxmIsOffline: false,
     sessionHasExpired: false,
     sessionHasExpiredCallback: undefined,
-    directives: DirectiveManager,
+    // directives: DirectiveManager,
     hooks: HookManager,
-    onErrorCallback: () => { },
+    onErrorCallback: () => {},
+
 
     components() {
         return Object.keys(this.componentsById).map(key => {
@@ -110,9 +112,9 @@ const store = {
         })
     },
 
-    registerDirective(name, callback) {
-        this.directives.register(name, callback)
-    },
+    // registerDirective(name, callback) {
+    //     this.directives.register(name, callback)
+    // },
 
     registerHook(name, callback) {
         this.hooks.register(name, callback)
@@ -176,6 +178,22 @@ const store = {
         return closestParentId
     },
 
+    closestComponent(el, strict = true) {
+        let currentElement = el;
+    
+        while (currentElement) {
+            if (currentElement.__raxm) {
+                return currentElement.__raxm;
+            }
+    
+            currentElement = currentElement.parentElement;
+        }
+    
+        if (strict) {
+            throw new Error("Could not find Raxm component in DOM tree");
+        }
+    },    
+
     getDistanceToChild(parentId, childId, distanceMemo = 1) {
         let parentComponent = this.findComponent(parentId)
 
@@ -190,7 +208,35 @@ const store = {
 
             if (distance) return distance
         }
-    }
+    },    
 }
 
 export default store
+
+export function find(id) {
+    return store.findComponent(id)
+}
+
+export function first() {
+    return store.components()[0]
+}
+
+export function getByName(name) {
+    return store.getComponentsByName(name).map(i => i.$raxm)
+}
+
+export function all() {
+    return store.components()
+}
+
+export function on(event, callback) {
+    return store.on(event, callback)
+}
+
+export function hook(name, callback) {
+    return store.registerHook(name, callback)
+}
+
+export function trigger(name, params) {
+    return store.callHook(name, ...params)
+}

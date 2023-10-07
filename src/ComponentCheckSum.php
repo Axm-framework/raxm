@@ -7,7 +7,6 @@ class ComponentCheckSum
 
     public static function generate($fingerprint, $memo)
     {
-
         // It's actually Ok if the "children" tracking is tampered with.
         // Also, this way JavaScript can modify children as it needs to for
         // dom-diffing purposes.

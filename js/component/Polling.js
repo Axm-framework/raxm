@@ -1,6 +1,6 @@
 import MethodAction from '../action/method.js'
-import getDirectives from '../util/raxm-directives.js'
-import store from '../Store.js'
+import { getDirectives } from '../directives.js'
+import store from '../store.js'
 
 export default function () {
     store.registerHook('element.initialized', (el, component) => {
@@ -73,9 +73,9 @@ function inViewport(el) {
     var bounding = el.getBoundingClientRect();
 
     return (
-        bounding.top < (window.innerHeight || document.documentElement.clientHeight) &&
-        bounding.left < (window.innerWidth || document.documentElement.clientWidth) &&
+        bounding.top  < (window.innerHeight || document.documentElement.clientHeight) &&
+        bounding.left < (window.innerWidth  || document.documentElement.clientWidth) &&
         bounding.bottom > 0 &&
-        bounding.right > 0
+        bounding.right  > 0
     );
 }

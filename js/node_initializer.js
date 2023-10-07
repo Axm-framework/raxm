@@ -1,121 +1,17 @@
-import { kebabCase,debounce } from './util/index.js'
-import getDirectives, { PREFIX_REGEX } from './util/raxm-directives.js';
-import ModelAction from './action/model.js'
-import DeferredModelAction from './action/deferred-model.js'
+import { kebabCase, debounce, callMethod } from './util/utils.js'
+import { getDirectives } from './directives.js';
 import MethodAction from './action/method.js'
-import store from './Store.js'
-import DOM from './dom/dom.js'
+import store from './store.js'
 
 export default {
+
     initialize(el, component) {
-        if (store.initialRenderIsFinished && el.tagName.toLowerCase() === 'script') {
-            eval(el.innerHTML)
-            return false
-        }
-
         getDirectives(el).all().forEach(directive => {
-            switch (directive.type) {
-                case 'init':
-                    this.fireActionRightAway(el, directive, component)
-                    break
-
-                case 'model':
-                    
-                    if (!directive.value) {
-                        console.warn(`Raxm: [${PREFIX_REGEX}:model] is missing a value.`, el)
-                        break
-                    }
-
-                    DOM.setInputValueFromModel(el, component)
-
-                    this.attachModelListener(el, directive, component)
-                    break
-
-                default:
-                    if (store.directives.has(directive.type)) {
-                        store.directives.call(
-                            directive.type,
-                            el,
-                            directive,
-                            component
-                        )
-                    }
-
-                    this.attachDomListener(el, directive, component)
-                    break
-            }
+            store.callHook('directive.initialized', { el, component, directive, cleanup: () => {}})
+            this.attachDomListener(el, directive, component)
         })
 
         store.callHook('element.initialized', el, component)
-    },
-
-    fireActionRightAway(el, directive, component) {
-        const method = directive.value ? directive.method : '$refresh'
-
-        component.addAction(new MethodAction(method, directive.params, el))
-    },
-
-    attachModelListener(el, directive, component) {
-        // This is used by morphdom: morphdom.js:391
-        el.isRaxmModel = true
-
-        const isLazy = directive.modifiers.includes('lazy')
-        const debounceIf = (condition, callback, time) => {
-            return condition
-                ? component.modelSyncDebounce(callback, time)
-                : callback
-        }
-        const hasDebounceModifier = directive.modifiers.includes('debounce')
-
-        store.callHook('interceptRaxmModelAttachListener', directive, el, component)
-
-        // File uploads are handled by UploadFiles.js.
-        if (el.tagName.toLowerCase() === 'input' && el.type === 'file') return
-
-        const event = el.tagName.toLowerCase() === 'select'
-            || ['checkbox', 'radio'].includes(el.type)
-            || directive.modifiers.includes('lazy') ? 'change' : 'input'
-
-        // If it's a text input and not .lazy, debounce, otherwise fire immediately.
-        let handler = debounceIf(hasDebounceModifier || (DOM.isTextInput(el) && !isLazy), e => {
-            let model = directive.value
-            let el = e.target
-
-            let value = e instanceof CustomEvent
-                // We have to check for typeof e.detail here for IE 11.
-                && typeof e.detail != 'undefined'
-                && typeof window.document.documentMode == 'undefined'
-                // With autofill in Safari, Safari triggers a custom event and assigns
-                // the value to e.target.value, so we need to check for that value as well.
-                ? e.detail ?? e.target.value
-                : DOM.valueFromInput(el, component)
-
-            if (directive.modifiers.includes('defer')) {
-                component.addAction(new DeferredModelAction(model, value, el))
-            } else {
-                component.addAction(new ModelAction(model, value, el))
-            }
-
-        }, directive.durationOr(150))
-
-        el.addEventListener(event, handler)
-
-        component.addListenerForTeardown(() => {
-            el.removeEventListener(event, handler)
-        })
-
-        // Taken from: https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
-        let isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
-
-        // Safari is weird and doesn't properly fire input events when
-        // a user "autofills" a axm:model(.lazy) field. So we are
-        // firing them manually for assurance.
-        isSafari && el.addEventListener('animationstart', e => {
-            if (e.animationName !== 'raxmautofill') return
-
-            e.target.dispatchEvent(new Event('change', { bubbles: true }))
-            e.target.dispatchEvent(new Event('input',  { bubbles: true }))
-        })
     },
 
     attachDomListener(el, directive, component) {
@@ -187,6 +83,7 @@ export default {
     },
 
     attachListener(el, directive, component, callback) {
+
         if (directive.modifiers.includes('prefetch')) {
             el.addEventListener('mouseenter', () => {
                 component.addPrefetchAction(
@@ -201,7 +98,11 @@ export default {
                 return
             }
 
-            if (directive.modifiers.includes('front')) return this.callFunc(directive.value)  //mio
+            //mio
+            if (directive.modifiers.includes('front')) {
+                const { method, params } = directive
+                   return callMethod(method, params)
+            }
 
             component.callAfterModelDebounce(() => {
                 const el = e.target
@@ -273,5 +174,4 @@ export default {
 
         modifiers.includes('stop') && event.stopPropagation()
     }
-    
 }

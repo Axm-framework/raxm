@@ -1,6 +1,6 @@
-import getDirectives, { PREFIX_REGEX } from '../util/raxm-directives.js';
-import get from "../util/get-value.js";
-import store from '../Store.js'
+import { getDirectives, PREFIX_REGEX } from '../directives.js';
+import { dataGet } from "../util/utils.js";
+import store from '../store.js'
 
 /**
  * This is intended to isolate all native DOM operations. The operations that happen
@@ -52,11 +52,11 @@ export default {
 
         if (!closestEl) {
             throw `
-   Raxm Error:\n
-    Cannot find parent element in DOM tree containing attribute: [${PREFIX_REGEX}${attribute}].\n
-    Usually this is caused by Raxm's DOM-differ not being able to properly track changes.\n
-    Reference the following guide for common causes: https://axm-raxm.com/docs/troubleshooting \n
-    Referenced element:\n
+                Raxm Error:\n
+                Cannot find parent element in DOM tree containing attribute: [${PREFIX_REGEX}${attribute}].\n
+                Usually this is caused by Raxm's DOM-differ not being able to properly track changes.\n
+                Reference the following guide for common causes: https://axm-raxm.com/docs/troubleshooting \n
+                Referenced element:\n
             ${el.outerHTML}`
         }
 
@@ -89,13 +89,13 @@ export default {
 
     isInput(el) {
         return ['INPUT', 'TEXTAREA', 'SELECT'].includes(
-            el.tagName.toUpperCase()
+            el.tagName
         )
     },
 
     isTextInput(el) {
         return (
-            ['INPUT', 'TEXTAREA'].includes(el.tagName.toUpperCase()) &&
+            ['INPUT', 'TEXTAREA'].includes(el.tagName) &&
            !['checkbox', 'radio'].includes(el.type)
         )
     },
@@ -108,7 +108,7 @@ export default {
             // we need to pretend that is the actual data from the server.
             let modelValue = component.deferredActions[modelName]
                 ? component.deferredActions[modelName].payload.value
-                : get(component.data, modelName)
+                : dataGet(component.data, modelName)
 
             if (Array.isArray(modelValue)) {
                 return this.mergeCheckboxValueIntoArray(el, modelValue)
@@ -138,11 +138,11 @@ export default {
 
     setInputValueFromModel(el, component) {
         const modelString = getDirectives(el).get('model').value
-        const modelValue = get(component.data, modelString)
+        const modelValue  = dataGet(component.data, modelString)
 
         // Don't manually set file input's values.
         if (
-            el.tagName.toLowerCase() === 'input' &&
+            el.tagName === 'INPUT' &&
             el.type === 'file'
         )
             return
@@ -196,5 +196,38 @@ export default {
         Array.from(el.options).forEach(option => {
             option.selected = arrayWrappedValue.includes(option.value)
         })
+    },
+
+    isAsset(el) {
+        return (
+            el.tagName.toLowerCase() === 'link' && el.getAttribute('rel').toLowerCase() === 'stylesheet' ||
+            el.tagName.toLowerCase() === 'style' ||
+            el.tagName.toLowerCase() === 'script'
+        )
+    },
+
+    isScript(el) {
+        return el.tagName.toLowerCase() === 'script'
+    },
+    
+    cloneScriptTag(el) {
+        let script = document.createElement('script')
+        script.textContent = el.textContent
+        script.async = el.async
+        for (let attr of el.attributes) {
+            script.setAttribute(attr.name, attr.value)
+        }
+        return script
+    },
+
+    ignoreAttributes(subject, attributesToRemove) {
+        let result = subject
+        attributesToRemove.forEach(attr => {
+            const regex = new RegExp(`${attr}="[^"]*"|${attr}='[^']*'`, 'g')
+            result = result.replace(regex, '')
+        })
+        return result.trim()
     }
+    
+    
 }

@@ -45,15 +45,13 @@ trait ReceivesEvents
 
     public function getEventQueue()
     {
-        $eventQueue = $this->eventQueue;
-        $serialized = [];
+        $serializedEvents = array_map(function ($event) {
+            return $event->serialize();
+        }, $this->eventQueue);
 
-        foreach ($eventQueue as $event) {
-            $serialized[] = serialize($event);
-        }
-
-        return $serialized;
+        return array_values($serializedEvents);
     }
+
 
     public function getDispatchQueue()
     {
@@ -64,14 +62,14 @@ trait ReceivesEvents
     protected function getEventsAndHandlers()
     {
         $listeners = $this->getListeners();
-        $mapped = [];
+        $eventsAndHandlers = [];
 
         foreach ($listeners as $key => $value) {
             $key = is_numeric($key) ? $value : $key;
-            $mapped[$key] = $value;
+            $eventsAndHandlers[$key] = $value;
         }
 
-        return $mapped;
+        return $eventsAndHandlers;
     }
 
     public function getEventsBeingListenedFor()
@@ -93,5 +91,10 @@ trait ReceivesEvents
         foreach ($this->listeners[$event] ?? [] as $listener) {
             $listener(...$params);
         }
+    }
+
+    public function listen($event, $callback)
+    {
+        $this->listeners[$event][] = $callback;
     }
 }

@@ -1,4 +1,4 @@
-import store from '../Store.js'
+import store from '../store.js'
 
 export default function () {
     store.registerHook('component.initialized', component => {
