@@ -1,4 +1,4 @@
-<p align="center"><img width="300" src="/art/readme_logo.png" alt="Raxm Logo"></p>
+<p align="center"><img width="200" src="/art/readme_logo.png" alt="Raxm Logo"></p>
 
 <p align="center">
     <a href="https://packagist.org/packages/axm/raxm">
