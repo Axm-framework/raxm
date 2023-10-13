@@ -1,8 +1,6 @@
 import { kebabCase, debounce, call } from './util/utils.js'
 import { getDirectives } from './directives.js';
-// import MethodAction from './action/method.js'
 import { addMethodAction, callAfterModelDebounce, addPrefetchAction } from './commit.js'
-
 import store from './store.js'
 
 export default {

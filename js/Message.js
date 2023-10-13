@@ -60,7 +60,6 @@ export default class Message {
     }
 }
 
-
 export class PrefetchMessage extends Message {
     constructor(component, action) {
         super(component, [action])
