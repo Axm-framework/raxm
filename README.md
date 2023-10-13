@@ -20,4 +20,4 @@
 
 <a name="license"></a>
 
-Raxm is open-sourced software licensed under the [MIT license](LICENSE.md).
+Raxm is open-sourced software licensed under the [MIT license](LICENSE).
