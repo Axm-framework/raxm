@@ -1,4 +1,4 @@
-import MessageBus from './MessageBus.js'
+import { MessageBus } from './util/utils.js'
 
 export default {
     availableHooks: [
@@ -15,9 +15,6 @@ export default {
         'message.failed',
         'message.received',
         'message.processed',
-        'raxm.navigate',
-        // 'raxm.navigated',
-
 
         /**
          * Private Hooks

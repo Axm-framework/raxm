@@ -1,9 +1,7 @@
 import EventAction from './action/event.js'
 import HookManager from './HookManager.js'
-import MessageBus  from './MessageBus.js'
-import DirectiveManager from './DirectiveManager.js'
+import { MessageBus }  from './util/utils.js'
 import { PREFIX_REGEX } from './directives.js'
-
 
 const store = {
     componentsById: {},
@@ -13,10 +11,8 @@ const store = {
     raxmIsOffline: false,
     sessionHasExpired: false,
     sessionHasExpiredCallback: undefined,
-    // directives: DirectiveManager,
     hooks: HookManager,
     onErrorCallback: () => {},
-
 
     components() {
         return Object.keys(this.componentsById).map(key => {
@@ -62,8 +58,7 @@ const store = {
 
     emitUp(el, event, ...params) {
         this.componentsListeningForEventThatAreTreeAncestors(
-            el,
-            event
+            el, event
         ).forEach(component =>
             component.addAction(new EventAction(event, params))
         )
@@ -89,7 +84,6 @@ const store = {
 
     componentsListeningForEventThatAreTreeAncestors(el, event) {
         var parentIds = []
-
         var parent = el.parentElement.closest(`[${PREFIX_REGEX}id]`)
 
         while (parent) {
@@ -111,10 +105,6 @@ const store = {
             return component.listeners.includes(event)
         })
     },
-
-    // registerDirective(name, callback) {
-    //     this.directives.register(name, callback)
-    // },
 
     registerHook(name, callback) {
         this.hooks.register(name, callback)
@@ -168,7 +158,6 @@ const store = {
         })
 
         let smallestDistance = Math.min(...Object.values(distancesByParentId))
-
         let closestParentId
 
         Object.entries(distancesByParentId).forEach(([parentId, distance]) => {
@@ -239,4 +228,8 @@ export function hook(name, callback) {
 
 export function trigger(name, params) {
     return store.callHook(name, ...params)
+}
+
+export function closestComponent(el, strict = true) {
+    return store.closestComponent(el, strict)
 }

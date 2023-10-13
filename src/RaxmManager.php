@@ -226,7 +226,6 @@ class RaxmManager
         return implode("\n", $html);
     }
 
-
     /**
      * Generate and return Raxm styles.
      * 

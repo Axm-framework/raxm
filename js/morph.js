@@ -3,8 +3,8 @@ import { getDirectives, PREFIX_REGEX, PREFIX_DISPLAY } from './directives.js'
 import nodeInitializer from './node_initializer.js'
 import morphdom from './dom/morphdom/index.js'
 import DOM from './dom/dom.js'
-import Component from "./component/component.js";
-import { alpinifyElementsForMorphdom } from './features/SupportAlpine.js'
+import Component from './component.js';
+import { alpinifyElementsForMorphdom } from './features/supportAlpine.js'
 
 export function morph(el, html) {
 

@@ -19,10 +19,9 @@ export function shouldRedirectUsingNavigateOr(effects, url, or) {
 function shouldHideProgressBar() {
     if (!! document.querySelector('[data-no-progress-bar]')) return true
 
-    // if (window.raxmScriptConfig && window.raxmScriptConfig.progressBar === false) return true
+    if (progressBar) return true
 
-    // return false
-    return true
+    return false
 }
 
 function disableProgressBar() {

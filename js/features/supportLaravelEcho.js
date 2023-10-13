@@ -1,5 +1,5 @@
-import { on } from '@/events'
-import { dispatchSelf } from './supportEvents'
+import { on } from '../events.js'
+import { dispatchSelf } from './supportEvents.js'
 
 on('request', ({ options }) => {
     if (window.Echo) {

@@ -9,9 +9,8 @@ class PrefetchManager {
     }
 
     actionHasPrefetch(action) {
-        return Object.keys(this.prefetchMessagesByActionId).includes(
-            action.toId()
-        )
+        return Object.keys(this.prefetchMessagesByActionId)
+        .includes(action.toId())
     }
 
     actionPrefetchResponseHasBeenReceived(action) {

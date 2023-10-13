@@ -1,4 +1,4 @@
-import { directive } from "../directives.js"
+import { directive } from '../directives.js'
 
 directive('ignore', ({ el, directive }) => {
     if (directive.modifiers.includes('self')) {

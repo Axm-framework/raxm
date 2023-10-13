@@ -1,4 +1,5 @@
 import store from '../store.js'
+import { overrideMethod } from '../$raxm.js'
 
 store.registerHook('message.received', (message, component) => {
     let response = message.response
@@ -21,19 +22,6 @@ store.registerHook('message.received', (message, component) => {
     }
 })
 
-let overriddenMethods = new WeakMap
-
-export function overrideMethod(component, method, callback) {
-    if (! overriddenMethods.has(component)) {
-        overriddenMethods.set(component, {})
-    }
-
-    let obj = overriddenMethods.get(component)
-
-    obj[method] = callback
-
-    overriddenMethods.set(component, obj)
-}
 
 //1
 // Función para evaluar código en un worker web

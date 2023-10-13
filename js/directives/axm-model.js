@@ -2,9 +2,11 @@ import { directive, PREFIX_REGEX, PREFIX_DISPLAY } from '../directives.js'
 import DeferredModelAction from '../action/model.js'
 import ModelAction from '../action/model.js'
 import store from '../store.js'
+import { addAction, modelSyncDebounce } from '../commit.js'
 import DOM from '../dom/dom.js'
+import { handleFileUpload } from '../features/supportFileUploads.js'
 
-directive('model', ({ el, directive, component }) => {
+directive('model', ({ el, directive, component, cleanup }) => {
     let { expression, modifiers } = directive
 
     if (!expression) {
@@ -14,7 +16,12 @@ directive('model', ({ el, directive, component }) => {
     if (componentIsMissingProperty(component, expression)) {
         return console.warn(`Raxm: [${PREFIX_DISPLAY}model="`+expression+`"] property does not exist on component: [`+component.name+`]`, el)
     }
-    
+
+    // Handle file uploads differently...
+    if (el.type && el.type.toLowerCase() === 'file') {
+        return handleFileUpload(el, expression, component, cleanup)
+    }  
+        
     DOM.setInputValueFromModel(el, component)
 
     attachModelListener(el, directive, component)
@@ -33,10 +40,7 @@ function attachModelListener(el, directive, component) {
 
 
     store.callHook('interceptRaxmModelAttachListener', directive, el, component, expression)
-
-    // File uploads are handled by UploadFiles.js.
-    if (el.tagName === 'INPUT' && el.type === 'file') return
-
+ 
     const event = el.tagName === 'SELECT'
         || ['checkbox', 'radio'].includes(el.type)
         || isLazy ? 'change' : 'input'
@@ -45,7 +49,7 @@ function attachModelListener(el, directive, component) {
     // let update = () => component.$raxm.$refresh()
     const debounceIf = (condition, callback, time) => {
         return condition
-            ? component.modelSyncDebounce(callback, time)
+            ? modelSyncDebounce(callback, time)
             : callback
     }
 
@@ -64,9 +68,9 @@ function attachModelListener(el, directive, component) {
             : DOM.valueFromInput(el, component)
 
         if (isDefer) {
-            component.addAction(new DeferredModelAction(model, value, el))
+            addAction(component, new DeferredModelAction(model, value, el))
         } else {
-            component.addAction(new ModelAction(model, value, el))
+            addAction(component, new ModelAction(model, value, el))
         }
 
     }, directive.durationOr(150))

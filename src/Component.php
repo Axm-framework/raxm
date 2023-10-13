@@ -41,8 +41,6 @@ abstract class Component extends BaseController
     protected bool $ifActionIsRedirect  = false;
     protected bool $ifActionIsNavigate  = false;
 
-
-
     public ?string $id;
     public ?array $effects = [];
 
@@ -168,56 +166,9 @@ abstract class Component extends BaseController
             case 'fireEvent':
                 return $this->fireEvent($this->method, $this->params, $this->id_p);
 
-            case 'navigate':
-                return $this->navigate($this->payload);
-
             default:
                 throw new AxmException('Unknown event type: ' . $this->type);
         }
-    }
-
-    /**
-     * Call a component method based on the payload.
-     *
-     * This method calls a component method based on the payload received from the client.
-     * @param mixed $method The method to call.
-     * @param array $params The method parameters.
-     * @return mixed The result of the method call.
-     */
-    protected function callMethod($method, $params = [])
-    {
-        // Trimming the method name.
-        $method = trim($method);
-        $prop = array_shift($params);
-
-        switch ($method) {
-            case '$sync':
-            case '$set':
-                return $this->syncInput($prop, $params);
-
-            case '$toggle':
-                $currentValue = $this->{$prop};  // Added line to store the current value of the property.
-                return $this->syncInput($prop, !$currentValue);
-
-            case '$refresh':
-                return;
-        }
-
-        if ($method === 'render') return false;
-
-        if (!method_exists($this, $method)) {
-            if ($method === 'startUpload') {
-                throw new AxmException("Cannot handle file upload without [Axm\Raxm\Support\WithFileUploads] trait on the [{$this->component}] component class.");
-            }
-
-            throw new AxmException("Unable to call component method. Public method [$method] not found on component: [{$this->component}]");
-        }
-
-        if (!(ComponentProperties::methodIsPublic($this, $method))) {
-            throw new AxmException(Axm::t('Raxm', 'Unable to set component data. Public method %s not found on component: %s', [$method, $this->component]));  // Added braces for readability.
-        }
-
-        return $this->$method(...$params);
     }
 
     /**
@@ -541,22 +492,10 @@ abstract class Component extends BaseController
      */
     protected function getRedirectTo()
     {
-        if (!empty($this->payload['value']) && $this->ifActionIsNavigate = true) {
-
-            $url = generateUrl(cleanInput($this->payload['value']));
-            $view = (string) file_get_contents($url);
-            $name = basename($url);
-            $navigate = ['name' => $name, 'url' => $url, 'html' => $view];
-
-            return $navigate;
-        }
-
         if (method_exists($this, 'redirect')) {
             $pathTo = $this->redirect();
             return generateUrl($pathTo);
         }
-
-        return generateUrl('/');
     }
 
     /**

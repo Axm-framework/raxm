@@ -1,5 +1,5 @@
-import { on } from '@/events'
-import { dataGet, dataSet } from '@/utils'
+import { on } from '../events.js'
+import { dataGet, dataSet } from '../util/utils.js'
 import Alpine from 'alpinejs'
 import { track } from '@alpinejs/history'
 

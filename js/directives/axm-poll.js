@@ -1,5 +1,6 @@
 import { directive, getDirectives } from '../directives.js'
-import { evaluate } from '../features/supportJsEvaluation.js'
+import MethodAction from '../action/method.js'
+import { addAction } from '../commit.js'
 
 directive('poll', ({ el, directive, component }) => {
     let interval = extractDurationFrom(directive.modifiers, 2000)
@@ -18,10 +19,8 @@ directive('poll', ({ el, directive, component }) => {
 })
 
 function triggerComponentRequest(el, directive, component) {
-    component.$raxm.$refresh()
-    // evaluate(
-    //     el,directive.expression ? component+'$raxm.' + directive.expression : component+'$raxm.$refresh()'
-    // )
+    const method = directive.method || '$refresh'
+    addAction(component, new MethodAction(method, directive.params, el))
 }
 
 function poll(callback, interval = 2000) {

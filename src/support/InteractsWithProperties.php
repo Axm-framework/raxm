@@ -112,7 +112,7 @@ trait InteractsWithProperties
         return $this->{$name} = $value;
     }
 
-    public function containsDots($subject)
+    public function containsDots(string $subject): bool
     {
         return strpos($subject, '.') !== false;
     }

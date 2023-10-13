@@ -1,6 +1,4 @@
 import { getCsrfToken } from '../util/utils.js'
-import { on } from '../events.js';
-
 
 let uploadManagers = new WeakMap
 
@@ -17,11 +15,13 @@ function getUploadManager(component) {
 }
 
 export function handleFileUpload(el, property, component, cleanup) {
+    if (! (el.tagName === 'INPUT' && el.type === 'file')) return
+
     let manager = getUploadManager(component)
 
-    let start  = () => el.dispatchEvent(new CustomEvent('raxm-upload-start',  { bubbles: true }))
-    let finish = () => el.dispatchEvent(new CustomEvent('raxm-upload-finish', { bubbles: true }))
-    let error  = () => el.dispatchEvent(new CustomEvent('raxm-upload-error',  { bubbles: true }))
+    let start  = () => el.dispatchEvent(new CustomEvent('raxm-upload-start',  { bubbles: true, detail: { id: component.id, property}}))
+    let finish = () => el.dispatchEvent(new CustomEvent('raxm-upload-finish', { bubbles: true, detail: { id: component.id, property}}))
+    let error  = () => el.dispatchEvent(new CustomEvent('raxm-upload-error',  { bubbles: true, detail: { id: component.id, property}}))
     let progress = (progressEvent) => {
         var percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total )
 
@@ -66,7 +66,7 @@ class UploadManager {
     }
 
     registerListeners() {
-        this.component.$raxm.$on('upload:generatedSignedUrl', ({ name, url }) => {
+        this.component.on('upload:generatedSignedUrl', (name, url) => {
             // We have to add reduntant "setLoading" calls because the dom-patch
             // from the first response will clear the setUploadLoading call
             // from the first upload call.
@@ -75,15 +75,15 @@ class UploadManager {
             this.handleSignedUrl(name, url)
         })
 
-        this.component.$raxm.$on('upload:generatedSignedUrlForS3', ({ name, payload }) => {
+        this.component.on('upload:generatedSignedUrlForS3', (name, payload) => {
             setUploadLoading(this.component, name)
 
             this.handleS3PreSignedUrl(name, payload)
         })
 
-        this.component.$raxm.$on('upload:finished',({ name, tmpFilenames }) => this.markUploadFinished(name, tmpFilenames))
-        this.component.$raxm.$on('upload:errored', ({ name }) => this.markUploadErrored(name))
-        this.component.$raxm.$on('upload:removed', ({ name, tmpFilename }) => this.removeBag.shift(name).finishCallback(tmpFilename))
+        this.component.on('upload:finished', (name, tmpFilenames) => this.markUploadFinished(name, tmpFilenames))
+        this.component.on('upload:errored',  (name) => this.markUploadErrored(name))
+        this.component.on('upload:removed',  (name, tmpFilename) => this.removeBag.shift(name).finishCallback(tmpFilename))
     }
 
     upload(name, file, finishCallback, errorCallback, progressCallback) {
@@ -111,23 +111,28 @@ class UploadManager {
             tmpFilename, finishCallback
         })
 
-        this.component.$raxm.call('_removeUpload', name, tmpFilename);
+        this.component.call('removeUpload', name, tmpFilename);
     }
 
     setUpload(name, uploadObject) {
+
         this.uploadBag.add(name, uploadObject)
 
         if (this.uploadBag.get(name).length === 1) {
+    
             this.startUpload(name, uploadObject)
         }
     }
 
     handleSignedUrl(name, url) {
+
         let formData = new FormData()
         Array.from(this.uploadBag.first(name).files).forEach(file => formData.append('files[]', file, file.name))
-
+    
         let headers = {
             'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Axm': true,
         }
 
         let csrfToken = getCsrfToken()
@@ -141,8 +146,8 @@ class UploadManager {
 
     handleS3PreSignedUrl(name, payload) {
         let formData = this.uploadBag.first(name).files[0]
+        let headers  = payload.headers
 
-        let headers = payload.headers
         if ('Host' in headers) delete headers.Host
         let url = payload.url
 
@@ -152,6 +157,7 @@ class UploadManager {
     }
 
     makeRequest(name, formData, method, url, headers, retrievePaths) {
+
         let request = new XMLHttpRequest()
         request.open(method, url)
 
@@ -170,7 +176,7 @@ class UploadManager {
             if ((request.status+'')[0] === '2') {
                 let paths = retrievePaths(request.response && JSON.parse(request.response))
 
-                this.component.$raxm.call('_finishUpload', name, paths, this.uploadBag.first(name).multiple)
+                this.component.$raxm.call('finishUpload', name, paths, this.uploadBag.first(name).multiple)
 
                 return
             }
@@ -181,7 +187,7 @@ class UploadManager {
                 errors = request.response
             }
 
-            this.component.$raxm.call('_uploadErrored', name, errors, this.uploadBag.first(name).multiple)
+            this.component.$raxm.call('uploadErrored', name, errors, this.uploadBag.first(name).multiple)
         })
 
         request.send(formData)
@@ -192,7 +198,7 @@ class UploadManager {
             return { name: file.name, size: file.size, type: file.type }
         })
 
-        this.component.$raxm.call('_startUpload', name, fileInfos, uploadObject.multiple);
+        this.component.$raxm.call('startUpload', name, fileInfos, uploadObject.multiple);
 
         setUploadLoading(this.component, name)
     }
@@ -214,7 +220,6 @@ class UploadManager {
         if (this.uploadBag.get(name).length > 0) this.startUpload(name, this.uploadBag.last(name))
     }
 }
-
 
 export default class MessageBag {
     constructor() {

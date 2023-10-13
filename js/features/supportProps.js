@@ -1,5 +1,5 @@
-import { findComponent } from "../store";
-import { on } from '@/events'
+import { findComponent } from "../store.js";
+import { on } from '../events.js'
 
 on('commit.prepare', ({ component }) => {
     // Ensure that all child components with reactive props (even deeply nested)
@@ -9,7 +9,7 @@ on('commit.prepare', ({ component }) => {
         let props = childMeta.props
 
         // If this child has a prop from the parent
-        if (props) child.$wire.$commit()
+        if (props) child.$raxm.$refresh()
     })
 })
 

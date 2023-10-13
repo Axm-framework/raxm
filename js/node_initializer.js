@@ -1,6 +1,8 @@
-import { kebabCase, debounce, callMethod } from './util/utils.js'
+import { kebabCase, debounce, call } from './util/utils.js'
 import { getDirectives } from './directives.js';
-import MethodAction from './action/method.js'
+// import MethodAction from './action/method.js'
+import { addMethodAction, callAfterModelDebounce, addPrefetchAction } from './commit.js'
+
 import store from './store.js'
 
 export default {
@@ -86,9 +88,7 @@ export default {
 
         if (directive.modifiers.includes('prefetch')) {
             el.addEventListener('mouseenter', () => {
-                component.addPrefetchAction(
-                    new MethodAction(directive.method, directive.params, el)
-                )
+                addPrefetchAction(component, directive.method, directive.params)
             })
         }
 
@@ -101,10 +101,10 @@ export default {
             //mio
             if (directive.modifiers.includes('front')) {
                 const { method, params } = directive
-                   return callMethod(method, params)
+                   return call(method, params)
             }
 
-            component.callAfterModelDebounce(() => {
+            callAfterModelDebounce(() => {
                 const el = e.target
 
                 directive.setEventContext(e)
@@ -146,7 +146,8 @@ export default {
                 }
 
                 if (directive.value) {
-                    component.addAction(new MethodAction(method, params, el))
+                    // component.addAction(new MethodAction(method, params, el))
+                    addMethodAction(component, method, params)
                 }
             })
         }

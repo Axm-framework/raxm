@@ -1,4 +1,4 @@
-import { on } from '@/events'
+import { on } from '../events.js'
 
 // // Only allow this in "Simple Preview"...
 // if (! navigator.userAgent.includes('Electron')) return
@@ -14,14 +14,14 @@ on('effects', (component, effects) => {
         if (files) {
             files.forEach(file => {
                 whenFileIsModified(file, () => {
-                    component.$wire.$refresh()
+                    component.$raxm.$refresh()
                 })
             })
         }
     })
 })
 
-let es = new EventSource("/livewire/hot-reload")
+let es = new EventSource("/raxm/hot-reload")
 
 es.addEventListener("message", function(event) {
     let data = JSON.parse(event.data)

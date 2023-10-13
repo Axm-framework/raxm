@@ -2,27 +2,27 @@
 
 namespace Axm\Raxm\Support;
 
+use Axm;
 use Exception;
 use ReflectionClass;
 use ReflectionMethod;
-use Axm;
 use Axm\Exception\AxmException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 trait HandlesActions
 {
-    public function syncInput($name, $value, $rehash = true)
+    public function syncInput(string $name, string|array $value, $rehash = true)
     {
         $propertyName = $this->beforeFirstDot($name);
 
         if (($this->{$propertyName} instanceof Model || $this->{$propertyName} instanceof EloquentCollection) && $this->missingRuleFor($name)) {
-            throw new \Exception("Cannot bind to model data without validation rule: {$name}");
+            throw new Exception("Cannot bind to model data without validation rule: {$name}");
         }
 
         $this->callBeforeAndAfterSyncHooks($name, $value, function ($name, $value) use ($propertyName, $rehash) {
             if (!$this->propertyIsPublicAndNotDefinedOnBaseClass($propertyName)) {
-                throw new \Exception("Public property not found: {$propertyName}");
+                throw new Exception("Public property not found: {$propertyName}");
             }
 
             if ($this->containsDots($name)) {
@@ -47,7 +47,6 @@ trait HandlesActions
     protected function callBeforeAndAfterSyncHooks($name, $value, $callback)
     {
         $name = str_replace('_', '.', $name);
-
         $propertyName = ucfirst(explode('.', $name)[0]);
         $keyAfterFirstDot = null;
         $keyAfterLastDot  = null;
@@ -101,7 +100,7 @@ trait HandlesActions
     }
 
 
-    public function callMethod($method, $params = [], $captureReturnValueCallback = null)
+    public function callMethod(string $method, array $params = [], $captureReturnValueCallback = null)
     {
         $method = trim($method);
         $component = $this->component;
@@ -113,10 +112,12 @@ trait HandlesActions
                 return;
 
             case '$set':
-                $this->syncInput($prop, $params, $rehash = false);
+                [$method, $params] = $prop;
+                $this->syncInput($method, $params, $rehash = false);
                 return;
 
             case '$toggle':
+                $prop = array_shift($prop);
                 if ($this->containsDots($prop)) {
                     $propertyName = $this->beforeFirstDot($prop);
                     $targetKey    = $this->afterFirstDot($prop);
@@ -153,16 +154,6 @@ trait HandlesActions
 
         if ($captureReturnValueCallback !== null) {
             $captureReturnValueCallback($returned);
-        }
-    }
-
-    protected function navigate($payload)
-    {
-        $path = $payload['value'];
-        if (!empty($path)) {
-            $this->ifActionIsNavigate = true;
-        } else {
-            $this->ifActionIsNavigate = false;
         }
     }
 

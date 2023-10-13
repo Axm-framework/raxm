@@ -18,6 +18,10 @@ if (!function_exists('error')) {
                 return $messages;
             }
 
+            if (is_array($messages) && empty($messages[$field])) {
+                return $defaultMessage;
+            }
+
             return $messages[$field] ?? $defaultMessage;
         }
     }

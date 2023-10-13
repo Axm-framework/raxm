@@ -1,4 +1,4 @@
-export default class {
+export default class Message {
     constructor(component, updateQueue) {
         this.component = component
         this.updateQueue = updateQueue
@@ -59,3 +59,15 @@ export default class {
         })
     }
 }
+
+
+export class PrefetchMessage extends Message {
+    constructor(component, action) {
+        super(component, [action])
+    }
+
+    get prefetchId() {
+        return this.updateQueue[0].toId()
+    }
+}
+

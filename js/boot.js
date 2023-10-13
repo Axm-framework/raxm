@@ -1,7 +1,7 @@
 import store from './store.js'
 import DOM from './dom/dom.js'
 import { dispatch } from './util/utils.js'
-import Component from './component/component.js'
+import Component from './component.js'
 import Connection from './connection/request.js'
 
 export function start() {

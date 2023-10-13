@@ -2,12 +2,12 @@
 
 namespace Axm\Raxm\Support;
 
-use Axm\Raxm\Component;
-use Axm\Raxm\Support\FileHandler;
-use Axm\Validation\Validator;
-use Axm\Raxm\Support\InteractsWithProperties;
 use DateTime;
 use DateInterval;
+use Axm\Raxm\Component;
+use Axm\Validation\Validator;
+use Axm\Raxm\Support\FileHandler;
+use Axm\Raxm\Support\InteractsWithProperties;
 
 /**
  * FileUploadController handles file uploads and validation.
@@ -28,8 +28,6 @@ class FileUploadController extends Component
         // add 1 minute
         $time = $currentDateTime->add(new DateInterval('PT1M'));
 
-        // La variable $currentDateTime ahora contiene la fecha y hora actual + 1 minuto
-
         // Check if the request has a valid signature within 5 minutes.
         if (!app()->request->hasValidSignature($time)) {
             return app()->response->abort(401);
@@ -42,7 +40,7 @@ class FileUploadController extends Component
         $files = new FileHandler($_FILES['files']);
 
         // Determine the target disk for storing files.
-        $disk = config('temporary_file_upload.disk');
+        $disk = config('raxm.temporary_file_upload.disk');
 
         // Validate and store the uploaded files.
         $filePaths = $this->validateAndStore($files, $disk);
@@ -68,11 +66,12 @@ class FileUploadController extends Component
         if ($validator->fails()) {
             app()->request->deleteCookie('message_errorFile_upload');
             app()->request->setCookie('message_errorFile_upload', $validator->getFirstError(), 600);
-            throw new \Exception("The failed to upload.");
+
+            throw new \Exception('The failed to upload. Error: ' . $validator->getFirstError());
         }
 
         // Get allowed MIME types for file preview.
-        $mimes = config('temporary_file_upload.preview_mimes');
+        $mimes = config('raxm.temporary_file_upload.preview_mimes');
 
         // Configure FileHandler with allowed extensions and upload directory.
         $files->setAllowedExtensions($mimes);
@@ -119,10 +118,10 @@ class FileUploadController extends Component
      */
     protected function rules()
     {
-        $rules = config('temporary_file_upload.rules');
+        $rules = config('raxm.temporary_file_upload.rules');
 
         if (is_null($rules)) {
-            return ['files' => 'required|file|max:12'];
+            return ['files' => 'required|file|max:54288'];
         }
 
         if (is_array($rules)) return $rules;

@@ -84,7 +84,6 @@ trait WithFileUploads
                     $upload->delete();
                     return false;
                 }
-
                 return true;
             })));
         } elseif ($uploads instanceof FileHandler && $uploads->name() === $tmpFilename) {
