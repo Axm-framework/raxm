@@ -1,8 +1,8 @@
 // This concept is Jonathan Reinink - thanks main!
 export function showHtmlModal(html) {
-    let modal = document.getElementById('raxm-error');
-    
     // Create a new modal only if one does not already exist.
+    let modal = document.getElementById('raxm-error');
+
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'raxm-error';

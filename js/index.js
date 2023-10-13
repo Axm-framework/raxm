@@ -2,6 +2,7 @@ import { directive } from './directives.js'
 import { start, stop, rescan } from './boot.js'
 import { find, first, getByName, all, on, trigger, hook } from './store.js'
 
+
 let Raxm = {
     directive,
     start, stop, rescan,
