@@ -51,7 +51,7 @@ class RaxmManager
      * 
      * @return void
      */
-    protected static function registerConfig()
+    public static function registerConfig()
     {
         $pathFile = dirname(__FILE__, 2);
         app()->config->load($pathFile . '/config/raxm.php');

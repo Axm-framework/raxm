@@ -15,7 +15,7 @@ return [
         | After changing this item, run: `php artisan raxm:discover`.
         |
         */
-        'class_namespace' => 'App\\Http\\Raxm',
+        'class_namespace' => 'App\\Raxm',
 
         /*
         |--------------------------------------------------------------------------
@@ -26,7 +26,18 @@ return [
         | file manipulation helper commands like `artisan make:raxm`.
         |
         */
-        'view_path' => APP_PATH . '/views/raxm/',
+        'view_path' => APP_PATH . '/Views/raxm/',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Component Path
+        |--------------------------------------------------------------------------
+        |
+        | This value sets the path for raxm component views. This affects
+        | file manipulation helper commands like `artisan make:raxm`.
+        |
+        */
+        'component_path' => APP_PATH . '/Raxm/',
 
         /*
         |--------------------------------------------------------------------------

@@ -3,7 +3,7 @@ Raxm is a Raxm package, so you will need to have a Raxm application up and runni
 To install Raxm, open your terminal and navigate to your Raxm application directory, then run the following command:
 
 ```shell
-composer require axm/raxm
+composer require raxm/raxm
 ```
 
 That's it — really. If you want more customization options, keep reading. Otherwise, you can jump right into using Raxm.
