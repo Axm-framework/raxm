@@ -18,9 +18,6 @@ class RaxmManager
     public function register()
     {
         $this->registerRaxmSingleton();
-        // $this->registerConfig();
-        // $this->bootEventBus();
-        // $this->registerMechanisms();
     }
 
     public function registerRaxmSingleton()
@@ -43,7 +40,7 @@ class RaxmManager
      */
     public static function includeHelpers()
     {
-        helpers('utils', __DIR__);
+        helpers('raxmUtils');
     }
 
     /**
