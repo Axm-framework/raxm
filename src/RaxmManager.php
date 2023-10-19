@@ -40,7 +40,7 @@ class RaxmManager
      */
     public static function includeHelpers()
     {
-        helpers('raxmUtils');
+        helpers('raxmUtils', __DIR__);
     }
 
     /**
