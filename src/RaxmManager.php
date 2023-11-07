@@ -15,12 +15,12 @@ class RaxmManager
     public $hasRenderedStyles  = false;
 
 
-    public function register()
+    public static function register()
     {
-        $this->registerRaxmSingleton();
+        self::registerRaxmSingleton();
     }
 
-    public function registerRaxmSingleton()
+    public static function registerRaxmSingleton()
     {
         app('raxm', fn () => new RaxmManager);
     }
@@ -29,7 +29,7 @@ class RaxmManager
     /**
      * Bootstrap the RaxmManager by registering configuration and initializing the EventBus.
      */
-    public function boot()
+    public static function boot()
     {
         self::registerConfig();
         self::bootEventBus();
@@ -154,6 +154,7 @@ class RaxmManager
      */
     public static function mountComponent(Object $class)
     {
+        self::boot();
         $view = static::evaluatePath(
             $class,
             View::$layoutPath . View::$nameLayoutByDefault . '.php',
