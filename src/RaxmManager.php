@@ -4,7 +4,7 @@ namespace Axm\Raxm;
 
 use Axm\Raxm\Component;
 use Axm\Exception\AxmException;
-
+use Axm\Views\View;
 
 class RaxmManager
 {
@@ -122,6 +122,45 @@ class RaxmManager
         $id = bin2hex(random_bytes(10));
         $html = $_instance->initialInstance($id);
         echo $html . PHP_EOL;
+    }
+
+    /**
+     * Evaluate the contents of a view file and return the result as a string.
+     *
+     * @param string $component The component associated with the view.
+     * @param string $path The path to the view file.
+     * @param array $data An associative array of data to be passed to the view.
+     * @return string The evaluated view content as a string.
+     */
+    public static function evaluatePath($component, $path, $data)
+    {
+        ob_start();
+        try {
+            \Closure::bind(function () use ($path, $data) {
+                extract($data, EXTR_SKIP);
+
+                include $path;
+            }, null, $component)();
+        } catch (\Exception $e) {
+            // Handle exceptions of type \Exception (if any).
+        } catch (\Throwable $e) {
+            // Handle exceptions of type \Throwable (if any).
+        }
+        return trim(ob_get_clean());
+    }
+
+    /**
+     * 
+     */
+    public static function mountComponent(Object $class)
+    {
+        $view = static::evaluatePath(
+            $class,
+            View::$layoutPath . View::$nameLayoutByDefault . '.php',
+            ['content' => $class->getView()]
+        );
+        $html = RaxmManager::injectAssets($view);
+        echo $html;
     }
 
     /**
