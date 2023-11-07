@@ -237,7 +237,6 @@ class RaxmManager
         // Added fullAssetPath variable to store the full asset path url with the random id generated in the previous step. 
         $fullAssetPath = ("{$assetUrl}{$fileName}?id={$randomId}");
 
-
         $script = <<<HTML
          <!-- <script>{$windowRaxmCheck}</script> -->
             <script src="{$fullAssetPath}" type="module" {$nonce} {$progressBar} data-csrf="{$csrfToken}" data-baseUrl="{$appUrl}"></script>

@@ -80,6 +80,7 @@ abstract class Component extends BaseController
      */
     public function run()
     {
+ 
         $this->isRaxmRequest();
         $this->extractDataRequest($this->request);
         $this->hydrateFromServerMemo();
