@@ -19,8 +19,10 @@ use Axm\Raxm\Support\ValidatesInput;
 /**
  * Abstract base class for Raxm components.
  *
- * This class serves as the base class for all Raxm components, providing common functionality and methods.
- * Raxm components are used to build dynamic web interfaces with real-time updates and interactions.
+ * This class serves as the base class for all Raxm components,
+ * providing common functionality and methods.
+ * Raxm components are used to build dynamic web interfaces with 
+ * real-time updates and interactions.
  */
 abstract class Component extends BaseController
 {
@@ -80,7 +82,6 @@ abstract class Component extends BaseController
      */
     public function run()
     {
- 
         $this->isRaxmRequest();
         $this->extractDataRequest($this->request);
         $this->hydrateFromServerMemo();
@@ -283,7 +284,8 @@ abstract class Component extends BaseController
 
         $view = $this->getView();
         if ($view instanceof View) {
-            throw new AxmException('"render" method on [' . $this->component . '] must return an instance of [' . View::class . ']');
+            throw new AxmException(Axm::t(' "render" method on %s 
+            must return an instance of %s', [$this->component, View::class]));
         }
 
         return $this->preRenderedView = $view;
@@ -332,55 +334,19 @@ abstract class Component extends BaseController
     }
 
     /**
-     * Get the query string data for the component.
+     * Sets component properties based on provided parameters.
      *
-     * This method retrieves the query string data for the component, considering 
-     * class traits and component-specific query strings.
-     * @return array The query string data.
-     */
-    public function getQueryString()
-    {
-        $componentQueryString = method_exists($this, 'queryString')
-            ? $this->queryString()
-            : $this->queryString;
-
-        $class  = static::class;
-        $traits = class_uses_recursive($class);
-        $queryStringData = [];
-
-        foreach ($traits as $trait) {
-            $member = 'queryString' . class_basename($trait);
-
-            if (method_exists($class, $member)) {
-                $queryStringData = array_merge($queryStringData, $this->{$member}());
-            }
-
-            if (property_exists($class, $member)) {
-                $queryStringData = array_merge($queryStringData, $this->{$member});
-            }
-        }
-
-        $queryStringData = array_merge($queryStringData, $componentQueryString);
-
-        return $queryStringData;
-    }
-
-    /**
-     * Mounts data to the component's public properties.
+     * Populates public properties with valid values from the given array.
      *
-     * This method populates the component's public properties with data provided in the $params array,
-     * ensuring that the data is only assigned to properties that are declared as public and have compatible types.
-     * @param array $params An associative array containing property-value pairs to be assigned to the component.
-     * @return $this The current instance of the component after mounting the data.
+     * @param array $params Associative array of property-value pairs.
+     * @return $this Current instance of the component.
      */
     protected function mount($params = [])
     {
-        // Get the list of public properties for the component.
         $this->publicProperties = ComponentProperties::getPublicProperties($this);
-
         foreach ($params as $property => $value) {
-
-            if (isset($this->publicProperties[$property]) && (is_array($value) || is_scalar($value) || is_null($value))) {
+            if (isset($this->publicProperties[$property]) && (is_array($value)
+                || is_scalar($value) || is_null($value))) {
                 // Assign the value to the property.
                 $this->{$property} = $value;
             }
@@ -457,7 +423,6 @@ abstract class Component extends BaseController
             'dispatches' => $this->getDispatchQueue(),
         ];
 
-        // Verificamos si $this->ifActionIsRedirect es true antes de agregar 'redirect' al array.
         if ($this->ifActionIsRedirect == true) {
             $effects['redirect'] = $this->getRedirectTo();
         }
@@ -465,7 +430,6 @@ abstract class Component extends BaseController
         if ($this->ifActionIsNavigate == true) {
             $effects['navigate'] = $this->getRedirectTo();
         }
-
 
         return $effects;
     }
@@ -511,7 +475,10 @@ abstract class Component extends BaseController
     protected function checkSumAndGenerate($checksum, $fingerprint, $memo)
     {
         if (ComponentCheckSum::check($checksum, $fingerprint, $memo))
-            throw new AxmException("Raxm encountered corrupt data when trying to hydrate the $this->component component. \n" . "Ensure that the [name, id, data] of the Raxm component wasn't tampered with between requests.");
+            throw new AxmException("Raxm encountered corrupt data when 
+                trying to hydrate the $this->component component. \n" .
+                "Ensure that the [name, id, data] 
+                of the Raxm component wasn't tampered with between requests.");
 
         return ComponentCheckSum::generate($fingerprint, $memo);
     }
@@ -551,12 +518,12 @@ abstract class Component extends BaseController
 
     /**
      * Prepare and send a JSON response to the client.
-     * This method prepares the response data and sends it as a JSON response to the client.
+     * This method prepares the response data and sends it as a JSON 
+     * response to the client.
      */
     protected function prepareAndSendJsonResponse()
     {
         $response = $this->prepareResponse();
-
         return $this->response->toJson($response);
     }
 
@@ -571,15 +538,24 @@ abstract class Component extends BaseController
      */
     public function __call($method, $params)
     {
-        $reservedMethods = ['hydrate', 'dehydrate', 'updatingñ', 'updated'];
+        $reservedMethods = ['hydrate', 'dehydrate'];
         if (in_array($method, $reservedMethods)) {
-            throw new AxmException(Axm::t('Raxm', 'This method is reserved for Raxm [%s]', [implode(', ', $reservedMethods)]));
+            throw new AxmException(Axm::t(
+                'Raxm',
+                'This method is reserved for Raxm %s',
+                [implode(', ', $reservedMethods)]
+            ));
         }
 
         $className = static::class;
         if (!method_exists($this, $method)) {
-            throw new AxmException(Axm::t('Raxm', 'Method %s does not exist', ["$className::$method()"]));
+            throw new AxmException(Axm::t(
+                'Raxm',
+                'Method %s does not exist',
+                ["$className::$method()"]
+            ));
         }
+
         return $this->$method(...$params);
     }
 
@@ -597,7 +573,11 @@ abstract class Component extends BaseController
             return $property;
         }
 
-        throw new AxmException(Axm::t('Raxm', 'Property $%s not found on component %s', [$property, $this->component]));
+        throw new AxmException(Axm::t(
+            'Raxm',
+            'Property $%s not found on component %s',
+            [$property, $this->component]
+        ));
     }
 
     /**
@@ -610,7 +590,11 @@ abstract class Component extends BaseController
     public function __isset($property)
     {
         if (null !== $this->__get($property)) {
-            throw new AxmException(Axm::t('Raxm', 'Property $%s not found on component %s', [$property, $this->component]));
+            throw new AxmException(Axm::t(
+                'Raxm',
+                'Property $%s not found on component %s',
+                [$property, $this->component]
+            ));
         }
 
         return true;
