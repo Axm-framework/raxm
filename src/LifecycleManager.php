@@ -19,7 +19,6 @@ class LifecycleManager extends RaxmManager
 	protected static $effects = [];
 	public static $initialresponse;
 
-
 	/**
 	 * Generate the initial fingerprint for the component.
 	 *
@@ -28,17 +27,14 @@ class LifecycleManager extends RaxmManager
 	public static function initialFingerprint(): array
 	{
 		$app  = Axm::app();
-		$hash = hash('sha256', random_bytes(16));
-
 		return [
-			'id'     => $hash,
-			'name'   => strtolower(self::$ucfirstComponentName),
+			'id'     => hash('sha256', random_bytes(16)),
+			'name'   => strtolower(self::componentName()),
 			'locale' => 'EN',
 			'path'   => $app->request->getUri(),
 			'method' => $app->request->getMethod()
 		];
 	}
-
 
 	/**
 	 * Generate the initial effects for the component.
@@ -51,7 +47,6 @@ class LifecycleManager extends RaxmManager
 			'listeners' => []
 		];
 	}
-
 
 	/**
 	 * Create the data server memo for the component.
@@ -70,7 +65,6 @@ class LifecycleManager extends RaxmManager
 		return array_merge(static::initialServerMemo(), $checksum);
 	}
 
-
 	/**
 	 * Generate the initial server memo for the component.
 	 *
@@ -78,18 +72,14 @@ class LifecycleManager extends RaxmManager
 	 */
 	public static function initialServerMemo(): array
 	{
-		// Generate a random HTML hash
-		$hash = hash('sha256', random_bytes(16));
-
 		return [
 			'children' => [],
 			'errors'   => [],
-			'htmlHash' => $hash,
+			'htmlHash' => hash('sha256', random_bytes(16)),
 			'data'     => static::addDataToInitialResponse(),
 			'dataMeta' => [],
 		];
 	}
-
 
 	/**
 	 * Add data to the initial response.
@@ -98,7 +88,9 @@ class LifecycleManager extends RaxmManager
 	 */
 	public static function addDataToInitialResponse(): array
 	{
-		$properties = ComponentProperties::getPublicProperties(static::getInstanceNowComponent()) ?? [];
+		$properties = ComponentProperties::getPublicProperties(
+			static::getInstanceNowComponent()
+		) ?? [];
 
 		return $properties;
 	}

@@ -14,20 +14,9 @@ class RaxmManager
     public $hasRenderedScripts = false;
     public $hasRenderedStyles  = false;
 
-
-    public static function register()
-    {
-        self::registerRaxmSingleton();
-    }
-
-    public static function registerRaxmSingleton()
-    {
-        app('raxm', fn () => new RaxmManager);
-    }
-
-
     /**
-     * Bootstrap the RaxmManager by registering configuration and initializing the EventBus.
+     * Bootstrap the RaxmManager by registering configuration 
+     * and initializing the EventBus.
      */
     public static function boot()
     {
@@ -71,15 +60,8 @@ class RaxmManager
      * @return Component An instance of the specified component.
      * @throws AxmException if the specified component class does not exist.
      */
-    public static function getInstance(string $componentName): Component
+    public static function getInstance(string $className): Component
     {
-        self::$ucfirstComponentName = ucfirst(strtolower($componentName));
-        $className = '\App\Raxm\\' . self::$ucfirstComponentName;
-
-        if (!class_exists($className)) {
-            throw new AxmException("Class $className not found.");
-        }
-
         self::$componentName = $className;
         return self::$instances[$className] ??= new $className;
     }
@@ -91,7 +73,8 @@ class RaxmManager
      */
     public static function componentName()
     {
-        return self::$ucfirstComponentName ?? null;
+        $className = class_basename(self::$componentName);
+        return $className ?? null;
     }
 
     /**
@@ -112,41 +95,23 @@ class RaxmManager
      */
     public static function initializeComponent(string $componentName)
     {
-        $component = ucfirst($componentName);
-        $_instance = self::getInstance($component);
-
-        if (!$_instance instanceof Component) {
-            throw new AxmException("Class $component not found.");
-        }
+        $_instance = self::getInstance($componentName);
 
         $id = bin2hex(random_bytes(10));
         $html = $_instance->initialInstance($id);
-        echo $html . PHP_EOL;
+        return $html;
     }
 
     /**
-     * Evaluate the contents of a view file and return the result as a string.
-     *
-     * @param string $component The component associated with the view.
-     * @param string $path The path to the view file.
-     * @param array $data An associative array of data to be passed to the view.
-     * @return string The evaluated view content as a string.
+     * Run a specified component and display its HTML.
+     * 
+     * @param string $componentName The name of the component to run.
+     * @throws AxmException if the specified component class does not exist.
      */
-    public static function evaluatePath($component, $path, $data)
+    public static function runComponent(string $componentName)
     {
-        ob_start();
-        try {
-            \Closure::bind(function () use ($path, $data) {
-                extract($data, EXTR_SKIP);
-
-                include $path;
-            }, null, $component)();
-        } catch (\Exception $e) {
-            // Handle exceptions of type \Exception (if any).
-        } catch (\Throwable $e) {
-            // Handle exceptions of type \Throwable (if any).
-        }
-        return trim(ob_get_clean());
+        $_instance = self::getInstance($componentName);
+        return $_instance->run();
     }
 
     /**
@@ -155,13 +120,27 @@ class RaxmManager
     public static function mountComponent(Object $class)
     {
         self::boot();
-        $view = static::evaluatePath(
-            $class,
+        $view = View::captureFile(
             View::$layoutPath . View::$nameLayoutByDefault . '.php',
-            ['content' => $class->getView()]
+            ['_content' => self::compileComponent($class)]
         );
+
         $html = RaxmManager::injectAssets($view);
         echo $html;
+    }
+
+    /**
+     * @param Object $component
+     * 
+     */
+    public static function compileComponent(Object $component)
+    {
+        $componentName = $component::class;
+        $html = app()->request->isPost()
+            ? self::runComponent($componentName)
+            : self::initializeComponent($componentName);
+
+        return $html;
     }
 
     /**
@@ -176,7 +155,6 @@ class RaxmManager
         $raxmScripts = static::scripts();
 
         $html = strval($html);
-
         if (preg_match('/<\s*\/\s*head\s*>/i', $html) && preg_match('/<\s*\/\s*body\s*>/i', $html)) {
             $html = preg_replace('/(<\s*\/\s*head\s*>)/i', $raxmStyles  . '$1', $html);
             $html = preg_replace('/(<\s*\/\s*body\s*>)/i', $raxmScripts . '$1', $html);
@@ -251,12 +229,10 @@ class RaxmManager
         app(static::class)->hasRenderedScripts = true;
 
         $debug = config('app.debug');
-
         $scripts = static::js($options);
 
         // HTML Label.
         $html = $debug ? ['<!-- Raxm Scripts -->'] : [];
-
         $html[] = $scripts;
 
         return implode("\n", $html);
@@ -271,35 +247,28 @@ class RaxmManager
     public static function styles($options = [])
     {
         $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
-
         $html = <<<HTML
         <!-- Raxm Styles -->
         <style {$nonce}>
             [axm\:loading], [axm\:loading\.delay], [axm\:loading\.inline-block], [axm\:loading\.inline], [axm\:loading\.block], [axm\:loading\.flex], [axm\:loading\.table], [axm\:loading\.grid], [axm\:loading\.inline-flex] {
                 display: none;
             }
-
             [axm\:loading\.delay\.shortest], [axm\:loading\.delay\.shorter], [axm\:loading\.delay\.short], [axm\:loading\.delay\.long], [axm\:loading\.delay\.longer], [axm\:loading\.delay\.longest] {
                 display:none;
             }
-
             [axm\:offline] {
                 display: none;
             }
-
             [axm\:dirty]:not(textarea):not(input):not(select) {
                 display: none;
             }
-
             [x-cloak] {
                 display: none;
             }
-            
             input:-webkit-autofill, select:-webkit-autofill, textarea:-webkit-autofill {
                 animation-duration: 50000s;
                 animation-name: raxmautofill;
             }
-
             @keyframes raxmautofill { from {} }
         </style>
         <!-- END Raxm Styles -->

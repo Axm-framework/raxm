@@ -213,7 +213,7 @@ abstract class Component extends BaseController
         $this->prepareResponse();
 
         // Return the response to the client.
-        return show($this->html());
+        return $this->html();
     }
 
     /**
