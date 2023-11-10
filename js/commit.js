@@ -47,17 +47,19 @@ export function addAction(component, action) {
 }
 
 export function get(component, name) {
-    // The .split() stuff is to support dot-notation.
     return name
         .split('.')
-        .reduce((carry, segment) => typeof carry === 'undefined' ? carry : carry[segment], component.data)
+        .reduce((carry, segment) => typeof carry === 'undefined' 
+        ? carry : carry[segment], component.data)
 }
 
 export async function set(component, name, value, defer = false, skipWatcher = false) {
     if (defer) {
-        addAction(component, new DeferredModelAction(name, value, component.el, skipWatcher))
+        addAction(component, 
+            new DeferredModelAction(name, value, component.el, skipWatcher))
     } else {
-        addAction(component, new MethodAction('$set', [name, value], component.el, skipWatcher))
+        addAction(component, 
+            new MethodAction('$set', [name, value], component.el, skipWatcher))
     }
 }
 
@@ -69,7 +71,6 @@ export async function sync(component, name, value, defer = false) {
     }
 }
 
-let modelDebounceCallbacks = []
 export function modelSyncDebounce(callback, time) {
     // Prepare yourself for what's happening here.
     // Any text input with axm:model on it should be "debounced" by ~150ms by default.
@@ -78,47 +79,33 @@ export function modelSyncDebounce(callback, time) {
     // This is a modified debounce function that acts just like a debounce, except it stores
     // the pending callbacks in a global property so we can "clear them" on command instead
     // of waiting for their setTimeouts to expire. I know.
-    if (!modelDebounceCallbacks) modelDebounceCallbacks = []
+    let modelDebounceCallbacks = []
 
     // This is a "null" callback. Each axm:model will resister one of these upon initialization.
     let callbackRegister = { callback: () => {} }
     modelDebounceCallbacks.push(callbackRegister)
 
-    // This is a normal "timeout" for a debounce function.
-    var timeout
+    let timeout
     return e => {
         clearTimeout(timeout)
         timeout = setTimeout(() => {
             callback(e)
             timeout = undefined
-            // Because we just called the callback, let's return the
-            // callback register to it's normal "null" state.
-            callbackRegister.callback = () => {}
+            callbackRegister.callback()
         }, time)
-
-        // Register the current callback in the register as a kind-of "escape-hatch".
-        callbackRegister.callback = () => {
-            clearTimeout(timeout)
-            callback(e)
-        }
+        callbackRegister.callback = () => clearTimeout(timeout)
     }
 }
 
-export function callAfterModelDebounce(callback) {
-    // This is to protect against the following scenario:
-    // A user is typing into a debounced input, and hits the enter key.
-    // If the enter key submits a form or something, the submission
-    // will happen BEFORE the model input finishes syncing because
-    // of the debounce. This makes sure to clear anything in the debounce queue.
+export function callAfterModelDebounce(callback, modelDebounceCallbacks) {
     if (modelDebounceCallbacks) {
         modelDebounceCallbacks.forEach(callbackRegister => {
             callbackRegister.callback()
-            callbackRegister.callback = () => {}
         })
     }
-
     callback()
 }
+
 
 export function addPrefetchAction(component, action) {
     if (component.prefetchManager.actionHasPrefetch(action)) return
@@ -128,4 +115,3 @@ export function addPrefetchAction(component, action) {
     component.prefetchManager.addMessage(message)
     component.connection.sendMessage(message)
 }
-

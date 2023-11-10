@@ -74,7 +74,8 @@ export default class Component {
             if (!el) return carryCount
 
             // If we see the "end" marker, we can return the number of elements in between we've seen.
-            if (el.nodeType === Node.COMMENT_NODE && el.textContent.includes(`${PREFIX_STRING}-end:${this.id}`)) return carryCount
+            if (el.nodeType === Node.COMMENT_NODE 
+                && el.textContent.includes(`${PREFIX_STRING}-end:${this.id}`)) return carryCount
 
             let newlyDiscoveredEls = el.nodeType === Node.ELEMENT_NODE ? 1 : 0
 
@@ -87,7 +88,6 @@ export default class Component {
     }
 
     initialize() {  
-         
         this.walk(
             // Will run for every node in the component tree (not child component nodes).
             el => nodeInitializer.initialize(el, this),
@@ -150,9 +150,6 @@ export default class Component {
     //mioooo
     incribeInitialDataOnElement() {
         let el = this.el
-        console.log(
-            this.encodeIData
-        )
         el.setAttribute(`${PREFIX_DISPLAY}initial-data`, this.encodeIData)
     }
 

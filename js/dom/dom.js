@@ -13,20 +13,10 @@ export default {
     },
 
     rootComponentElementsWithNoParents(node = null) {
-        if (node === null) {
-            node = document
-        }
-
-        // In CSS, it's simple to select all elements that DO have a certain ancestor.
-        // However, it's not simple (kinda impossible) to select elements that DONT have
-        // a certain ancestor. Therefore, we will flip the logic: select all roots that DO have
-        // have a root ancestor, then select all roots that DONT, then diff the two.
-
-        // Convert NodeLists to Arrays so we can use ".includes()". Ew.
-        const allEls = Array.from(node.querySelectorAll(`[${PREFIX_REGEX}initial-data]`))
-        const onlyChildEls = Array.from(node.querySelectorAll(`[${PREFIX_REGEX}initial-data] [${PREFIX_REGEX}initial-data]`))
-
-        return allEls.filter(el => !onlyChildEls.includes(el))
+        if (node === null) node = document
+        
+        const els = node.querySelectorAll(`[${PREFIX_REGEX}initial-data]:not([${PREFIX_REGEX}initial-data] > [${PREFIX_REGEX}initial-data])`);
+        return Array.from(els);
     },
 
     allModelElementsInside(root) {
@@ -49,7 +39,6 @@ export default {
 
     closestByAttribute(el, attribute) {
         const closestEl = el.closest(`[${PREFIX_REGEX}${attribute}]`)
-
         if (!closestEl) {
             throw `
                 Raxm Error:\n
@@ -59,7 +48,6 @@ export default {
                 Referenced element:\n
             ${el.outerHTML}`
         }
-
         return closestEl
     },
 
@@ -89,14 +77,14 @@ export default {
 
     isInput(el) {
         return ['INPUT', 'TEXTAREA', 'SELECT'].includes(
-            el.tagName
+            el.tagName.toUpperCase()
         )
     },
 
     isTextInput(el) {
         return (
-            ['INPUT', 'TEXTAREA'].includes(el.tagName) &&
-           !['checkbox', 'radio'].includes(el.type)
+            ['INPUT', 'TEXTAREA'].includes(el.tagName.toUpperCase()) &&
+            !['checkbox', 'radio'].includes(el.type)
         )
     },
 
@@ -119,7 +107,7 @@ export default {
             } else {
                 return false
             }
-        } else if (el.tagName === 'SELECT' && el.multiple) {
+        } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
             return this.getSelectValues(el)
         }
 
@@ -142,7 +130,7 @@ export default {
 
         // Don't manually set file input's values.
         if (
-            el.tagName === 'INPUT' &&
+            el.tagName.toLowerCase() === 'input' &&
             el.type === 'file'
         )
             return
@@ -171,7 +159,7 @@ export default {
             } else {
                 el.checked = !!value
             }
-        } else if (el.tagName === 'SELECT') {
+        } else if (el.tagName.toLowerCase() === 'select') {
             this.updateSelect(el, value)
         } else {
             value = value === undefined ? '' : value
@@ -199,13 +187,10 @@ export default {
     },
 
     isAsset(el) {
-        return (
-            el.tagName.toLowerCase() === 'link' && el.getAttribute('rel').toLowerCase() === 'stylesheet' ||
-            el.tagName.toLowerCase() === 'style' ||
-            el.tagName.toLowerCase() === 'script'
-        )
+        const assetTags = ['link', 'style', 'script'];
+        return assetTags.includes(el.tagName.toLowerCase());
     },
-
+      
     isScript(el) {
         return el.tagName.toLowerCase() === 'script'
     },
@@ -227,7 +212,5 @@ export default {
             result = result.replace(regex, '')
         })
         return result.trim()
-    }
-    
-    
+    }    
 }

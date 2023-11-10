@@ -45,8 +45,6 @@ function attachModelListener(el, directive, component) {
         || ['checkbox', 'radio'].includes(el.type)
         || isLazy ? 'change' : 'input'
 
-
-    // let update = () => component.$raxm.$refresh()
     const debounceIf = (condition, callback, time) => {
         return condition
             ? modelSyncDebounce(callback, time)

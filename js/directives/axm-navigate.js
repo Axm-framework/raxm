@@ -1,6 +1,7 @@
 import { directive } from "../directives.js"
 import DOM from "../dom/dom.js"
 
+
 directive('navigate', ({ el, directive, component }) => {
     el.addEventListener('click', navigationManager.handleNavigate)
 })
@@ -19,7 +20,6 @@ class NavigationManager {
         if (this.shouldInterceptClick(event)) return
         event.preventDefault()
 
-        this.updateHistoryStateForCurrentPage()
         const newUrl = event.target.getAttribute('href')
         this.navigateTo(newUrl)
     }
@@ -35,27 +35,20 @@ class NavigationManager {
     }
 
     async navigateTo(url) {
-        const newUrl = new URL(url, document.baseURI)
+                
+        this.updateHistoryStateForCurrentPage()
 
-        // Verifica si la URL actual es igual a la nueva URL
-        if (window.location.href === newUrl.href) {
-            // Recupera el estado almacenado en el historial y renderiza la vista
-            const state = history.state
-            if (state && state.raxm && state.raxm._html) {
-                renderView(fromSessionStorage(state.raxm._html))
-                window.Raxm.start()
-                return
-            }
-        }
-
-        // Cargar vista
+        // change view
         const response = await loadView(url)
 
         const pageState = { html: response.html }
-        const urlObject = new URL(url, document.baseURI)  // Actualiza el objeto de URL nuevamente
+        const urlObject = new URL(url, document.baseURI)
 
-        // Utiliza pushState para agregar una nueva entrada al historial
-        this.pushState(urlObject, pageState.html)
+        if (window.location.href === urlObject.href) {
+            this.replaceState(urlObject, pageState.html); 
+        }else{
+            this.pushState(urlObject, pageState.html);
+        }
 
         renderView(response.html)
     }
@@ -65,7 +58,7 @@ class NavigationManager {
         if (state && state.raxm && state.raxm._html) {
             renderView(this.fromSessionStorage(state.raxm._html))
         } else {
-            this.navigateTo(window.location.href)
+            this.navigateTo(window.location.href, true)
             return
         }
         dispatchEvent(new Event('raxm:popstate'))
@@ -77,7 +70,8 @@ class NavigationManager {
         const currentState = {
             html: document.documentElement.outerHTML
         }
-        this.pushState(currentPageUrl, currentState.html)
+
+        this.replaceState(currentPageUrl, currentState.html)
     }
 
     pushState(url, html) {
@@ -139,7 +133,6 @@ class NavigationManager {
 }
 
 const navigationManager = new NavigationManager()
-
 
 // Cargar vista 
 async function loadView(url) {
@@ -251,5 +244,5 @@ export function replaceState(url, html) {
 }
 
 export function navigateTo(url) {
-    navigationManager.navigateTo(url)
+    navigationManager.navigateTo(url, true)
 }

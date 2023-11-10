@@ -34,15 +34,13 @@ abstract class Component extends BaseController
     protected ?Request  $request;
     protected ?Response $response;
     protected bool $shouldSkipRendering = false;
-
     protected ?array  $serverMemo  = null;
     protected ?array  $fingerprint = null;
     protected ?array  $updates = null;
-    protected ?array  $publicProperties;
+    protected ?array  $publicProperties = [];
     protected ?string $preRenderedView;
-    protected bool $ifActionIsRedirect  = false;
-    protected bool $ifActionIsNavigate  = false;
-
+    protected bool $ifActionIsRedirect = false;
+    protected bool $ifActionIsNavigate = false;
     public ?string $id;
     public ?array $effects = [];
 
@@ -53,11 +51,12 @@ abstract class Component extends BaseController
     protected $params;
     protected $payload;
 
+    protected $return = [];
+
     protected $eventQueue    = [];
     protected $dispatchQueue = [];
     protected $listeners     = [];
     protected $queryString   = [];
-
     protected $rules = [];
 
     public $tmpfile;
@@ -87,7 +86,8 @@ abstract class Component extends BaseController
         $this->hydrateFromServerMemo();
         $this->hydratePayload();
         $this->dispatchEvents();
-        $this->prepareAndSendJsonResponse();
+        $this->compileResponse();
+        $this->sendJsonResponse();
     }
 
     /**
@@ -140,7 +140,6 @@ abstract class Component extends BaseController
     private function hydratePayload()
     {
         $payloads = $this->updates ?? [];
-
         foreach ($payloads as $item) {
             $payload = $this->payload = $item['payload'];
 
@@ -188,27 +187,17 @@ abstract class Component extends BaseController
     }
 
     /**
-     * Generate a random ID.
-     *
-     * This method generates a random ID using the `randomId` function.
-     * @return string The generated random ID.
-     */
-    private function generateId(): string
-    {
-        return hash('sha256', randomId());
-    }
-
-    /**
      * Initialize the Raxm component.
      *
-     * This method initializes the Raxm component, setting its ID and preparing the response for the client.
+     * This method initializes the Raxm component, setting its ID and preparing 
+     * the response for the client.
      * @param string|null $id The component ID (optional).
      * @return mixed The response to send to the client.
      */
     public function initialInstance($id = null)
     {
         // Generate a random ID if one is not already set.
-        $this->id = $id ?? bin2hex(random_bytes(20));
+        $this->id = $id ?? bin2hex(random_bytes(10));
 
         // Prepare the response that will be sent to the client.
         $this->prepareResponse();
@@ -220,7 +209,8 @@ abstract class Component extends BaseController
     /**
      * Get the HTML representation of the component.
      *
-     * This method returns the HTML representation of the component, which is stored in the 'effects' array.
+     * This method returns the HTML representation of the component, 
+     * which is stored in the 'effects' array.
      * @return string|null The HTML representation of the component.
      */
     public function html()
@@ -266,7 +256,7 @@ abstract class Component extends BaseController
     {
         $fingerprint = $this->fingerprint ?? LifecycleManager::initialFingerprint();
         $effects     = array_diff_key($this->effects, ['html' => null]) ?: LifecycleManager::initialEffects();
-        $serverMemo  = $this->serverMemo ?? LifecycleManager::createDataServerMemo();
+        $serverMemo  = $this->serveMemo() ?? LifecycleManager::createDataServerMemo();
 
         return compact('fingerprint', 'effects', 'serverMemo');
     }
@@ -337,7 +327,6 @@ abstract class Component extends BaseController
      * Sets component properties based on provided parameters.
      *
      * Populates public properties with valid values from the given array.
-     *
      * @param array $params Associative array of property-value pairs.
      * @return $this Current instance of the component.
      */
@@ -368,19 +357,6 @@ abstract class Component extends BaseController
     }
 
     /**
-     * Output the component data.
-     *
-     * This method outputs the component data, which is either the rendered 
-     * view or null if rendering is skipped.
-     * @return string|null The component data.
-     */
-    protected function output()
-    {
-        if ($this->shouldSkipRendering) return null;
-        return $this->renderToView();
-    }
-
-    /**
      * Prepare the response data for the client.
      *
      * This method prepares the response data that will be sent to the client, 
@@ -389,21 +365,28 @@ abstract class Component extends BaseController
      */
     protected function prepareResponse(): array
     {
-        $this->embedThyselfInHtml();
-        $this->embedIdInHtml();
-
         return [
             'effects' => $this->effects(),
-            'serverMemo' => [
-                'htmlHash' => randomId(8),
-                'data'     => $this->dataResponse(),
-                'checksum' => $this->checkSumAndGenerate(
-                    $this->serverMemo['checksum'] ?? '',
-                    $this->fingerprint ?? [],
-                    $this->serverMemo  ?? []
-                )
-            ],
+            'serverMemo' => $this->serveMemo(),
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function serveMemo()
+    {
+        $serverMemo = [
+            'htmlHash' => randomId(8),
+            'data'     => $this->dataResponse(),
+            'checksum' => $this->checkSumAndGenerate(
+                $this->serverMemo['checksum'] ?? '',
+                $this->fingerprint ?? [],
+                $this->serverMemo  ?? []
+            )
+        ];
+
+        return $serverMemo;
     }
 
     /**
@@ -415,6 +398,9 @@ abstract class Component extends BaseController
      */
     protected function effects()
     {
+        $this->embedThyselfInHtml();
+        $this->embedIdInHtml();
+
         $effects = [
             'html'  => $this->html(),
             'dirty' => $this->getChangedData(),
@@ -423,6 +409,7 @@ abstract class Component extends BaseController
             'dispatches' => $this->getDispatchQueue(),
         ];
 
+        // Verificamos si $this->ifActionIsRedirect es true antes de agregar 'redirect' al array.
         if ($this->ifActionIsRedirect == true) {
             $effects['redirect'] = $this->getRedirectTo();
         }
@@ -433,7 +420,6 @@ abstract class Component extends BaseController
 
         return $effects;
     }
-
 
     /**
      * Add effects data to the component.
@@ -521,10 +507,17 @@ abstract class Component extends BaseController
      * This method prepares the response data and sends it as a JSON 
      * response to the client.
      */
-    protected function prepareAndSendJsonResponse()
+    protected function compileResponse()
     {
-        $response = $this->prepareResponse();
-        return $this->response->toJson($response);
+        return $this->return = $this->prepareResponse();
+    }
+
+    /**
+     * 
+     */
+    public function sendJsonResponse()
+    {
+        return $this->response->toJson($this->return);
     }
 
     /**

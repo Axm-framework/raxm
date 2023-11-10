@@ -82,13 +82,18 @@ export function dispatch(eventName) {
 // A little DOM-tree walker.
 // (TreeWalker won't do because I need to conditionaly ignore sub-trees using the callback)
 export function walk(root, callback) {
-    if (callback(root) === false) return
 
-    let node = root.firstElementChild
+    const visited = new Set();
 
-    while (node) {
-        walk(node, callback)
-        node = node.nextElementSibling
+    const stack = [root];
+    while (stack.length) {
+        const node = stack.pop();
+        if (visited.has(node)) continue;
+
+        visited.add(node);
+
+        if (callback(node) === false) return;
+        stack.push(...node.children);
     }
 }
 
