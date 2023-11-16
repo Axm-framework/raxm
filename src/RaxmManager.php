@@ -40,7 +40,8 @@ class RaxmManager
     public static function registerConfig()
     {
         $pathFile = dirname(__FILE__, 2);
-        app()->config->load($pathFile . '/config/raxm.php');
+        $file = $pathFile . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'raxm.php';
+        app()->config->load($file);
     }
 
     /**
@@ -120,13 +121,14 @@ class RaxmManager
     public static function mountComponent(Object $class)
     {
         self::boot();
-        $view = View::captureFile(
-            View::$layoutPath . View::$nameLayoutByDefault . '.php',
+        $view_instance = View::make();
+        $view = $view_instance::captureFile(
+            $view_instance::$layoutPath . DIRECTORY_SEPARATOR . $view_instance::$nameLayoutByDefault . '.php',
             ['_content' => self::compileComponent($class)]
         );
 
-        $html = RaxmManager::injectAssets($view);
-        echo $html;
+        $html = $view_instance::injectAssets($view, static::styles(), static::scripts());
+        echo $html . PHP_EOL;
     }
 
     /**
@@ -139,31 +141,6 @@ class RaxmManager
         $html = app()->request->isPost()
             ? self::runComponent($componentName)
             : self::initializeComponent($componentName);
-
-        return $html;
-    }
-
-    /**
-     * Inject Raxm styles and JavaScript assets into HTML content.
-     * 
-     * @param string $html The HTML content to inject assets into.
-     * @return string The modified HTML content with injected assets.
-     */
-    public static function injectAssets($html)
-    {
-        $raxmStyles  = static::styles();
-        $raxmScripts = static::scripts();
-
-        $html = strval($html);
-        if (preg_match('/<\s*\/\s*head\s*>/i', $html) && preg_match('/<\s*\/\s*body\s*>/i', $html)) {
-            $html = preg_replace('/(<\s*\/\s*head\s*>)/i', $raxmStyles  . '$1', $html);
-            $html = preg_replace('/(<\s*\/\s*body\s*>)/i', $raxmScripts . '$1', $html);
-
-            return $html;
-        }
-
-        $html = preg_replace('/(<\s*html(?:\s[^>])*>)/i', '$1' . $raxmStyles, $html);
-        $html = preg_replace('/(<\s*\/\s*html\s*>)/i', $raxmScripts . '$1', $html);
 
         return $html;
     }
@@ -198,9 +175,9 @@ class RaxmManager
     protected static function js(array $options = [])
     {
         $app = app();
-        $assetUrl = $app->config()->get('raxm.asset_url');
-        $fileName = $app->config()->get('raxm.fileName');
-        $appUrl   = $app->config()->get('raxm.app_url');
+        $assetUrl = $app->config('raxm.asset_url');
+        $fileName = $app->config('raxm.fileName');
+        $appUrl   = $app->config('raxm.app_url');
 
         $csrfToken = "'" . $app->getCsrfToken() . "'"  ??  'null';
 
@@ -211,7 +188,7 @@ class RaxmManager
         // Added randomId variable to generate a random id for the asset path url using crc32 and rand functions. 
         $randomId = crc32(rand(1000000, 99999999));
 
-        $progressBar = $app->config()->get('raxm.navigate.show_progress_bar', true) ? '' : 'data-no-progress-bar';
+        $progressBar = $app->config('raxm.navigate.show_progress_bar', true) ? '' : 'data-no-progress-bar';
 
         // Added fullAssetPath variable to store the full asset path url with the random id generated in the previous step. 
         $fullAssetPath = ("{$assetUrl}{$fileName}?id={$randomId}");
@@ -221,7 +198,7 @@ class RaxmManager
             <script src="{$fullAssetPath}" type="module" {$nonce} {$progressBar} data-csrf="{$csrfToken}" data-baseUrl="{$appUrl}"></script>
         HTML;
 
-        return $script . "\n";
+        return $script . PHP_EOL;
     }
 
     public static function scripts($options = [])
@@ -235,7 +212,7 @@ class RaxmManager
         $html = $debug ? ['<!-- Raxm Scripts -->'] : [];
         $html[] = $scripts;
 
-        return implode("\n", $html);
+        return implode(PHP_EOL, $html);
     }
 
     /**
