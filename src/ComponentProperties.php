@@ -102,7 +102,7 @@ class ComponentProperties
     public static function getPublicProperties(Object $instance): array
     {
         $class = new \ReflectionClass(get_class($instance));
-        $properties = $class->getPublicProperties();
+        $properties = $class->getProperties(\ReflectionMethod::IS_PUBLIC);
 
         $publicProperties = [];
         foreach ($properties as $property) {
@@ -195,7 +195,6 @@ class ComponentProperties
 
             $this->{$property} = $freshInstance->{$property};
         }
-
     }
 
     /**
@@ -204,12 +203,12 @@ class ComponentProperties
      * @param mixed $name
      * @return void
      */
-    public static function resetProperty($name) {
-
-        $this->{$name} = $defaultValue; 
+    public static function resetProperty($name)
+    {
+        $this->{$name} = $defaultValue;
     }
 
-     /**
+    /**
      * Reset all properties except the specified ones to their initial values or default values.
      * @param mixed ...$properties List of properties to keep; others will be reset.
      */
