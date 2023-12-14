@@ -13,7 +13,7 @@ class MakeRaxm extends BaseCommand
      * The Command's Group
      * @var string
      */
-    protected $group = 'Axm';
+    protected $group = 'Raxm';
 
     /**
      * The Command's Name
