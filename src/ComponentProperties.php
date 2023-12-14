@@ -2,10 +2,18 @@
 
 namespace Axm\Raxm;
 
-
+/**
+ * Class ComponentProperties
+ *
+ * This class provides methods for working with properties defined by subclasses.
+ * @package Axm\Raxm
+ */
 class ComponentProperties
 {
-
+    /**
+     * Get public properties defined by the subclass.
+     * @return array
+     */
     public static function getPublicPropertiesDefinedBySubClass()
     {
         $publicProperties = array_filter((new \ReflectionObject($this))->getProperties(), function ($property) {
@@ -23,7 +31,10 @@ class ComponentProperties
         return $data;
     }
 
-
+    /**
+     * Get protected or private properties defined by the subclass.
+     * @return array
+     */
     public static function getProtectedOrPrivatePropertiesDefinedBySubClass()
     {
         $properties = (new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
@@ -39,7 +50,12 @@ class ComponentProperties
         return $data;
     }
 
-
+    /**
+     * Get the initialized property value.
+     *
+     * @param \ReflectionProperty $property The property reflection.
+     * @return mixed|null
+     */
     public function getInitializedPropertyValue(\ReflectionProperty $property)
     {
         // Ensures typed property is initialized in PHP >=7.4, if so, return its value,
@@ -51,7 +67,12 @@ class ComponentProperties
         return $property->getValue($this);
     }
 
-
+    /**
+     * Check if the class has a specific property.
+     *
+     * @param string $prop The property name.
+     * @return bool
+     */
     public static function hasProperty($prop)
     {
         return property_exists(
@@ -60,19 +81,30 @@ class ComponentProperties
         );
     }
 
-
+    /**
+     * Set the value of a specific property.
+     *
+     * @param string $name The property name.
+     * @param mixed $value The value to set.
+     * @return mixed
+     */
     public static function setPropertyValue($name, $value)
     {
         return $this->{$name} = $value;
     }
 
-
-    public static function getPublicProperties(Object $instance)
+    /**
+     * Get public properties of an object.
+     *
+     * @param object $instance The object instance.
+     * @return array
+     */
+    public static function getPublicProperties(Object $instance): array
     {
         $class = new \ReflectionClass(get_class($instance));
-        $properties = $class->getProperties(\ReflectionMethod::IS_PUBLIC);
-        $publicProperties = [];
+        $properties = $class->getPublicProperties();
 
+        $publicProperties = [];
         foreach ($properties as $property) {
             if ($property->class == $class->getName()) {
                 $publicProperties[$property->getName()] = $property->getValue($instance);
@@ -81,7 +113,13 @@ class ComponentProperties
         return $publicProperties;
     }
 
-
+    /**
+     * Get public methods of an object, excluding specified exceptions.
+     *
+     * @param object|string $instance The object instance or class name.
+     * @param array $exceptions Methods to exclude.
+     * @return array
+     */
     public static function getPublicMethods($instance, array $exceptions = [])
     {
         $class   = new \ReflectionClass(is_string($instance) ? $instance : get_class($instance));
@@ -96,7 +134,13 @@ class ComponentProperties
         return $publicMethods;
     }
 
-
+    /**
+     * Check if a property is public in the object instance.
+     *
+     * @param object $instance The object instance.
+     * @param string $propertyName The property name.
+     * @return bool
+     */
     public static function propertyIsPublic(Object $instance, $propertyName)
     {
         $property   = [];
@@ -110,7 +154,13 @@ class ComponentProperties
         return in_array($propertyName, $property) ? true : false;
     }
 
-
+    /**
+     * Check if a method is public in the object instance.
+     *
+     * @param object $instance The object instance.
+     * @param string $methodName The method name.
+     * @return bool
+     */
     public static function methodIsPublic(Object $instance, $methodName)
     {
         $methodes   = [];
@@ -124,7 +174,10 @@ class ComponentProperties
         return in_array($methodName, $methodes) ? true : false;
     }
 
-
+    /**
+     * Reset specified properties to their initial values or default values.
+     * @param mixed ...$properties List of properties to reset.
+     */
     public static function reset(...$properties)
     {
         $propertyKeys = array_keys($this->getPublicProperties($this));
@@ -135,18 +188,31 @@ class ComponentProperties
         }
 
         // Reset all
-        if (empty($properties)) {
-            $properties = $propertyKeys;
-        }
+        if (empty($properties)) $properties = $propertyKeys;
 
         foreach ($properties as $property) {
             $freshInstance = new static($this->id);
 
             $this->{$property} = $freshInstance->{$property};
         }
+
     }
 
+    /**
+     * Allows the resetting of properties from outside the class
+     * 
+     * @param mixed $name
+     * @return void
+     */
+    public static function resetProperty($name) {
 
+        $this->{$name} = $defaultValue; 
+    }
+
+     /**
+     * Reset all properties except the specified ones to their initial values or default values.
+     * @param mixed ...$properties List of properties to keep; others will be reset.
+     */
     public static function resetExcept(...$properties)
     {
         if (count($properties) && is_array($properties[0]))
@@ -156,6 +222,10 @@ class ComponentProperties
         $this->reset($keysToReset);
     }
 
+    /**
+     * Get an array of all public properties of the instance.
+     * @return array
+     */
     public static function all()
     {
         return $this->getPublicProperties($this);

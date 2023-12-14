@@ -6,7 +6,7 @@ use Axm;
 use Exception;
 use ReflectionClass;
 use ReflectionMethod;
-use Axm\Exception\AxmException;
+use RuntimeException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -80,8 +80,6 @@ trait HandlesActions
             $this->$beforeNestedMethod($value, $keyAfterLastDot);
         }
 
-        // Livewire::dispatch('component.updating', $this, $name, $value);
-
         $callback($name, $value);
 
         if (method_exists($this, 'updated')) {
@@ -95,8 +93,6 @@ trait HandlesActions
         if ($afterNestedMethod && method_exists($this, $afterNestedMethod)) {
             $this->$afterNestedMethod($value, $keyAfterLastDot);
         }
-
-        // Livewire::dispatch('component.updated', $this, $name, $value);
     }
 
 
@@ -137,19 +133,19 @@ trait HandlesActions
 
         if (!method_exists($this, $method)) {
             if ($method === 'startUpload') {
-                throw new AxmException(Axm::t('Raxm','Cannot handle file upload without 
+                throw new RuntimeException(sprintf('Cannot handle file upload without 
                 [Axm\Raxm\Suport\WithFileUploads] trait on the %s component class.', [$component]));
             }
         }
 
         if (!method_exists($this, $method)) {
-            throw new AxmException(Axm::t('Raxm','Unable to call component method. Public method %s
+            throw new RuntimeException(sprintf('Unable to call component method. Public method %s
              not found on component: %s', [$method, $component]));
         }
 
         // Implementación para verificar método público y no definido en la clase base
         if (!$this->methodIsPublicAndNotDefinedOnBaseClass($method)) {
-            throw new AxmException(Axm::t('Raxm', 'Unable to set component data. 
+            throw new RuntimeException(sprintf('Unable to set component data. 
             Public method %s not found on component: %s', [$method, $component]));
         }
 

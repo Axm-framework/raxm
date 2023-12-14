@@ -3,8 +3,9 @@
 namespace Axm\Raxm;
 
 use Axm;
+use Exception;
 use Axm\Views\View;
-use Axm\Exception\AxmException;
+use RuntimeException;
 use Axm\Http\Request;
 use Axm\Http\Response;
 use Axm\Raxm\ComponentCheckSum;
@@ -43,16 +44,13 @@ abstract class Component extends BaseController
     protected bool $ifActionIsNavigate = false;
     public ?string $id;
     public ?array $effects = [];
-
     protected $id_p;
     protected $component;
     protected $type;
     protected $method;
     protected $params;
     protected $payload;
-
     protected $return = [];
-
     protected $eventQueue    = [];
     protected $dispatchQueue = [];
     protected $listeners     = [];
@@ -100,7 +98,7 @@ abstract class Component extends BaseController
     private function isRaxmRequest()
     {
         if ($this->request->getHeader('x-axm') != true) {
-            throw new AxmException(Axm::t('Raxm', 'This request is not a Raxm request'));
+            throw new Exception('This request is not a Raxm request');
         }
     }
 
@@ -168,7 +166,7 @@ abstract class Component extends BaseController
                 return $this->fireEvent($this->method, $this->params, $this->id_p);
 
             default:
-                throw new AxmException('Unknown event type: ' . $this->type);
+                throw new Exception('Unknown event type: ' . $this->type);
         }
     }
 
@@ -267,19 +265,22 @@ abstract class Component extends BaseController
      * This method renders the component to a view, which is either returned by 
      * the 'render' method or a default view.
      * @return string|null The rendered view or null if not found.
+     * @throws \Exception If the "render" method does not return an instance of View.
      */
     private function renderToView()
     {
         app('raxm')->includeHelpers();
 
         $view = $this->getView();
-        if ($view instanceof View) {
-            throw new AxmException(Axm::t(' "render" method on %s 
-            must return an instance of %s', [$this->component, View::class]));
+        if (!($view instanceof View)) {
+            throw new Exception(
+                sprintf('"render" method on %s must return an instance of %s', $this->component, View::class)
+            );
         }
 
         return $this->preRenderedView = $view;
     }
+
 
     /**
      * Call the component's 'render' method.
@@ -372,22 +373,27 @@ abstract class Component extends BaseController
     }
 
     /**
-     * @return array
+     * Generates and serves a memo containing specific information.
+     * @return array The generated memo including a random HTML hash,
+     * a data response, and a checksum.
      */
     public function serveMemo()
     {
+        // Create an associative array representing the memo to be served.
         $serverMemo = [
-            'htmlHash' => randomId(8),
-            'data'     => $this->dataResponse(),
+            'htmlHash' => randomId(8),   // Generate a random HTML hash with 8 characters.
+            'data'     => $this->dataResponse(),  // Get the data response using the dataResponse() method.
             'checksum' => $this->checkSumAndGenerate(
-                $this->serverMemo['checksum'] ?? '',
-                $this->fingerprint ?? [],
-                $this->serverMemo  ?? []
+                $this->serverMemo['checksum'] ?? '',   // Get the current checksum of the memo or a default value.
+                $this->fingerprint ?? [],   // Get the fingerprint or an empty array if not defined.
+                $this->serverMemo  ?? []    // Get the current memo or an empty array if not defined.
             )
         ];
 
+        // Return the generated memo.
         return $serverMemo;
     }
+
 
     /**
      * Get the effects data for the client.
@@ -409,7 +415,7 @@ abstract class Component extends BaseController
             'dispatches' => $this->getDispatchQueue(),
         ];
 
-        // Verificamos si $this->ifActionIsRedirect es true antes de agregar 'redirect' al array.
+        // Check if $this->ifActionIsRedirect is true before adding 'redirect' to the array.
         if ($this->ifActionIsRedirect == true) {
             $effects['redirect'] = $this->getRedirectTo();
         }
@@ -461,7 +467,7 @@ abstract class Component extends BaseController
     protected function checkSumAndGenerate($checksum, $fingerprint, $memo)
     {
         if (ComponentCheckSum::check($checksum, $fingerprint, $memo))
-            throw new AxmException("Raxm encountered corrupt data when 
+            throw new RuntimeException("Raxm encountered corrupt data when 
                 trying to hydrate the $this->component component. \n" .
                 "Ensure that the [name, id, data] 
                 of the Raxm component wasn't tampered with between requests.");
@@ -513,10 +519,12 @@ abstract class Component extends BaseController
     }
 
     /**
-     * 
+     * Sends a JSON response using the response object and the specified data.
+     * @return string The JSON representation of the specified data.
      */
     public function sendJsonResponse()
     {
+        // Uses the response object to convert the specified data to JSON.
         return $this->response->toJson($this->return);
     }
 
@@ -533,20 +541,14 @@ abstract class Component extends BaseController
     {
         $reservedMethods = ['hydrate', 'dehydrate'];
         if (in_array($method, $reservedMethods)) {
-            throw new AxmException(Axm::t(
-                'Raxm',
-                'This method is reserved for Raxm %s',
-                [implode(', ', $reservedMethods)]
-            ));
+            throw new Exception(
+                sprintf('This method is reserved for Raxm %s', [implode(', ', $reservedMethods)])
+            );
         }
 
         $className = static::class;
         if (!method_exists($this, $method)) {
-            throw new AxmException(Axm::t(
-                'Raxm',
-                'Method %s does not exist',
-                ["$className::$method()"]
-            ));
+            throw new Exception(sprintf('Method %s does not exist', ["$className::$method()"]));
         }
 
         return $this->$method(...$params);
@@ -557,7 +559,7 @@ abstract class Component extends BaseController
      *
      * @param string $property The name of the property to access.
      * @return mixed The value of the property if it exists and is public.
-     * @throws AxmException If the property does not exist or is not public.
+     * @throws Exception If the property does not exist or is not public.
      */
     public function __get($property)
     {
@@ -566,11 +568,7 @@ abstract class Component extends BaseController
             return $property;
         }
 
-        throw new AxmException(Axm::t(
-            'Raxm',
-            'Property $%s not found on component %s',
-            [$property, $this->component]
-        ));
+        throw new Exception(sprintf('Property $%s not found on component %s', [$property, $this->component]));
     }
 
     /**
@@ -578,16 +576,12 @@ abstract class Component extends BaseController
      *
      * @param string $property The name of the property to check.
      * @return bool True if the property is set and is public, false otherwise.
-     * @throws AxmException If the property does not exist or is not public.
+     * @throws Exception If the property does not exist or is not public.
      */
     public function __isset($property)
     {
         if (null !== $this->__get($property)) {
-            throw new AxmException(Axm::t(
-                'Raxm',
-                'Property $%s not found on component %s',
-                [$property, $this->component]
-            ));
+            throw new Exception(sprintf('Property $%s not found on component %s', [$property, $this->component]));
         }
 
         return true;

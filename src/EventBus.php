@@ -2,18 +2,45 @@
 
 namespace Axm\Raxm;
 
+/**
+ * The EventBus class manages event listeners and triggers events in the Raxm framework.
+ */
 class EventBus
 {
+    /**
+     * The array to store regular event listeners.
+     * @var array
+     */
     protected $listeners = [];
-    protected $listenersAfter = [];
+
+    /**
+     * The array to store event listeners executed before the main event.
+     * @var array
+     */
     protected $listenersBefore = [];
 
-    function boot()
+    /**
+     * The array to store event listeners executed after the main event.
+     * @var array
+     */
+    protected $listenersAfter = [];
+
+    /**
+     * Bootstraps the EventBus as a singleton instance in the application.
+     */
+    public function boot()
     {
         app()->singleton($this::class);
     }
 
-    function on($name, $callback)
+    /**
+     * Registers a callback for a specific event.
+     *
+     * @param string $name     The name of the event.
+     * @param callable $callback The callback to be executed when the event occurs.
+     * @return callable A closure that can be used to unregister the callback.
+     */
+    public function on($name, $callback)
     {
         if (!isset($this->listeners[$name])) $this->listeners[$name] = [];
 
@@ -22,7 +49,14 @@ class EventBus
         return fn () => $this->off($name, $callback);
     }
 
-    function before($name, $callback)
+    /**
+     * Registers a callback to be executed before the main event.
+     *
+     * @param string $name     The name of the event.
+     * @param callable $callback The callback to be executed before the main event.
+     * @return callable A closure that can be used to unregister the callback.
+     */
+    public function before($name, $callback)
     {
         if (!isset($this->listenersBefore[$name])) $this->listenersBefore[$name] = [];
 
@@ -31,7 +65,14 @@ class EventBus
         return fn () => $this->off($name, $callback);
     }
 
-    function after($name, $callback)
+    /**
+     * Registers a callback to be executed after the main event.
+     *
+     * @param string $name     The name of the event.
+     * @param callable $callback The callback to be executed after the main event.
+     * @return callable A closure that can be used to unregister the callback.
+     */
+    public function after($name, $callback)
     {
         if (!isset($this->listenersAfter[$name])) $this->listenersAfter[$name] = [];
 
@@ -40,7 +81,13 @@ class EventBus
         return fn () => $this->off($name, $callback);
     }
 
-    function off($name, $callback)
+    /**
+     * Unregisters a callback for a specific event.
+     *
+     * @param string $name     The name of the event.
+     * @param callable $callback The callback to be unregistered.
+     */
+    public function off($name, $callback)
     {
         $index = array_search($callback, $this->listeners[$name] ?? []);
         $indexAfter = array_search($callback, $this->listenersAfter[$name] ?? []);
@@ -51,14 +98,20 @@ class EventBus
         elseif ($indexBefore !== false) unset($this->listenersBefore[$name][$indexBefore]);
     }
 
-    function trigger($name, ...$params)
+    /**
+     * Triggers a specific event, invoking registered callbacks and returning a middleware closure.
+     *
+     * @param string $name     The name of the event.
+     * @param mixed  $params   The parameters to be passed to the event callbacks.
+     * @return callable A middleware closure to be used in subsequent operations.
+     */
+    public function trigger($name, ...$params)
     {
         $middlewares = [];
-
         $listeners = array_merge(
             ($this->listenersBefore[$name] ?? []),
             ($this->listeners[$name] ?? []),
-            ($this->listenersAfter[$name] ?? []),
+            ($this->listenersAfter[$name] ?? [])
         );
 
         foreach ($listeners as $callback) {

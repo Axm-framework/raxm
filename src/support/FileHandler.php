@@ -43,7 +43,6 @@ class FileHandler
 
     /**
      * Create a new FileHandler instance.
-     *
      * @param array $file The uploaded file data from $_FILES.
      */
     public function __construct($file)
@@ -53,7 +52,6 @@ class FileHandler
 
     /**
      * Set the allowed file extensions.
-     *
      * @param array $extensions An array of allowed file extensions (without dot).
      */
     public function setAllowedExtensions(array $extensions)
@@ -63,7 +61,6 @@ class FileHandler
 
     /**
      * Set the upload directory.
-     *
      * @param string $dir The directory path.
      */
     public function setUploadDir($dir)
@@ -73,7 +70,6 @@ class FileHandler
 
     /**
      * Set the maximum allowed file size.
-     *
      * @param int $size The maximum file size in bytes.
      */
     public function setMaxFileSize($size)
@@ -83,7 +79,6 @@ class FileHandler
 
     /**
      * Get file.
-     *
      * @return string get file.
      */
     public function get()
@@ -93,7 +88,6 @@ class FileHandler
 
     /**
      * Get directory file.
-     *
      * @return string get directory file.
      */
     public function getDir()
@@ -103,7 +97,6 @@ class FileHandler
 
     /**
      * Check if the uploaded file is valid.
-     *
      * @return bool True if the file is valid, false otherwise.
      */
     public function isValid()
@@ -129,7 +122,6 @@ class FileHandler
 
     /**
      * Move the uploaded file to the configured directory.
-     *
      * @return bool True if the file was moved successfully, false otherwise.
      */
     public function move(): bool
@@ -144,7 +136,6 @@ class FileHandler
 
     /**
      * Generate a unique file name based on timestamp and unique ID.
-     *
      * @return string The generated unique file name.
      */
     public function generateUniqueFileName(): string
@@ -156,7 +147,10 @@ class FileHandler
     }
 
     /**
-     * 
+     * extractOriginalFileName
+     *
+     * @param  mixed $generatedFileName
+     * @return string
      */
     public static function extractOriginalFileName(string $generatedFileName): string
     {
@@ -171,7 +165,6 @@ class FileHandler
 
     /**
      * Get the original file name.
-     *
      * @return string The original file name.
      */
     public function name()
@@ -185,7 +178,6 @@ class FileHandler
 
     /**
      * Get the file size.
-     *
      * @return int The file size in bytes.
      */
     public function size()
@@ -199,7 +191,6 @@ class FileHandler
 
     /**
      * Get the temporal name.
-     *
      * @return string The temporal name.
      */
     public function tmpName()
@@ -213,7 +204,6 @@ class FileHandler
 
     /**
      * Get the MIME type of the file.
-     *
      * @return string The MIME type.
      */
     public function mime()
@@ -227,7 +217,6 @@ class FileHandler
 
     /**
      * Get the errors file.
-     *
      * @return string The error file.
      */
     public function errors()
@@ -242,7 +231,6 @@ class FileHandler
 
     /**
      * Get destination file.
-     *
      * @return string The error file.
      */
     public function destination(): string
@@ -253,7 +241,6 @@ class FileHandler
 
     /**
      * Get the errors occurred during validation.
-     *
      * @return array An array of errors.
      */
     public function getErrorsMessages()
@@ -263,7 +250,6 @@ class FileHandler
 
     /**
      * Add an error message to the error array.
-     *
      * @param string $message The error message to add.
      */
     protected function addError($message)
@@ -272,7 +258,8 @@ class FileHandler
     }
 
     /**
-     * 
+     * ifMultiple
+     * @return bool
      */
     public function ifMultiple(): bool
     {
@@ -281,7 +268,8 @@ class FileHandler
     }
 
     /**
-     * 
+     * getAllFilesMultiples
+     * @return array
      */
     private function getAllFilesMultiples(): array
     {
@@ -292,12 +280,20 @@ class FileHandler
 
         return $files;
     }
-
+    
+    /**
+     * delete
+     * @return void
+     */
     public function delete()
     {
         return @unlink($this->file['name']);
     }
-
+    
+    /**
+     * __invoke
+     * @return void
+     */
     function __invoke()
     {
         return $this;

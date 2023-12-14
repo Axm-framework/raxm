@@ -2,8 +2,17 @@
 
 namespace Axm\Raxm\Support;
 
+/**
+ * A trait for handling file uploads in Raxm components.
+ */
 trait WithFileUploads
 {
+    /**
+     * Start the file upload process.
+     *
+     * @param string $name       The name of the file input.
+     * @param bool   $isMultiple Whether the file input allows multiple files.
+     */
     public function startUpload($name, $isMultiple)
     {
         $name = $this->params[0];
@@ -11,6 +20,9 @@ trait WithFileUploads
         $this->emit('upload:generatedSignedUrl', $name, $pathSignedUrl)->self();
     }
 
+    /**
+     * Finish the file upload process.
+     */
     public function finishUpload()
     {
         $name       = $this->params[0];
@@ -45,7 +57,9 @@ trait WithFileUploads
         $this->setProtectedPropertyValue($name, $file);
     }
 
-
+    /**
+     * Handle errors that occurred during file upload.
+     */
     public function uploadErrored()
     {
         $name         = $this->params[0];
@@ -72,7 +86,12 @@ trait WithFileUploads
         throw new \Exception($errors);
     }
 
-
+    /**
+     * Remove a specific file upload.
+     *
+     * @param string $name        The name of the file input.
+     * @param string $tmpFilename The temporary filename to remove.
+     */
     public function removeUpload($name, $tmpFilename)
     {
         $uploads = $this->getPropertyValue($name);
@@ -96,6 +115,10 @@ trait WithFileUploads
         }
     }
 
+    /**
+     * Clean up old temporary uploads.
+     * @param array $tmpPath The temporary file paths.
+     */
     protected function cleanupOldUploads($tmpPath)
     {
         if (!isset($tmpPath[1])) return;

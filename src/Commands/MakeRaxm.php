@@ -8,51 +8,45 @@ use Axm\Console\GeneratorTrait;
 class MakeRaxm extends BaseCommand
 {
     use GeneratorTrait;
+
     /**
      * The Command's Group
-     *
      * @var string
      */
     protected $group = 'Axm';
 
     /**
      * The Command's Name
-     *
      * @var string
      */
     protected $name = 'make:raxm';
 
     /**
      * The Command's Description
-     *
      * @var string
      */
     protected $description = '';
 
     /**
      * The Command's Usage
-     *
      * @var string
      */
     protected $usage = 'make:raxm [name] [options]';
 
     /**
      * The Command's Arguments
-     *
      * @var array
      */
     protected $arguments = [];
 
     /**
      * The Command's Options
-     *
      * @var array
      */
     protected $options = [];
 
     /**
      * Actually execute a command.
-     *
      * @param array $params
      */
     public function run(array $params)

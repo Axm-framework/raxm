@@ -10,44 +10,39 @@ use Axm\Console\GeneratorTrait;
 class DeleteComponentRaxm extends BaseCommand
 {
     use GeneratorTrait;
+
     /**
      * The Command's Group
-     *
      * @var string
      */
-    protected $group = 'Axm';
+    protected $group = 'Raxm';
 
     /**
      * The Command's Name
-     *
      * @var string
      */
     protected $name = 'delete:raxm';
 
     /**
      * The Command's Description
-     *
      * @var string
      */
     protected $description = '';
 
     /**
      * The Command's Usage
-     *
      * @var string
      */
     protected $usage = 'delete:raxm [name] [options]';
 
     /**
      * The Command's Arguments
-     *
      * @var array
      */
     protected $arguments = [];
 
     /**
      * The Command's Options
-     *
      * @var array
      */
     protected $options = [
@@ -56,7 +51,6 @@ class DeleteComponentRaxm extends BaseCommand
 
     /**
      * Actually execute a command.
-     *
      * @param array $params
      */
     public function run(array $params)

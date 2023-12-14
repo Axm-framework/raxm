@@ -34,7 +34,6 @@ class RaxmManager
 
     /**
      * Register configuration settings for RaxmManager.
-     * 
      * @return void
      */
     public static function registerConfig()
@@ -46,7 +45,6 @@ class RaxmManager
 
     /**
      * Initialize the EventBus component.
-     * 
      * @return void
      */
     protected static function bootEventBus()
@@ -69,7 +67,6 @@ class RaxmManager
 
     /**
      * Get the current component name.
-     * 
      * @return string|null The current component name.
      */
     public static function componentName()
@@ -80,7 +77,6 @@ class RaxmManager
 
     /**
      * Get the instance of the currently specified component.
-     * 
      * @return Component An instance of the currently specified component.
      */
     public static function getInstanceNowComponent(): Component
@@ -116,7 +112,10 @@ class RaxmManager
     }
 
     /**
-     * 
+     * mountComponent
+     *
+     * @param  mixed $class
+     * @return void
      */
     public static function mountComponent(Object $class)
     {
@@ -132,8 +131,10 @@ class RaxmManager
     }
 
     /**
-     * @param Object $component
+     * compileComponent
      * 
+     * @param Object $component
+     * @return string
      */
     public static function compileComponent(Object $component)
     {
@@ -200,7 +201,13 @@ class RaxmManager
 
         return $script . PHP_EOL;
     }
-
+    
+    /**
+     * scripts
+     *
+     * @param  mixed $options
+     * @return void
+     */
     public static function scripts($options = [])
     {
         app(static::class)->hasRenderedScripts = true;
