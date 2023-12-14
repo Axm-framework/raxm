@@ -10,7 +10,8 @@ use Axm\Raxm\ComponentProperties;
 /**
  * Class LifecycleManager
  *
- * This class extends RaxmManager and provides methods for managing the lifecycle of a component.
+ * This class extends RaxmManager and provides methods for managing 
+ * the lifecycle of a component.
  */
 class LifecycleManager extends RaxmManager
 {
