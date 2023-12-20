@@ -271,16 +271,9 @@ abstract class Component extends BaseController
     {
         app('raxm')->includeHelpers();
 
-        $view = $this->getView();
-        if (!($view instanceof View)) {
-            throw new Exception(
-                sprintf('"render" method on %s must return an instance of %s', $this->component, View::class)
-            );
-        }
-
+        $view = (string) $this->getView();
         return $this->preRenderedView = $view;
     }
-
 
     /**
      * Call the component's 'render' method.
@@ -322,6 +315,16 @@ abstract class Component extends BaseController
     protected function getComponentName()
     {
         return RaxmManager::componentName();
+    }
+
+    /**
+     * compileComponent
+     *
+     * @param  mixed $class
+     * @return void
+     */
+    public function index(Object $component) {
+        RaxmManager::mountComponent($component);
     }
 
     /**
