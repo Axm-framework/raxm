@@ -38,9 +38,9 @@ class RaxmManager
      */
     public static function registerConfig()
     {
-        $pathFile = dirname(__FILE__, 2);
-        $file = $pathFile . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'raxm.php';
-        app()->config->load($file);
+        $pathFile = dirname(__FILE__, 2) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
+        $file = 'raxm.php';
+        config()->load($file, true, $pathFile);
     }
 
     /**
@@ -201,7 +201,7 @@ class RaxmManager
 
         return $script . PHP_EOL;
     }
-    
+
     /**
      * scripts
      *
