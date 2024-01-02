@@ -22,7 +22,9 @@
     ],
 	"autoload": {
 		"psr-4": {
-			"Axm\\Raxm\\": "src"
+			"Axm\\Raxm\\": "src",
+			"Axm\\Raxm\\Support\\": "src/support/"
+
 		}
 	},
 	"minimum-stability": "dev",
