@@ -53,9 +53,9 @@ class MakeRaxm extends BaseCommand
     {
         try {
 
-            $this->createTemplate('services', 'Raxm', 'Services', '', 'raxm.services.tpl.php', $params);
+            $this->createTemplate('providers', 'Raxm', 'App\\Providers\\', '', 'raxm.services.tpl.php', $params);
             $this->createTemplate('component', null, 'App', 'Raxm', 'raxm.component.tpl.php', $params);
-            $this->createTemplate('view', null, 'App', 'Views/raxm', 'raxm.view.tpl.php', $params, false);
+            $this->createTemplate('view', null, 'resources', 'views/raxm', 'raxm.view.tpl.php', $params, false);
         } catch (\Throwable $e) {
             throw $e;
         }
@@ -79,11 +79,11 @@ class MakeRaxm extends BaseCommand
         $this->component = 'Raxm';
         $this->namespace = $namespace;
         $this->directory = $directory;
-        $this->template = __DIR__ . '/templates/' . $templateFile;
+        $this->template = __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $templateFile;
         $this->phpOutputOnly = $phpOutputOnly;
 
-        if ($templateType === 'services') {
-            $dir = config('paths.servicesPath') . "/$className.php";
+        if ($templateType === 'providers') {
+            $dir = config('paths.providersPath') . DIRECTORY_SEPARATOR . "$className.php";
             if (is_file($dir)) {
                 return;
             }

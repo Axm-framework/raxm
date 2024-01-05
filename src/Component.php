@@ -97,7 +97,7 @@ abstract class Component extends BaseController
      */
     private function isRaxmRequest()
     {
-        if ($this->request->getHeader('x-axm') != true) {
+        if ($this->request->getHeader('X-AXM') != true) {
             throw new Exception('This request is not a Raxm request');
         }
     }
@@ -317,7 +317,8 @@ abstract class Component extends BaseController
      * @param  mixed $class
      * @return void
      */
-    public function index(Object $component) {
+    public function index(Object $component)
+    {
         RaxmManager::mountComponent($component);
     }
 
@@ -539,13 +540,13 @@ abstract class Component extends BaseController
         $reservedMethods = ['hydrate', 'dehydrate'];
         if (in_array($method, $reservedMethods)) {
             throw new Exception(
-                sprintf('This method is reserved for Raxm %s', implode(', ', $reservedMethods))
+                sprintf('This method is reserved for Raxm [ %s ] ', implode(', ', $reservedMethods))
             );
         }
 
         $className = static::class;
         if (!method_exists($this, $method)) {
-            throw new Exception(sprintf('Method %s does not exist', "$className::$method()"));
+            throw new Exception(sprintf('Method [ %s ] does not exist', "$className::$method()"));
         }
 
         return $this->$method(...$params);
@@ -565,7 +566,7 @@ abstract class Component extends BaseController
             return $property;
         }
 
-        throw new Exception(sprintf('Property $%s not found on component %s', $property, $this->component));
+        throw new Exception(sprintf('Property [ $%s ] not found on component [ %s ] ', $property, $this->component));
     }
 
     /**
@@ -578,7 +579,7 @@ abstract class Component extends BaseController
     public function __isset($property)
     {
         if (null !== $this->__get($property)) {
-            throw new Exception(sprintf('Property $%s not found on component %s', $property, $this->component));
+            throw new Exception(sprintf('Property [ $%s ] not found on component [ %s ] ', $property, $this->component));
         }
 
         return true;

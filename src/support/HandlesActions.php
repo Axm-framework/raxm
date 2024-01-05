@@ -134,19 +134,19 @@ trait HandlesActions
         if (!method_exists($this, $method)) {
             if ($method === 'startUpload') {
                 throw new RuntimeException(sprintf('Cannot handle file upload without 
-                [Axm\Raxm\Suport\WithFileUploads] trait on the %s component class.', [$component]));
+                [Axm\Raxm\Suport\WithFileUploads] trait on the [ %s ] component class.', $component));
             }
         }
 
         if (!method_exists($this, $method)) {
-            throw new RuntimeException(sprintf('Unable to call component method. Public method %s
-             not found on component: %s', [$method, $component]));
+            throw new RuntimeException(sprintf('Unable to call component method. Public method [ %s ]
+             not found on component: [ %s ] ', $method, $component));
         }
 
         // Implementación para verificar método público y no definido en la clase base
         if (!$this->methodIsPublicAndNotDefinedOnBaseClass($method)) {
             throw new RuntimeException(sprintf('Unable to set component data. 
-            Public method %s not found on component: %s', [$method, $component]));
+            Public method [ %s ] not found on component: [ %s ] ', $method, $component));
         }
 
         $returned = call_user_func_array([$this, $method], $params);
