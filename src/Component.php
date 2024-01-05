@@ -155,19 +155,13 @@ abstract class Component extends BaseController
      */
     private function dispatchEvents()
     {
-        switch ($this->type) {
-            case 'callMethod':
-                return $this->callMethod($this->method, $this->params);
+        return match ($this->type) {
+            'syncInput'  => $this->syncInputData(),
+            'callMethod' => $this->callMethod($this->method, $this->params),
+            'fireEvent'  => $this->fireEvent($this->method, $this->params, $this->id_p),
 
-            case 'syncInput':
-                return $this->syncInputData();
-
-            case 'fireEvent':
-                return $this->fireEvent($this->method, $this->params, $this->id_p);
-
-            default:
-                throw new Exception('Unknown event type: ' . $this->type);
-        }
+            default => throw new Exception('Unknown event type: ' . $this->type)
+        };
     }
 
     /**
@@ -380,7 +374,7 @@ abstract class Component extends BaseController
      * @return array The generated memo including a random HTML hash,
      * a data response, and a checksum.
      */
-    public function serveMemo()
+    public function serveMemo(): array
     {
         // Create an associative array representing the memo to be served.
         $serverMemo = [
@@ -405,7 +399,7 @@ abstract class Component extends BaseController
      * and listeners, to be sent to the client.
      * @return array The effects data.
      */
-    protected function effects()
+    protected function effects(): array
     {
         $this->embedThyselfInHtml();
         $this->embedIdInHtml();

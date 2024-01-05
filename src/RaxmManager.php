@@ -44,6 +44,34 @@ class RaxmManager
     }
 
     /**
+     * registerRoutes
+     * @return void
+     */
+    public static function registerRoutes(string $componentName)
+    {
+        $route = strtolower(class_basename($componentName));
+        $callback = self::getInstance($componentName);
+
+        app()->router::addRoute('POST', $route, $callback);
+    }
+
+    /**
+     * parserComponent
+     *
+     * @param  mixed $component
+     * @return void
+     */
+    public static function parserComponent(string $component)
+    {
+        self::boot();
+        $component = str_ireplace('component', '', $component);
+        $componentName = $component . 'Component';
+
+        $nameSpace = config('raxm.class_namespace');
+        return $nameSpace . ucfirst($componentName);
+    }
+
+    /**
      * Initialize the EventBus component.
      * @return void
      */
@@ -139,6 +167,7 @@ class RaxmManager
     public static function compileComponent(Object $component)
     {
         $componentName = $component::class;
+        // self::registerRoutes($componentName);
         $html = app()->request->isPost()
             ? self::runComponent($componentName)
             : self::initializeComponent($componentName);
