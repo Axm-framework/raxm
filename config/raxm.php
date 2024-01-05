@@ -27,8 +27,8 @@ return [
          * file manipulation helper commands like `axm make:raxm`.
          * @var string 
          */
-        'view_path' => ROOT_PATH . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR
-            . 'views' . DIRECTORY_SEPARATOR . 'raxm' . DIRECTORY_SEPARATOR,
+        'view_path' => config('paths.viewsPath') . DIRECTORY_SEPARATOR . 'raxm'
+            . DIRECTORY_SEPARATOR,
 
         /**
          --------------------------------------------------------------------------
@@ -39,12 +39,11 @@ return [
          * file manipulation helper commands like `axm make:raxm`.
          * @var string 
          */
-        'component_path' => APP_PATH . DIRECTORY_SEPARATOR . 'Raxm'
-            . DIRECTORY_SEPARATOR,
+        'component_path' => ROOT_PATH . DIRECTORY_SEPARATOR . 'Raxm',
 
         /**
          --------------------------------------------------------------------------
-          LAYOUT
+          LAYOUT NAME
          --------------------------------------------------------------------------
          *
          * The default layout view that will be used when rendering a component via
@@ -52,7 +51,21 @@ return [
          * the view returned by SomeComponent will be wrapped in "layouts.app"
          * @var string 
          */
-        'layout' => 'layouts.app',
+        'layout' => 'main.php',
+
+        /**
+         --------------------------------------------------------------------------
+          LAYOUT PATH
+         --------------------------------------------------------------------------
+         *
+         * The default layout view that will be used when rendering a component via
+         * Route::get('/some-endpoint', SomeComponent::class);. In this case the
+         * the view returned by SomeComponent will be wrapped in "layouts.app"
+         * @var string 
+         */
+        'layoutPath' => ROOT_PATH . DIRECTORY_SEPARATOR . 'resources'
+            . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'raxm'
+            . DIRECTORY_SEPARATOR . 'layouts',
 
         /**
          --------------------------------------------------------------------------
@@ -154,6 +167,7 @@ return [
          */
         'navigate' => [
             'show_progress_bar' => true,
+            'progress_bar_color' => '#1695DF',
         ],
     ]
 ];

@@ -13,7 +13,7 @@ class RaxmManager
     protected static $ucfirstComponentName;
     public $hasRenderedScripts = false;
     public $hasRenderedStyles  = false;
-
+    private static $injectedAssets = false;
     /**
      * Bootstrap the RaxmManager by registering configuration 
      * and initializing the EventBus.
@@ -64,8 +64,8 @@ class RaxmManager
     public static function parserComponent(string $component)
     {
         self::boot();
-        $component = str_ireplace('component', '', $component);
-        $componentName = $component . 'Component';
+        $component = str_ireplace('raxm', '', $component);
+        $componentName = $component . 'Raxm';
 
         $nameSpace = config('raxm.class_namespace');
         return $nameSpace . ucfirst($componentName);
@@ -124,6 +124,7 @@ class RaxmManager
 
         $id = bin2hex(random_bytes(10));
         $html = $_instance->initialInstance($id);
+
         return $html;
     }
 
@@ -145,17 +146,31 @@ class RaxmManager
      * @param  mixed $class
      * @return void
      */
-    public static function mountComponent(Object $class)
+    public static function mountComponent(Object $class, bool $withoutLayout = false)
     {
         self::boot();
         $view_instance = View::make();
-        $view = $view_instance::captureFile(
-            $view_instance::$layoutPath . DIRECTORY_SEPARATOR . $view_instance::$nameLayoutByDefault . '.php',
-            ['_content' => self::compileComponent($class)]
-        );
 
-        $html = $view_instance::injectAssets($view, static::styles(), static::scripts());
+        if ($withoutLayout === false) {
+
+            $config = config();
+            $layoutName = $config->raxm->layout;
+            $layoutPath = $config->raxm->layoutPath;
+
+            $view = $view_instance::captureFile(
+                $layoutPath . DIRECTORY_SEPARATOR . $layoutName,
+                ['_content' => self::compileComponent($class)]
+            );
+            
+            $html = $view_instance::injectAssets($view, static::styles(), static::scripts());
+            self::$injectedAssets = true;
+        } else {
+            $html = self::compileComponent($class);
+        }
+
         echo $html . PHP_EOL;
+        unset($html);
+        unset($view);
     }
 
     /**
@@ -167,7 +182,7 @@ class RaxmManager
     public static function compileComponent(Object $component)
     {
         $componentName = $component::class;
-        // self::registerRoutes($componentName);
+        self::registerRoutes($componentName);
         $html = app()->request->isPost()
             ? self::runComponent($componentName)
             : self::initializeComponent($componentName);
