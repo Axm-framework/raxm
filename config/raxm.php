@@ -64,8 +64,7 @@ return [
          * @var string 
          */
         'layoutPath' => ROOT_PATH . DIRECTORY_SEPARATOR . 'resources'
-            . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'raxm'
-            . DIRECTORY_SEPARATOR . 'layouts',
+            . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'layouts',
 
         /**
          --------------------------------------------------------------------------
