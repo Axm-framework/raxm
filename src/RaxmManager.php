@@ -2,9 +2,11 @@
 
 namespace Axm\Raxm;
 
-use Axm\Raxm\Component;
-use Axm\Exception\AxmException;
 use Axm\Views\View;
+use Axm\Raxm\Component;
+use Axm\Exception\Exception;
+use Axm\Raxm\Support\FileUploadController;
+
 
 class RaxmManager
 {
@@ -14,22 +16,33 @@ class RaxmManager
     public $hasRenderedScripts = false;
     public $hasRenderedStyles  = false;
     private static $injectedAssets = false;
+
+    public function __construct()
+    {
+    }
+
     /**
-     * Bootstrap the RaxmManager by registering configuration 
-     * and initializing the EventBus.
+     * Boot the application.
+     *
+     * This method registers the configuration, includes the Raxm utility helpers,
+     * registers the routes, and loads the Raxm assets.
+     * @return void
      */
     public static function boot()
     {
         self::registerConfig();
-        self::bootEventBus();
+        self::includeHelpers();
+        self::registerRoutes();
+        self::raxmAssets();
     }
 
     /**
-     * Include helper functions, typically used for utility functions.
+     * Define a register method that will be called when the RaxmManager is registered
+     * @return void
      */
-    public static function includeHelpers()
+    public static function register()
     {
-        helpers('raxmUtils', __DIR__);
+        app('raxm', fn () => new self);
     }
 
     /**
@@ -44,26 +57,80 @@ class RaxmManager
     }
 
     /**
-     * registerRoutes
+     * Include the Raxm utility helpers.
+     *
+     * This method includes the Raxm utility helpers from the `raxmUtils` file.
      * @return void
      */
-    public static function registerRoutes(string $componentName)
+    public static function includeHelpers()
     {
-        $route = strtolower(class_basename($componentName));
-        $callback = self::getInstance($componentName);
-
-        app()->router::addRoute('POST', $route, $callback);
+        helpers('raxmUtils', __DIR__);
     }
 
     /**
-     * parserComponent
+     * Set a flag to indicate that Raxm assets should be loaded.
      *
-     * @param  mixed $component
+     * This method sets a flag on the `View` class that can be checked to determine
+     * whether or not to load Raxm assets.
      * @return void
+     */
+    public static function raxmAssets()
+    {
+        View::$raxmAssets = true;
+    }
+
+    /**
+     * Register the Raxm application routes.
+     *
+     * This method registers the following routes:
+     * - POST /raxm/update/{name}: Returns the Raxm component without a layout.
+     * - POST /raxm/upload-file: Handles file uploads.
+     * - GET /raxm/preview-file/{filename}: Previews a file.
+     * - GET /vendor/axm/raxm/js/index.js: Returns the Raxm JavaScript assets.
+     * - GET /raxmraxm.js.map: Returns the Raxm JavaScript source.
+     * @return void
+     */
+    public static function registerRoutes()
+    {
+        $router = app('router');
+
+        $router->addRoute('POST', '/raxm/update/{name}', function ($name) {
+            return self::componentWithoutLayout($name);
+        });
+
+        $router->addRoute('POST', 'raxm/upload-file', [FileUploadController::class, 'handle']);
+        $router->addRoute('GET', '/raxm/preview-file/{filename}', [FilePreviewHandler::class, 'handle']);
+
+        $router->addRoute('GET', '/vendor/axm/raxm/js/index.js', [RaxmJavaScriptAssets::class, 'source']);
+        $router->addRoute('GET', '/raxm/raxm.js.map', [RaxmJavaScriptAssets::class, 'maps']);
+    }
+
+    /**
+     * Returns a Raxm component without a layout.
+     *
+     * This method takes a component name as a string, parses it to determine the
+     * component class name, and then mounts the component without a layout.
+     * @param string $component The name of the component to mount.
+     * @return \Axm\Views\View The mounted component.
+     */
+    public static function componentWithoutLayout(string $component)
+    {
+        $names = self::parserComponent($component);
+        return self::mountComponent(new $names, true);
+    }
+
+    /**
+     * Parses a component name into a fully-qualified class name.
+     *
+     * This method takes a component name as a string, removes the "raxm" prefix (if any),
+     * appends the "Raxm" suffix, and then returns the fully-qualified class name by
+     * concatenating the component name with the namespace specified in the Raxm
+     * configuration.
+     * @param string $component The name of the component to parse.
+     * @return string The fully-qualified class name of the component.
      */
     public static function parserComponent(string $component)
     {
-        self::boot();
         $component = str_ireplace('raxm', '', $component);
         $componentName = $component . 'Raxm';
 
@@ -72,20 +139,11 @@ class RaxmManager
     }
 
     /**
-     * Initialize the EventBus component.
-     * @return void
-     */
-    protected static function bootEventBus()
-    {
-        (new EventBus)->boot();
-    }
-
-    /**
      * Get an instance of a specified component.
      * 
      * @param string $componentName The name of the component to retrieve.
      * @return Component An instance of the specified component.
-     * @throws AxmException if the specified component class does not exist.
+     * @throws Exception if the specified component class does not exist.
      */
     public static function getInstance(string $className): Component
     {
@@ -116,12 +174,11 @@ class RaxmManager
      * Initialize a specified component and display its HTML.
      * 
      * @param string $componentName The name of the component to initialize.
-     * @throws AxmException if the specified component class does not exist.
+     * @throws Exception if the specified component class does not exist.
      */
     public static function initializeComponent(string $componentName)
     {
         $_instance = self::getInstance($componentName);
-
         $id = bin2hex(random_bytes(10));
         $html = $_instance->initialInstance($id);
 
@@ -132,7 +189,7 @@ class RaxmManager
      * Run a specified component and display its HTML.
      * 
      * @param string $componentName The name of the component to run.
-     * @throws AxmException if the specified component class does not exist.
+     * @throws Exception if the specified component class does not exist.
      */
     public static function runComponent(string $componentName)
     {
@@ -141,18 +198,23 @@ class RaxmManager
     }
 
     /**
-     * mountComponent
+     * Mounts a component instance and returns the resulting HTML.
      *
-     * @param  mixed $class
-     * @return void
+     * This method takes a component class object and an optional "withoutLayout" flag,
+     * and returns the resulting HTML. If the "withoutLayout" flag is false (which is
+     * the default), the component will be rendered within the layout specified in
+     * the Raxm configuration. If the "withoutLayout" flag is true, the component will
+     * be rendered without a layout.
+     *
+     * @param object $class The component class object to mount.
+     * @param bool   $withoutLayout Whether to render the component without a layout.
+     * @return string The resulting HTML of the mounted component.
      */
     public static function mountComponent(Object $class, bool $withoutLayout = false)
     {
-        self::boot();
         $view_instance = View::make();
 
         if ($withoutLayout === false) {
-
             $config = config();
             $layoutName = $config->raxm->layout;
             $layoutPath = $config->raxm->layoutPath;
@@ -161,7 +223,7 @@ class RaxmManager
                 $layoutPath . DIRECTORY_SEPARATOR . $layoutName,
                 ['_content' => self::compileComponent($class)]
             );
-            
+
             $html = $view_instance::injectAssets($view, static::styles(), static::scripts());
             self::$injectedAssets = true;
         } else {
@@ -174,15 +236,14 @@ class RaxmManager
     }
 
     /**
-     * compileComponent
-     * 
-     * @param Object $component
-     * @return string
+     * Compiles the component for the specified object.
+     *
+     * @param Object $component The component to be compiled.
+     * @return string The HTML code generated by the component.
      */
     public static function compileComponent(Object $component)
     {
         $componentName = $component::class;
-        self::registerRoutes($componentName);
         $html = app()->request->isPost()
             ? self::runComponent($componentName)
             : self::initializeComponent($componentName);
@@ -191,17 +252,14 @@ class RaxmManager
     }
 
     /**
-     * Echo Raxm styles and JavaScript assets.
-     * 
-     * @param array $options Additional options for raxmScripts.
-     * @return void
+     * Outputs the RAXM script and style tags.
+     *
+     * @param array $options An array of options to be used in generating the tags.
      */
     public static function raxmScripts(array $options = [])
     {
         // Merge the provided options with default values.
-        $options = array_merge([
-            'nonce' => 'nonce-value'
-        ], $options);
+        $options = array_merge(['nonce' => 'nonce-value'], $options);
 
         // Generate the styles and script tags.
         $stylesTag = static::styles($options);
@@ -247,14 +305,14 @@ class RaxmManager
     }
 
     /**
-     * scripts
+     * Generates the RAXM script tags.
      *
-     * @param  mixed $options
-     * @return void
+     * @param array $options An array of options to be used in generating the tags.
+     * @return string The generated script tags.
      */
-    public static function scripts($options = [])
+    public static function scripts(array $options = [])
     {
-        app(static::class)->hasRenderedScripts = true;
+        app('raxm')->hasRenderedScripts = true;
 
         $debug = config('app.debug');
         $scripts = static::js($options);
@@ -275,6 +333,8 @@ class RaxmManager
     public static function styles($options = [])
     {
         $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
+        $progressBarColor = config('raxm.navigate.progress_bar_color', '#2299dd');
+
         $html = <<<HTML
         <!-- Raxm Styles -->
         <style {$nonce}>
@@ -284,7 +344,7 @@ class RaxmManager
             [axm\:loading\.delay\.shortest], [axm\:loading\.delay\.shorter], [axm\:loading\.delay\.short], [axm\:loading\.delay\.long], [axm\:loading\.delay\.longer], [axm\:loading\.delay\.longest] {
                 display:none;
             }
-            [axm\:offline] {
+            [axm\:offline][axm\:offline] {
                 display: none;
             }
             [axm\:dirty]:not(textarea):not(input):not(select) {
@@ -292,6 +352,9 @@ class RaxmManager
             }
             [x-cloak] {
                 display: none;
+            }
+            :root {
+                --raxm-progress-bar-color: {$progressBarColor};
             }
             input:-webkit-autofill, select:-webkit-autofill, textarea:-webkit-autofill {
                 animation-duration: 50000s;

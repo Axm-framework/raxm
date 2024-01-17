@@ -312,7 +312,7 @@ abstract class Component extends BaseController
     }
 
     /**
-     * compileComponent
+     * Compile and mount the component.
      *
      * @param  mixed $class
      * @return void
@@ -391,7 +391,6 @@ abstract class Component extends BaseController
         // Return the generated memo.
         return $serverMemo;
     }
-
 
     /**
      * Get the effects data for the client.
