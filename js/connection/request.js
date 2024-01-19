@@ -34,12 +34,12 @@ export default class Connection {
         const data   = message.payload()
         const csrfToken = getCsrfToken()
         const url = updateUri
-        const route = data.fingerprint.name
         const method = 'POST'
 
         try {
             const headers  = this.buildHeaders(csrfToken, this.headers)
-            const response = await fetch(`${url}/${route}`, {
+            const response = await fetch(`${url}/raxm/update/${data.fingerprint.name}`, {
+
                 method: method,
                 body: JSON.stringify(data),
                 credentials: 'same-origin',
