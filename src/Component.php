@@ -56,7 +56,7 @@ abstract class Component extends BaseController
     protected $listeners     = [];
     protected $queryString   = [];
     protected $rules = [];
-
+    protected $messages;
     public $tmpfile;
 
     /**
@@ -138,13 +138,13 @@ abstract class Component extends BaseController
     private function hydratePayload()
     {
         $payloads = $this->updates ?? [];
-        foreach ($payloads as $item) {
-            $payload = $this->payload = $item['payload'];
+        foreach ($payloads as $payload) {
+           $this->payload = $payload['payload'];
 
-            $this->type   = $item['type'];
-            $this->id_p   = $payload['id'];
-            $this->method = $payload['method'] ?? null;
-            $this->params = $payload['params'] ?? null;
+            $this->type   = $payload['type'];
+            $this->id_p   = $payload['payload']['id'];
+            $this->method = $payload['payload']['method'] ?? null;
+            $this->params = $payload['payload']['params'] ?? null;
         }
     }
 
@@ -263,8 +263,6 @@ abstract class Component extends BaseController
      */
     private function renderToView()
     {
-        app('raxm')->includeHelpers();
-
         $view = (string) $this->getView();
         return $this->preRenderedView = $view;
     }
