@@ -33,9 +33,6 @@ class FileUploadController extends Component
             return app()->response->abort(401);
         }
 
-        // Load configuration settings from raxm.php.
-        config()->load(dirname(__FILE__, 3) . '/config/raxm.php');
-
         // Create a FileHandler instance to manage uploaded files.
         $files = new FileHandler($_FILES['files']);
 
@@ -75,7 +72,7 @@ class FileUploadController extends Component
 
         // Configure FileHandler with allowed extensions and upload directory.
         $files->setAllowedExtensions($mimes);
-        $files->setUploadDir($disk ?? STORAGE_PATH . '/app/uploads/');
+        $files->setUploadDir($disk ?? STORAGE_PATH . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR);
 
         $validatedFiles = [];
 
@@ -101,7 +98,7 @@ class FileUploadController extends Component
      * @param mixed $files The validated file to store.
      * @return bool True if the file is successfully stored, otherwise false.
      */
-    protected function storeFile($files)
+    protected function storeFile($files): bool
     {
         if ($files->isValid()) {
             if ($files->move()) {
