@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Axm\Raxm\Support;
 
 use Axm\Validation\Validator;
+
 
 /**
  * A trait for handling input validation and error tracking.
@@ -61,12 +64,12 @@ trait ValidatesInput
             ? $bag
             : [];
     }
-    
+
     /**
-     * resetErrorBag
+     * Reset the error bag for a given field or all fields if no field is provided.
+     * If a field is provided, only the errors for that field will be removed.
      *
-     * @param  mixed $field
-     * @return void
+     * @param string|array $field The name of the field to reset the errors for. If null or an empty array, the entire error bag will be reset.
      */
     public function resetErrorBag($field = null)
     {
@@ -80,9 +83,9 @@ trait ValidatesInput
             $this->errorBagExcept($fields)
         );
     }
-    
+
     /**
-     * removeValidation
+     * Remove validation rules for a given field or all fields if no field is provided
      *
      * @param  mixed $field
      * @return void
@@ -92,9 +95,9 @@ trait ValidatesInput
         return Validator::getInstance()
             ->removeValidation($field);
     }
-    
+
     /**
-     * resetValidation
+     * Reset validation errors for a specific field or all fields if no field is provided
      *
      * @param  mixed $field
      * @return void
@@ -103,12 +106,12 @@ trait ValidatesInput
     {
         $this->resetErrorBag($field);
     }
-    
+
     /**
-     * errorBagExcept
+     * Filter validation errors and exclude the specified fields
      *
-     * @param  mixed $fields
-     * @return void
+     * @param array $fields The fields to exclude from the error bag
+     * @return array The filtered error bag
      */
     public function errorBagExcept($fields)
     {
@@ -157,11 +160,10 @@ trait ValidatesInput
 
         return [];
     }
-    
+
     /**
-     * getValidationCustomValues
-     *
-     * @return void
+     * Get the validation custom values defined by the subclass.
+     * @return array The validation custom values.
      */
     protected function getValidationCustomValues()
     {
@@ -170,15 +172,15 @@ trait ValidatesInput
 
         return [];
     }
-    
+
     /**
-     * rulesForModel
+     * Perform validation on the provided input data using defined rules.
      *
      * @param  mixed $rules
      * @param  mixed $name
-     * @return void
+     * @return array
      */
-    function rulesForModel($rules, $name)
+    function rulesForModel($rules, $name): array
     {
         $filteredRules = [];
 
@@ -194,14 +196,14 @@ trait ValidatesInput
 
         return $filteredRules;
     }
-    
+
     /**
-     * hasRuleFor
+     * Check if a rule exists for the given dot-notated property.
      *
      * @param  mixed $dotNotatedProperty
-     * @return void
+     * @return bool
      */
-    public function hasRuleFor($dotNotatedProperty)
+    public function hasRuleFor($dotNotatedProperty): bool
     {
         $rules = $this->getRules();
         $propertyWithStarsInsteadOfNumbers = $this->ruleWithNumbersReplacedByStars($dotNotatedProperty);
@@ -219,35 +221,34 @@ trait ValidatesInput
 
         return in_array($dotNotatedProperty, $filteredKeys);
     }
-    
+
     /**
-     * ruleWithNumbersReplacedByStars
+     * Replaces numbers in a dot-notated property string with asterisks.
      *
-     * @param  mixed $dotNotatedProperty
-     * @return void
+     * @param  string $dotNotatedProperty The dot-notated property string.
+     * @return string The modified dot-notated property string with numbers replaced by asterisks.
      */
     public function ruleWithNumbersReplacedByStars($dotNotatedProperty)
     {
         return preg_replace('/\d+/', '*', $dotNotatedProperty);
     }
-    
+
     /**
-     * missingRuleFor
+     * Checks if a rule exists for a given dot-notated property.
      *
-     * @param  mixed $dotNotatedProperty
-     * @return void
+     * @param  mixed $dotNotatedProperty The dot-notated property string.
+     * @return bool True if a rule exists, false otherwise.
      */
-    public function missingRuleFor($dotNotatedProperty)
+    public function missingRuleFor($dotNotatedProperty): bool
     {
         return !$this->hasRuleFor($dotNotatedProperty);
     }
-    
+
     /**
-     * checkRuleMatchesProperty
+     * Iterates through the rules and checks if any rule matches the given data.
      *
-     * @param  mixed $rules
-     * @param  mixed $data
-     * @return void
+     * @param  array $rules The array of rules.
+     * @param  array $data The array of data to check against the rules.
      */
     protected function checkRuleMatchesProperty($rules, $data)
     {
@@ -260,6 +261,7 @@ trait ValidatesInput
 
     /**
      * Perform validation on the provided input data using defined rules.
+     * @return array
      */
     public function validate()
     {
