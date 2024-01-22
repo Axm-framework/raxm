@@ -1,5 +1,7 @@
 <?php
 
+namespace Axm\Raxm;
+
 /**
  * The Event class represents an event in the Raxm framework.
  */
