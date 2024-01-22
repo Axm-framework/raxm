@@ -126,9 +126,7 @@ class FileHandler
      */
     public function move(): bool
     {
-        if (!$this->isValid()) {
-            return false;
-        }
+        if (!$this->isValid()) return false;
 
         $this->destination = str_replace('\\', '/', $this->getDir() . $this->generateUniqueFileName());
         return move_uploaded_file($this->tmpName(), $this->destination);
@@ -161,7 +159,6 @@ class FileHandler
 
         return $originalName;
     }
-
 
     /**
      * Get the original file name.
@@ -228,7 +225,6 @@ class FileHandler
         return $this->file['error'][0];
     }
 
-
     /**
      * Get destination file.
      * @return string The error file.
@@ -237,7 +233,6 @@ class FileHandler
     {
         return $this->destination;
     }
-
 
     /**
      * Get the errors occurred during validation.

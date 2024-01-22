@@ -16,7 +16,8 @@ trait WithFileUploads
     public function startUpload($name, $isMultiple)
     {
         $name = $this->params[0];
-        $pathSignedUrl = app()->request->signed('/raxm_upload-file');
+        $pathSignedUrl = app()->request->signed('/raxm/upload-file');
+
         $this->emit('upload:generatedSignedUrl', $name, $pathSignedUrl)->self();
     }
 
@@ -71,6 +72,7 @@ trait WithFileUploads
         if (is_null($errorsInJson)) {
 
             $this->addError($name, app()->request->getCookie('message_errorFile_upload'));
+
             $this->messages = $this->getErrorBag();
             app()->request->deleteCookie('message_errorFile_upload');
 
