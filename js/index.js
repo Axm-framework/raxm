@@ -1,29 +1,37 @@
-import { directive } from './directives.js'
-import { start, stop, rescan } from './boot.js'
-import { find, first, getByName, all, on, trigger, hook } from './store.js'
-
+import { directive } from "./directives.js";
+import { start, stop, rescan } from "./boot.js";
+import { find, first, getByName, all, on, trigger, hook } from "./store.js";
 
 let Raxm = {
     directive,
-    start, stop, rescan,
-    find, first, getByName, all, on, trigger, hook
-}
+    start,
+    stop,
+    rescan,
+    find,
+    first,
+    getByName,
+    all,
+    on,
+    trigger,
+    hook,
+};
 
-if (window.Raxm) console.warn('Detected multiple instances of Raxm running')
-if (window.Alpine) console.warn('Detected multiple instances of Alpine running')
+if (window.Raxm) console.warn("Detected multiple instances of Raxm running");
+if (window.Alpine)
+    console.warn("Detected multiple instances of Alpine running");
 
 // Register support...
-import './features/index.js'
+import "./features/index.js";
 
 // Register directives...
-import './directives/index.js'
+import "./directives/index.js";
 
 if (window.Raxm === undefined) {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.Raxm = Raxm       
+    document.addEventListener("DOMContentLoaded", () => {
+        window.Raxm = Raxm;
         // Start Raxm...
-        Raxm.start()
-    })
+        Raxm.start();
+    });
 }
 
-export { Raxm }
+export { Raxm };

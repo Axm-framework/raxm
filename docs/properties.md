@@ -185,15 +185,16 @@ class TodoList extends Component
 In addition to primitive types, Raxm supports common PHP object types used in Raxm applications. However, it's important to note that these types will be _dehydrated_ into JSON and _hydrated_ back to PHP on each request. This means that the property may not preserve run-time values such as closures. Also, information about the object such as class names may be exposed to JavaScript.
 
 Supported PHP types:
-| Type | Full Class Name |
-|------|-----------------|
-| Collection | `Illuminate\Support\Collection` |
++---------------------+-------------------------------------------+
+| Type                | Full Class Name                           |
+|---------------------+-------------------------------------------|
+| Collection          | `Illuminate\Support\Collection`           |
 | Eloquent Collection | `Illuminate\Database\Eloquent\Collection` |
-| Model | `Illuminate\Database\Model` |
-| DateTime | `DateTime` |
-| Carbon | `Carbon\Carbon` |
-| Stringable | `Illuminate\Support\Stringable` |
-
+| Model               | `Illuminate\Database\Model`               |
+| DateTime            | `DateTime`                                |
+| Carbon              | `Carbon\Carbon`                           |
+| Stringable          | `Illuminate\Support\Stringable`           |
++---------------------+-------------------------------------------+
 Here's a quick example of setting properties as these various types:
 
 ```php

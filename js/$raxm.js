@@ -87,12 +87,10 @@ raxmProperty('$watch', (component) => (path, callback) => {
 })
 
 raxmProperty('$refresh', (component) => (...params) => addMethodAction(component, '$refresh', ...params))
-
 raxmProperty('$on', (component) => (...params) => listen(component, ...params))
 raxmProperty('$dispatch', (component) => (...params) => dispatch(component, ...params))
 raxmProperty('$dispatchSelf', (component) => (...params) => dispatchSelf(component, ...params))
 raxmProperty('$dispatchTo', (component) => (...params) => dispatchTo(component, ...params))
-
 raxmProperty('$upload', (component) => (...params) => upload(component, ...params))
 raxmProperty('$uploadMultiple', (component) => (...params) => uploadMultiple(component, ...params))
 raxmProperty('$removeUpload', (component) => (...params) => removeUpload(component, ...params))

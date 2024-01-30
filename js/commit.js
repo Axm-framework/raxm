@@ -1,6 +1,6 @@
-import {debounce } from "./util/utils.js"
-import { PrefetchMessage } from "./Message.js"
-import MethodAction from "./action/method.js"
+import { debounce } from './util/utils.js'
+import { PrefetchMessage } from './message.js'
+import MethodAction from './action/method.js'
 import ModelAction from './action/model.js'
 import DeferredModelAction from './action/deferred-model.js'
 
@@ -55,11 +55,9 @@ export function get(component, name) {
 
 export async function set(component, name, value, defer = false, skipWatcher = false) {
     if (defer) {
-        addAction(component, 
-            new DeferredModelAction(name, value, component.el, skipWatcher))
+        addAction(component, new DeferredModelAction(name, value, component.el, skipWatcher))
     } else {
-        addAction(component, 
-            new MethodAction('$set', [name, value], component.el, skipWatcher))
+        addAction(component, new MethodAction('$set', [name, value], component.el, skipWatcher))
     }
 }
 
@@ -105,7 +103,6 @@ export function callAfterModelDebounce(callback, modelDebounceCallbacks) {
     }
     callback()
 }
-
 
 export function addPrefetchAction(component, action) {
     if (component.prefetchManager.actionHasPrefetch(action)) return

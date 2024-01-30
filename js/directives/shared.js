@@ -30,3 +30,4 @@ export function toggleBooleanStateDirective(el, directive, isTruthy, cachedDispl
         el.style.display = isTruthy ? display : 'none'
     }
 }
+ 
