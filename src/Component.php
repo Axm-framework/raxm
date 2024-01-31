@@ -139,7 +139,7 @@ abstract class Component extends BaseController
     {
         $payloads = $this->updates ?? [];
         foreach ($payloads as $payload) {
-           $this->payload = $payload['payload'];
+            $this->payload = $payload['payload'];
 
             $this->type   = $payload['type'];
             $this->id_p   = $payload['payload']['id'];
@@ -301,12 +301,12 @@ abstract class Component extends BaseController
      * Get the name of the component.
      *
      * This method returns the name of the component using the 'componentName' 
-     * method from RaxmManager.
+     * method from Raxm.
      * @return string The name of the component.
      */
     protected function getComponentName()
     {
-        return RaxmManager::componentName();
+        return Raxm::componentName();
     }
 
     /**
@@ -317,7 +317,7 @@ abstract class Component extends BaseController
      */
     public function index(Object $component)
     {
-        RaxmManager::mountComponent($component);
+        Raxm::mountComponent($component);
     }
 
     /**

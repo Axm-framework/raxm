@@ -3,7 +3,7 @@
 namespace Axm\Raxm\Commands;
 
 use Axm\Console\CLI;
-use Axm\Raxm\RaxmManager;
+use Axm\Raxm\Raxm;
 use Axm\Console\BaseCommand;
 use Axm\Console\GeneratorTrait;
 
@@ -59,7 +59,7 @@ class DeleteComponentRaxm extends BaseCommand
         $force = array_key_exists('force', $params) || CLI::getOption('force');
         $componentName = ucfirst($params[1]);
 
-        RaxmManager::registerConfig();
+        Raxm::registerConfig();
 
         $filePaths = [
             'view'      => config('raxm.view_path') . $componentName . '.php',

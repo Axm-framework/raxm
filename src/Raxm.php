@@ -8,7 +8,7 @@ use Axm\Exception\Exception;
 use Axm\Raxm\Support\FileUploadController;
 
 
-class RaxmManager
+class Raxm
 {
     protected static string $componentName;
     private static $instances;
@@ -37,7 +37,7 @@ class RaxmManager
     }
 
     /**
-     * Define a register method that will be called when the RaxmManager is registered
+     * Define a register method that will be called when the Raxm is registered
      * @return void
      */
     public static function register()
@@ -46,7 +46,7 @@ class RaxmManager
     }
 
     /**
-     * Register configuration settings for RaxmManager.
+     * Register configuration settings for Raxm.
      * @return void
      */
     public static function registerConfig()
@@ -142,7 +142,7 @@ class RaxmManager
             'Last-Modified' => static::httpDate($lastModified),
         ];
 
-        if (str($filename)->endsWith('.br')) {
+        if (pathinfo($filename, PATHINFO_EXTENSION) === 'br') {
             $headers['Content-Encoding'] = 'br';
         }
 

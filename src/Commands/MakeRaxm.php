@@ -63,7 +63,7 @@ class MakeRaxm extends BaseCommand
         try {
             $options = [
                 'alias' => 'raxm',
-                'class' => 'Axm\Raxm\RaxmManager',
+                'class' => 'Axm\Raxm\Raxm',
                 'description' => "Raxm is a livewire-based library for providing a development experience similar to that of single-page applications (SPA), but without the need to write complex JavaScript code. It allows you to create interactive user interfaces by updating user interface components in response to user actions.",
                 'paths' => config('paths.providersPath') . DIRECTORY_SEPARATOR . 'providers.php'
             ];

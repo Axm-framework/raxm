@@ -3,17 +3,17 @@
 namespace Axm\Raxm;
 
 use Axm;
-use Axm\Raxm\RaxmManager;
+use Axm\Raxm\Raxm;
 use Axm\Raxm\ComponentCheckSum;
 use Axm\Raxm\ComponentProperties;
 
 /**
  * Class LifecycleManager
  *
- * This class extends RaxmManager and provides methods for managing 
+ * This class extends Raxm and provides methods for managing 
  * the lifecycle of a component.
  */
-class LifecycleManager extends RaxmManager
+class LifecycleManager extends Raxm
 {
 	protected static $id;
 	protected static $initialData;
