@@ -111,7 +111,7 @@ class RaxmManager
      */
     public static function returnJavaScriptAsFile()
     {
-        $file = DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'index.js';
+        $file = DIRECTORY_SEPARATOR . 'dist' . DIRECTORY_SEPARATOR . 'raxm.js';
         return static::pretendResponseIsFile(dirname(__DIR__, 1) . $file);
     }
 
@@ -355,12 +355,12 @@ class RaxmManager
         $randomId = crc32(rand(1000000, 99999999));
 
         // Added fullAssetPath variable to store the full asset path url with the random id generated in the previous step. 
-        $fullAssetPath = "{$assetUrl}{$fileName}?id={$randomId}";
-        // $fullAssetPath = "/raxm/raxmjs?id={$randomId}";
+        // $fullAssetPath = "{$assetUrl}{$fileName}?id={$randomId}";
+        $fullAssetPath = "/raxm/raxmjs?id={$randomId}";
 
         $script = <<<HTML
          <!-- <script>{$windowRaxmCheck}</script> -->
-            <script src="{$fullAssetPath}" type="module" {$nonce} {$progressBar} data-csrf="{$csrfToken}" data-baseUrl="{$appUrl}"></script>
+            <script src="{$fullAssetPath}" {$nonce} {$progressBar} data-csrf="{$csrfToken}" data-baseUrl="{$appUrl}"></script>
         HTML;
 
         return $script . PHP_EOL;
