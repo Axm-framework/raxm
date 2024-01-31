@@ -37,15 +37,6 @@ class Raxm
     }
 
     /**
-     * Define a register method that will be called when the Raxm is registered
-     * @return void
-     */
-    public static function register()
-    {
-        app('raxm', fn () => new self);
-    }
-
-    /**
      * Register configuration settings for Raxm.
      * @return void
      */
@@ -266,13 +257,13 @@ class Raxm
      */
     public static function mountComponent(Object $class, bool $withoutLayout = false)
     {
+        $instance = app('controller')->view();
         if ($withoutLayout === false) {
 
             $config = config();
             $layoutName = $config->raxm->layout;
             $layoutPath = $config->raxm->layoutPath;
 
-            $instance = app('controller')->view();
             $view = $instance::file(
                 $layoutPath . DIRECTORY_SEPARATOR . $layoutName,
                 ['_content' => self::runOrInitializeComponent($class)]
@@ -281,7 +272,13 @@ class Raxm
             $html = $instance::injectAssets($view, static::styles(), static::scripts());
             self::$injectedAssets = true;
         } else {
-            $html = self::runOrInitializeComponent($class);
+
+            if (!self::$injectedAssets) {
+                $view = self::runOrInitializeComponent($class);
+                $html = $instance::injectAssets($view, static::styles(), static::scripts());
+            } else {
+                $html = self::runOrInitializeComponent($class);
+            }
         }
 
         echo $html . PHP_EOL;
