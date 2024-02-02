@@ -61,6 +61,6 @@ if (!function_exists('raxmScripts')) {
 	function raxmScripts()
 	{
 		// Set a flag in the View class to enable Raxm scripts and assets.
-		return View::$raxmAssets = true;
+		// return View::$raxmAssets = true;
 	}
 }

@@ -263,7 +263,7 @@ abstract class Component extends BaseController
      */
     private function renderToView()
     {
-        $view = (string) $this->getView();
+        $view = $this->getView();
         return $this->preRenderedView = $view;
     }
 
@@ -289,7 +289,7 @@ abstract class Component extends BaseController
      * the 'render' method or using a default view name.
      * @return string|null The view for the component.
      */
-    private function getView(): ?string
+    private function getView(): string
     {
         $view = method_exists($this, 'render')
             ? $this->callRender() : view('raxm.' . $this->getComponentName());

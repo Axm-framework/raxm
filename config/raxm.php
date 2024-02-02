@@ -51,7 +51,7 @@ return [
          * the view returned by SomeComponent will be wrapped in "layouts.app"
          * @var string 
          */
-        'layout' => 'main.php',
+        'layout' => 'main',
 
         /**
          --------------------------------------------------------------------------
