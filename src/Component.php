@@ -155,7 +155,7 @@ abstract class Component extends BaseController
      */
     private function dispatchEvents()
     {
-        return match ($this->type) {
+        match ($this->type) {
             'syncInput'  => $this->syncInputData(),
             'callMethod' => $this->callMethod($this->method, $this->params),
             'fireEvent'  => $this->fireEvent($this->method, $this->params, $this->id_p),
@@ -186,7 +186,7 @@ abstract class Component extends BaseController
      * @param string|null $id The component ID (optional).
      * @return mixed The response to send to the client.
      */
-    public function initialInstance($id = null)
+    public function initialInstance($id = null): string
     {
         // Generate a random ID if one is not already set.
         $this->id = $id ?? bin2hex(random_bytes(10));
@@ -289,7 +289,7 @@ abstract class Component extends BaseController
      * the 'render' method or using a default view name.
      * @return string|null The view for the component.
      */
-    private function getView(): string
+    private function getView(): ?string
     {
         $view = method_exists($this, 'render')
             ? $this->callRender() : view('raxm.' . $this->getComponentName());
