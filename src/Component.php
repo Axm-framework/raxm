@@ -77,7 +77,7 @@ abstract class Component extends BaseController
      * extracting data from the request, hydrating the component's state,
      * dispatching events, and preparing and sending a JSON response.
      */
-    public function run()
+    private function run()
     {
         $this->isRaxmRequest();
         $this->extractDataRequest($this->request);
@@ -186,7 +186,7 @@ abstract class Component extends BaseController
      * @param string|null $id The component ID (optional).
      * @return mixed The response to send to the client.
      */
-    public function initialInstance($id = null): string
+    private function initialInstance($id = null): string
     {
         // Generate a random ID if one is not already set.
         $this->id = $id ?? bin2hex(random_bytes(10));
@@ -205,7 +205,7 @@ abstract class Component extends BaseController
      * which is stored in the 'effects' array.
      * @return string|null The HTML representation of the component.
      */
-    public function html()
+    private function html()
     {
         return $this->effects['html'] ?? null;
     }
@@ -216,7 +216,7 @@ abstract class Component extends BaseController
      * This method embeds the component's data in the HTML representation 
      * by adding attributes to the HTML root tag.
      */
-    public function embedThyselfInHtml()
+    private function embedThyselfInHtml()
     {
         if (!$html = $this->renderToView()) return;
         $this->effects['html'] = (new HtmlRootTagAttributeAdder)($html, [
@@ -230,7 +230,7 @@ abstract class Component extends BaseController
      * This method embeds the component's ID in the HTML representation by adding an 'id' 
      * attribute to the HTML root tag.
      */
-    public function embedIdInHtml()
+    private function embedIdInHtml()
     {
         if (!$html = $this->effects['html'] ?? null) return;
         $this->effects['html'] = (new HtmlRootTagAttributeAdder)($html, [
@@ -244,7 +244,7 @@ abstract class Component extends BaseController
      * This method returns an array of component data without the HTML representation.
      * @return array The component data without HTML.
      */
-    protected function toArrayWithoutHtml()
+    private function toArrayWithoutHtml()
     {
         $fingerprint = $this->fingerprint ?? LifecycleManager::initialFingerprint();
         $effects     = array_diff_key($this->effects, ['html' => null]) ?: LifecycleManager::initialEffects();
@@ -274,7 +274,7 @@ abstract class Component extends BaseController
      * view if the 'render' method is not defined.
      * @return string|null The rendered view or null if not found.
      */
-    protected function callRender()
+    private function callRender()
     {
         $mergePublicProperties  = View::$tempData = $this->getPublicProperties($this);
         $this->publicProperties = $mergePublicProperties;
@@ -304,7 +304,7 @@ abstract class Component extends BaseController
      * method from Raxm.
      * @return string The name of the component.
      */
-    protected function getComponentName()
+    private function getComponentName()
     {
         return Raxm::componentName();
     }
@@ -360,7 +360,7 @@ abstract class Component extends BaseController
      * including effects, server memo, and checksum.
      * @return array The prepared response data.
      */
-    protected function prepareResponse(): array
+    private function prepareResponse(): array
     {
         return [
             'effects' => $this->effects(),
@@ -373,7 +373,7 @@ abstract class Component extends BaseController
      * @return array The generated memo including a random HTML hash,
      * a data response, and a checksum.
      */
-    public function serveMemo(): array
+    private function serveMemo(): array
     {
         // Create an associative array representing the memo to be served.
         $serverMemo = [
@@ -397,7 +397,7 @@ abstract class Component extends BaseController
      * and listeners, to be sent to the client.
      * @return array The effects data.
      */
-    protected function effects(): array
+    private function effects(): array
     {
         $this->embedThyselfInHtml();
         $this->embedIdInHtml();
@@ -430,7 +430,7 @@ abstract class Component extends BaseController
      * @param mixed $value The value of the effect data.
      * @return mixed The updated effects array.
      */
-    protected function addEffects(string $key, $value)
+    private function addEffects(string $key, $value)
     {
         return $this->effects[$key] = $value;
     }
@@ -442,7 +442,7 @@ abstract class Component extends BaseController
      * based on the 'redirect' method or a default URL.
      * @return string The URL to redirect to.
      */
-    protected function getRedirectTo()
+    private function getRedirectTo()
     {
         if (method_exists($this, 'redirect')) {
             $pathTo = $this->redirect();
@@ -459,7 +459,7 @@ abstract class Component extends BaseController
      * @param array $memo The server memo data.
      * @return mixed The generated checksum.
      */
-    protected function checkSumAndGenerate($checksum, $fingerprint, $memo)
+    private function checkSumAndGenerate($checksum, $fingerprint, $memo)
     {
         if (ComponentCheckSum::check($checksum, $fingerprint, $memo))
             throw new RuntimeException("Raxm encountered corrupt data when 
@@ -477,7 +477,7 @@ abstract class Component extends BaseController
      * changed compared to the server memo.
      * @return array The changed data properties.
      */
-    protected function getChangedData()
+    private function getChangedData()
     {
         $changedData = [];
         foreach ($this->serverMemo['data'] ?? [] as $key => $value) {
@@ -496,7 +496,7 @@ abstract class Component extends BaseController
      * excluding any properties that are not part of the component's public properties.
      * @return array The data to include in the server response.
      */
-    protected function dataResponse()
+    private function dataResponse()
     {
         return array_filter($this->publicProperties, function ($key) {
             return property_exists($this, $key);
@@ -508,7 +508,7 @@ abstract class Component extends BaseController
      * This method prepares the response data and sends it as a JSON 
      * response to the client.
      */
-    protected function compileResponse()
+    private function compileResponse()
     {
         return $this->return = $this->prepareResponse();
     }
@@ -517,7 +517,7 @@ abstract class Component extends BaseController
      * Sends a JSON response using the response object and the specified data.
      * @return string The JSON representation of the specified data.
      */
-    public function sendJsonResponse()
+    private function sendJsonResponse()
     {
         // Uses the response object to convert the specified data to JSON.
         return $this->response->toJson($this->return);

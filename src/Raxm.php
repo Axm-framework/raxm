@@ -2,6 +2,7 @@
 
 namespace Axm\Raxm;
 
+use Axm\Application;
 use Axm\Views\View;
 use Axm\Raxm\Component;
 use Axm\Exception\Exception;
@@ -16,9 +17,11 @@ class Raxm
     public $hasRenderedScripts = false;
     public $hasRenderedStyles  = false;
     private static $injectedAssets = false;
+    private static Application $app;
 
     public function __construct()
     {
+        self::$app = app();
     }
 
     /**
@@ -83,7 +86,8 @@ class Raxm
      */
     public static function registerRoutes()
     {
-        $router = app('router');
+        $router = self::$app->router;
+        $assetUrl = self::$app->config('raxm.asset_url');
 
         $router->addRoute('POST', '/raxm/update/{name}', function ($name) {
             return self::getComponentWithoutLayout($name);
@@ -93,7 +97,7 @@ class Raxm
         $router->addRoute('GET', '/raxm/preview-file/{filename}', function ($filename) {
             return static::previewFile($filename);
         });
-        $router->addRoute('GET', '/raxm/raxmjs', fn () => static::returnJavaScriptAsFile());
+        $router->addRoute('GET', $assetUrl, fn () => static::returnJavaScriptAsFile());
     }
 
     /**
@@ -106,12 +110,12 @@ class Raxm
         return static::pretendResponseIsFile(dirname(__DIR__, 1) . $file);
     }
 
-    static function pretendResponseIsFile($file, $mimeType = 'application/javascript')
+    public static function pretendResponseIsFile($file, $mimeType = 'application/javascript')
     {
         $lastModified = filemtime($file);
         $headers = static::pretendedResponseIsFileHeaders($file, $mimeType, $lastModified);
 
-        return app()->response->file($file, $headers)->send();
+        return self::$app->response->file($file, $headers)->send();
     }
 
     static private function pretendedResponseIsFileHeaders($filename, $mimeType, $lastModified)
@@ -257,7 +261,7 @@ class Raxm
      */
     public static function mountComponent(Object $class, bool $withoutLayout = false)
     {
-        $instance = app('controller')->view();
+        $instance = self::$app->controller->view();
         $config = config();
 
         $layoutName = $config->raxm->layout;
@@ -289,7 +293,7 @@ class Raxm
     {
 
         $componentName = $component::class;
-        $html = app()->request->isPost()
+        $html = self::$app->request->isPost()
             ? self::runComponent($componentName)
             : self::initializeComponent($componentName);
         return $html;
@@ -327,9 +331,8 @@ class Raxm
      */
     protected static function js(array $options = [])
     {
-        $app = app();
+        $app = self::$app;
         $assetUrl = $app->config('raxm.asset_url');
-        $fileName = $app->config('raxm.fileName');
         $appUrl   = $app->config('raxm.app_url');
 
         $csrfToken = "'" . $app->getCsrfToken() . "'"  ??  'null';
@@ -345,11 +348,9 @@ class Raxm
         $randomId = crc32(rand(1000000, 99999999));
 
         // Added fullAssetPath variable to store the full asset path url with the random id generated in the previous step. 
-        // $fullAssetPath = "{$assetUrl}{$fileName}?id={$randomId}";
-        $fullAssetPath = "/raxm/raxmjs?id={$randomId}";
+        $fullAssetPath = "{$assetUrl}?id={$randomId}";
 
         $script = <<<HTML
-         <!-- <script>{$windowRaxmCheck}</script> -->
             <script src="{$fullAssetPath}" {$nonce} {$progressBar} data-csrf="{$csrfToken}" data-baseUrl="{$appUrl}"></script>
         HTML;
 
@@ -364,7 +365,7 @@ class Raxm
      */
     public static function scripts(array $options = [])
     {
-        app('raxm')->hasRenderedScripts = true;
+        self::$app->raxm->hasRenderedScripts = true;
 
         $debug = config('app.debug');
         $scripts = static::js($options);

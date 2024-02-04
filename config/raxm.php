@@ -76,19 +76,7 @@ return [
          * will load its JavaScript assets from the app's "relative root".
          * @var string 
          */
-        'asset_url' => generateUrl('vendor/axm/raxm/js') . '/',
-
-        /**
-         --------------------------------------------------------------------------
-          RAXM FILE NAME
-         --------------------------------------------------------------------------
-         *
-         * This value sets the filename to raxm JavaScript assets, for cases where
-         * your app's domain root is not the correct path. By default, raxm
-         * will load its JavaScript assets from the app's "file name".
-         * @var string 
-         */
-        'fileName' => 'index.js',
+        'asset_url' => '/raxm/raxm_js',
 
         /**
          --------------------------------------------------------------------------
