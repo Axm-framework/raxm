@@ -1,12 +1,14 @@
 namespace {namespace};
 
-use Axm\Views\View;
 use Axm\Raxm\Component;
 
+/**
+ * This is the {class} component for this application <?=env('APP_NAME', 'App Name') ?> 
+ */
 class {class}Raxm extends Component
 {
     public function render()
     {
-        return View::getView('{view}raxm');
+        return view('{view}raxm');
     }
 }

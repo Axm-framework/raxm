@@ -7,6 +7,6 @@
         <title><?= config('app.info.title') ?></title>
     </head>
     <body>
-        <?= $_content ?>
+        {{content}}
     </body>
 </html>
