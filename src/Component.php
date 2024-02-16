@@ -239,6 +239,15 @@ abstract class Component extends BaseController
     }
 
     /**
+     * It is used to wrap the HTML content of the 'effects' array inside a div element.
+     */
+    private function wrapInDiv()
+    {
+        if (!$html = $this->effects['html'] ?? null) return;
+        $this->effects['html'] = sprintf("<div>\n%s\n</div>\n", $html);
+    }
+
+    /**
      * Get an array of component data without HTML.
      *
      * This method returns an array of component data without the HTML representation.
@@ -401,6 +410,7 @@ abstract class Component extends BaseController
     {
         $this->embedThyselfInHtml();
         $this->embedIdInHtml();
+        $this->wrapInDiv();
 
         $effects = [
             'html'  => $this->html(),
