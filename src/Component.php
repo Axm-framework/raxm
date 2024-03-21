@@ -4,10 +4,10 @@ namespace Axm\Raxm;
 
 use Axm;
 use Exception;
-use Axm\Views\View;
+use Views\View;
 use RuntimeException;
-use Axm\Http\Request;
-use Axm\Http\Response;
+use Http\Request;
+use Http\Response;
 use Axm\Raxm\ComponentCheckSum;
 use Axm\Raxm\ComponentProperties;
 use Axm\Raxm\LifecycleManager;
@@ -64,7 +64,7 @@ abstract class Component extends BaseController
      */
     public function __construct()
     {
-        $app = Axm::app();
+        $app = app();
         $this->request  = $app->request  ?? null;
         $this->response = $app->response ?? null;
     }
@@ -450,7 +450,6 @@ abstract class Component extends BaseController
      *
      * This method determines the URL to which the client should be redirected
      * based on the 'redirect' method or a default URL.
-     * @return string The URL to redirect to.
      */
     private function getRedirectTo()
     {
@@ -485,7 +484,6 @@ abstract class Component extends BaseController
      *
      * This method retrieves the properties of the component's data that have 
      * changed compared to the server memo.
-     * @return array The changed data properties.
      */
     private function getChangedData()
     {
@@ -525,11 +523,9 @@ abstract class Component extends BaseController
 
     /**
      * Sends a JSON response using the response object and the specified data.
-     * @return string The JSON representation of the specified data.
      */
     private function sendJsonResponse()
     {
-        // Uses the response object to convert the specified data to JSON.
         return $this->response->toJson($this->return);
     }
 

@@ -2,9 +2,9 @@
 
 namespace Axm\Raxm\Commands;
 
-use Axm\Console\BaseCommand;
-use Axm\Console\CLI;
-use Axm\Console\GeneratorTrait;
+use Console\BaseCommand;
+use Console\CLI;
+use Console\GeneratorTrait;
 
 
 class MakeRaxm extends BaseCommand

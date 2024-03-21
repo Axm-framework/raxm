@@ -2,10 +2,10 @@
 
 namespace Axm\Raxm\Commands;
 
-use Axm\Console\CLI;
+use Console\CLI;
 use Axm\Raxm\Raxm;
-use Axm\Console\BaseCommand;
-use Axm\Console\GeneratorTrait;
+use Console\BaseCommand;
+use Console\GeneratorTrait;
 
 class DeleteComponentRaxm extends BaseCommand
 {
