@@ -3,9 +3,7 @@
 namespace Axm\Raxm;
 
 use App;
-use Views\View;
 use Axm\Raxm\Component;
-use Exception;
 use Axm\Raxm\Support\FileUploadController;
 
 
@@ -25,50 +23,36 @@ class Raxm
      *
      * This method registers the configuration, includes the Raxm utility helpers,
      * registers the routes, and loads the Raxm assets.
-     * @return void
      */
     public static function boot()
     {
         self::$app = app();
-
+        self::setSingleton();
         self::registerConfig();
         self::includeHelpers();
         self::registerRoutes();
-        // self::raxmAssets();
+    }
+
+    public static function setSingleton()
+    {
+        app('raxm', new self());
     }
 
     /**
      * Register configuration settings for Raxm.
-     * @return void
      */
     public static function registerConfig()
     {
         $pathFile = dirname(__FILE__, 2) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
-        $file = 'raxm';
-        config()->read($file, $pathFile);
+        config()->read('raxm', $pathFile);
     }
 
     /**
-     * Include the Raxm utility helpers.
-     *
      * This method includes the Raxm utility helpers from the `raxmUtils` file.
-     * @return void
      */
-    public static function includeHelpers()
+    public static function includeHelpers(): void
     {
         helpers('raxmUtils', __DIR__);
-    }
-
-    /**
-     * Set a flag to indicate that Raxm assets should be loaded.
-     *
-     * This method sets a flag on the `View` class that can be checked to determine
-     * whether or not to load Raxm assets.
-     * @return void
-     */
-    public static function raxmAssets()
-    {
-        View::make()->$raxmAssets = true;
     }
 
     /**
@@ -79,12 +63,11 @@ class Raxm
      * - POST /raxm/upload-file: Handles file uploads.
      * - GET /raxm/preview-file/{filename}: Previews a file.
      * - GET /vendor/axm/raxm/js/index.js: Returns the Raxm JavaScript assets.
-     * - GET /raxmraxm.js.map: Returns the Raxm JavaScript source.
-     * @return void
+     * - GET /raxm/raxm_js: Returns the Raxm JavaScript source.
      */
     public static function registerRoutes()
     {
-        $router = self::$app->router;
+        $router   = app('router');
         $assetUrl = config('raxm.asset_url');
 
         $router->addRoute('POST', '/raxm/update/{name}', function ($name) {
@@ -100,7 +83,6 @@ class Raxm
 
     /**
      * Outputs the RAXM script and style tags.
-     * @param array $options An array of options to be used in generating the tags.
      */
     public static function returnJavaScriptAsFile()
     {
@@ -108,7 +90,7 @@ class Raxm
         return static::pretendResponseIsFile(dirname(__DIR__, 1) . $file);
     }
 
-    public static function pretendResponseIsFile($file, $mimeType = 'application/javascript')
+    public static function pretendResponseIsFile(string $file, string $mimeType = 'application/javascript')
     {
         $lastModified = filemtime($file);
         $headers = static::pretendedResponseIsFileHeaders($file, $mimeType, $lastModified);
@@ -116,7 +98,7 @@ class Raxm
         return self::$app->response->file($file, $headers)->send();
     }
 
-    private static function pretendedResponseIsFileHeaders($filename, $mimeType, $lastModified)
+    private static function pretendedResponseIsFileHeaders(string $filename, string $mimeType, string $lastModified)
     {
         $expires = strtotime('+1 year');
         $cacheControl = 'public, max-age=31536000';
@@ -143,11 +125,9 @@ class Raxm
     }
 
     /**
-     * / Returns a formatted HTTP date string
-     * @param int $timestamp The Unix timestamp
-     * @return string The formatted HTTP date string
+     * Returns a formatted HTTP date string
      */
-    static function httpDate($timestamp)
+    static function httpDate(int $timestamp): string
     {
         return sprintf('%s GMT', gmdate('D, d M Y H:i:s', $timestamp));
     }
@@ -171,24 +151,18 @@ class Raxm
      * appends the "Raxm" suffix, and then returns the fully-qualified class name by
      * concatenating the component name with the namespace specified in the Raxm
      * configuration.
-     * @param string $component The name of the component to parse.
-     * @return string The fully-qualified class name of the component.
      */
-    public static function parserComponent(string $component)
+    public static function parserComponent(string $component): string
     {
         $component = str_ireplace('raxm', '', $component);
         $componentName = $component . 'Raxm';
-
         $nameSpace = config('raxm.class_namespace');
+
         return $nameSpace . ucfirst($componentName);
     }
 
     /**
      * Get an instance of a specified component.
-     * 
-     * @param string $componentName The name of the component to retrieve.
-     * @return Component An instance of the specified component.
-     * @throws Exception if the specified component class does not exist.
      */
     public static function getInstance(string $className): Component
     {
@@ -198,9 +172,8 @@ class Raxm
 
     /**
      * Get the current component name.
-     * @return string|null The current component name.
      */
-    public static function componentName()
+    public static function componentName(): ?string
     {
         $className = class_basename(self::$componentName);
         return $className ?? null;
@@ -208,7 +181,6 @@ class Raxm
 
     /**
      * Get the instance of the currently specified component.
-     * @return Component An instance of the currently specified component.
      */
     public static function getInstanceNowComponent(): Component
     {
@@ -217,24 +189,17 @@ class Raxm
 
     /**
      * Initialize a specified component and display its HTML.
-     * 
-     * @param string $componentName The name of the component to initialize.
-     * @throws Exception if the specified component class does not exist.
      */
     public static function initializeComponent(string $componentName): string
     {
         $_instance = self::getInstance($componentName);
-        $id = bin2hex(random_bytes(10));
-        $html = $_instance->initialInstance($id);
+        $html = $_instance->initialInstance(bin2hex(random_bytes(10)));
 
         return $html;
     }
 
     /**
      * Run a specified component and display its HTML.
-     * 
-     * @param string $componentName The name of the component to run.
-     * @throws Exception if the specified component class does not exist.
      */
     public static function runComponent(string $componentName)
     {
@@ -254,9 +219,7 @@ class Raxm
     public static function mountComponent(object $class, bool $withoutLayout = false): string
     {
         $instance = self::$app->controller->view();
-        $config = config();
-
-        $layoutName = $config->raxm->layout;
+        $layoutName = config('raxm.layout');
         $view = self::runOrInitializeComponent($class);
         if (!$withoutLayout) {
             $html = $instance->setView($view)
@@ -277,21 +240,18 @@ class Raxm
 
     /**
      * Runs the component or initializes it if it hasn't been run before.
-     *
-     * @param $component The component to be compiled.
-     * @return string The HTML code generated by the component.
      */
-    public static function runOrInitializeComponent(object $component)
+    public static function runOrInitializeComponent(object $component): string
     {
-
         $componentName = $component::class;
         $html = self::$app->request->isPost()
             ? self::runComponent($componentName)
             : self::initializeComponent($componentName);
+
         return $html;
     }
 
-    public static function matchesCache($lastModified)
+    public static function matchesCache(string $lastModified): bool
     {
         $ifModifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '';
 
@@ -300,7 +260,6 @@ class Raxm
 
     /**
      * Outputs the RAXM script and style tags.
-     * @param array $options An array of options to be used in generating the tags.
      */
     public static function raxmScripts(array $options = [])
     {
@@ -318,23 +277,21 @@ class Raxm
     /**
      * Generate JavaScript assets.
      * 
-     * @param array $options Additional options for JavaScript assets.
-     * @return string The generated JavaScript assets as HTML script tags.
      */
-    protected static function js(array $options = [])
+    protected static function js(array $options = []): string
     {
         $app = self::$app;
-        $assetUrl = $app->config('raxm.asset_url');
-        $appUrl = $app->config('raxm.app_url');
+        $assetUrl = config('raxm.asset_url');
+        $appUrl   = config('raxm.app_url');
 
         $csrfToken = "'" . $app->getCsrfToken() . "'" ?? 'null';
 
         // Added nonce variable to store the nonce value if it is set in the options array. 
-        $nonce = isset ($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
+        $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
 
         $windowRaxmCheck = "if (window.Raxm) { delete window.Raxm }";
 
-        $progressBar = $app->config('raxm.navigate.show_progress_bar', true) ? '' : 'data-no-progress-bar';
+        $progressBar = config('raxm.navigate.show_progress_bar', true) ? '' : 'data-no-progress-bar';
 
         // Added randomId variable to generate a random id for the asset path url using crc32 and rand functions. 
         $randomId = crc32(rand(1000000, 99999999));
@@ -351,11 +308,8 @@ class Raxm
 
     /**
      * Generates the RAXM script tags.
-     *
-     * @param array $options An array of options to be used in generating the tags.
-     * @return string The generated script tags.
      */
-    public static function scripts(array $options = [])
+    public static function scripts(array $options = []): string
     {
         self::$app->raxm->hasRenderedScripts = true;
 
@@ -371,13 +325,10 @@ class Raxm
 
     /**
      * Generate and return Raxm styles.
-     * 
-     * @param array $options Additional options for Raxm styles.
-     * @return string The generated Raxm styles as HTML style tags.
      */
-    public static function styles($options = [])
+    public static function styles(array $options = []): string
     {
-        $nonce = isset ($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
+        $nonce = isset($options['nonce']) ? "nonce=\"{$options['nonce']}\"" : '';
         $progressBarColor = config('raxm.navigate.progress_bar_color', '#2299dd');
 
         $html = <<<HTML
@@ -415,11 +366,8 @@ class Raxm
 
     /**
      * Minify the given HTML content by removing unnecessary whitespace.
-     * 
-     * @param string $subject The HTML content to be minified.
-     * @return string The minified HTML content.
      */
-    protected static function minify($subject)
+    protected static function minify(string $subject): string
     {
         return preg_replace('~(\v|\t|\s{2,})~m', '', $subject);
     }

@@ -13,45 +13,38 @@ class DeleteComponentRaxm extends BaseCommand
 
     /**
      * The Command's Group
-     * @var string
      */
-    protected $group = 'Raxm';
+    protected string $group = 'Raxm';
 
     /**
      * The Command's Name
-     * @var string
      */
-    protected $name = 'delete:raxm';
+    protected string $name = 'delete:raxm';
 
     /**
      * The Command's Description
-     * @var string
      */
-    protected $description = '';
+    protected string $description = '';
 
     /**
      * The Command's Usage
-     * @var string
      */
-    protected $usage = 'delete:raxm [name] [options]';
+    protected string $usage = 'delete:raxm [name] [options]';
 
     /**
      * The Command's Arguments
-     * @var array
      */
-    protected $arguments = [];
+    protected array $arguments = [];
 
     /**
      * The Command's Options
-     * @var array
      */
-    protected $options = [
-        '--force'     => 'Force overwrite existing file.',
+    protected array $options = [
+        '--force' => 'Force overwrite existing file.',
     ];
 
     /**
      * Actually execute a command.
-     * @param array $params
      */
     public function run(array $params)
     {
@@ -62,12 +55,12 @@ class DeleteComponentRaxm extends BaseCommand
         Raxm::registerConfig();
 
         $filePaths = [
-            'view'      => config('raxm.view_path') . $componentName . '.php',
+            'view' => config('raxm.view_path') . $componentName . '.php',
             'component' => config('raxm.component_path') . $componentName . '.php'
         ];
 
         $existingFiles = [];
-        $missingFiles  = [];
+        $missingFiles = [];
         foreach ($filePaths as $filePath) {
             if (is_file($filePath)) {
                 $existingFiles[] = $filePath;
@@ -97,9 +90,6 @@ class DeleteComponentRaxm extends BaseCommand
 
     /**
      * Confirm whether to delete existing files.
-     *
-     * @param array $existingFiles
-     * @return string
      */
     private function confirmFileDeletion(array $existingFiles): string
     {

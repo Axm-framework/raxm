@@ -32,13 +32,13 @@ abstract class Component extends BaseController
     use HandlesActions;
     use ValidatesInput;
 
-    protected ?Request  $request;
+    protected ?Request $request;
     protected ?Response $response;
     protected bool $shouldSkipRendering = false;
-    protected ?array  $serverMemo  = null;
-    protected ?array  $fingerprint = null;
-    protected ?array  $updates = null;
-    protected ?array  $publicProperties = [];
+    protected ?array $serverMemo = null;
+    protected ?array $fingerprint = null;
+    protected ?array $updates = null;
+    protected ?array $publicProperties = [];
     protected ?string $preRenderedView;
     protected bool $ifActionIsRedirect = false;
     protected bool $ifActionIsNavigate = false;
@@ -51,10 +51,10 @@ abstract class Component extends BaseController
     protected $params;
     protected $payload;
     protected $return = [];
-    protected $eventQueue    = [];
+    protected $eventQueue = [];
     protected $dispatchQueue = [];
-    protected $listeners     = [];
-    protected $queryString   = [];
+    protected $listeners = [];
+    protected $queryString = [];
     protected $rules = [];
     protected $messages;
     public $tmpfile;
@@ -65,7 +65,7 @@ abstract class Component extends BaseController
     public function __construct()
     {
         $app = app();
-        $this->request  = $app->request  ?? null;
+        $this->request = $app->request ?? null;
         $this->response = $app->response ?? null;
     }
 
@@ -107,16 +107,16 @@ abstract class Component extends BaseController
      *
      * This method extracts data from the HTTP request, including server memo,
      * updates, and fingerprint data. It sets the component's ID and name based on the fingerprint.
-     * @param Request $request The HTTP request object.
      */
     private function extractDataRequest(Request $request): void
     {
-        $this->serverMemo  = $request->serverMemo  ?? [];
-        $this->updates     = $request->updates     ?? [];
+        $this->serverMemo = $request->serverMemo ?? [];
+        $this->updates = $request->updates ?? [];
         $this->fingerprint = $request->fingerprint ?? [];
 
         [$this->id, $this->component] = [
-            $this->fingerprint['id'], $this->fingerprint['name']
+            $this->fingerprint['id'],
+            $this->fingerprint['name']
         ];
     }
 
@@ -141,8 +141,8 @@ abstract class Component extends BaseController
         foreach ($payloads as $payload) {
             $this->payload = $payload['payload'];
 
-            $this->type   = $payload['type'];
-            $this->id_p   = $payload['payload']['id'];
+            $this->type = $payload['type'];
+            $this->id_p = $payload['payload']['id'];
             $this->method = $payload['payload']['method'] ?? null;
             $this->params = $payload['payload']['params'] ?? null;
         }
@@ -156,10 +156,9 @@ abstract class Component extends BaseController
     private function dispatchEvents()
     {
         match ($this->type) {
-            'syncInput'  => $this->syncInputData(),
+            'syncInput' => $this->syncInputData(),
             'callMethod' => $this->callMethod($this->method, $this->params),
-            'fireEvent'  => $this->fireEvent($this->method, $this->params, $this->id_p),
-
+            'fireEvent' => $this->fireEvent($this->method, $this->params, $this->id_p),
             default => throw new Exception('Unknown event type: ' . $this->type)
         };
     }
@@ -171,7 +170,7 @@ abstract class Component extends BaseController
     private function syncInputData(): void
     {
         foreach ($this->updates as $update) {
-            $name  = $update['payload']['name']  ?? null;
+            $name = $update['payload']['name'] ?? null;
             $value = $update['payload']['value'] ?? null;
 
             $this->syncInput($name, $value);
@@ -183,19 +182,13 @@ abstract class Component extends BaseController
      *
      * This method initializes the Raxm component, setting its ID and preparing 
      * the response for the client.
-     * @param string|null $id The component ID (optional).
-     * @return mixed The response to send to the client.
      */
-    private function initialInstance($id = null): string
+    private function initialInstance(?string $id = null): string
     {
-        // Generate a random ID if one is not already set.
-        $this->id = $id ?? bin2hex(random_bytes(10));
+        $this->id = $id ?? bin2hex(random_bytes(10));   // Generate a random ID if one is not already set.
+        $this->prepareResponse();    // Prepare the response that will be sent to the client.
 
-        // Prepare the response that will be sent to the client.
-        $this->prepareResponse();
-
-        // Return the response to the client.
-        return $this->html();
+        return $this->html();     // Return the response to the client.
     }
 
     /**
@@ -203,9 +196,8 @@ abstract class Component extends BaseController
      *
      * This method returns the HTML representation of the component, 
      * which is stored in the 'effects' array.
-     * @return string|null The HTML representation of the component.
      */
-    private function html()
+    private function html(): ?string
     {
         return $this->effects['html'] ?? null;
     }
@@ -218,7 +210,8 @@ abstract class Component extends BaseController
      */
     private function embedThyselfInHtml()
     {
-        if (!$html = $this->renderToView()) return;
+        if (!$html = $this->renderToView())
+            return;
         $this->effects['html'] = (new HtmlRootTagAttributeAdder)($html, [
             'initial-data' => $this->toArrayWithoutHtml()
         ]);
@@ -232,7 +225,8 @@ abstract class Component extends BaseController
      */
     private function embedIdInHtml()
     {
-        if (!$html = $this->effects['html'] ?? null) return;
+        if (!$html = $this->effects['html'] ?? null)
+            return;
         $this->effects['html'] = (new HtmlRootTagAttributeAdder)($html, [
             'id' => $this->id,
         ]);
@@ -243,21 +237,19 @@ abstract class Component extends BaseController
      */
     private function wrapInDiv()
     {
-        if (!$html = $this->effects['html'] ?? null) return;
+        if (!$html = $this->effects['html'] ?? null)
+            return;
         $this->effects['html'] = sprintf("<div>\n%s\n</div>\n", $html);
     }
 
     /**
-     * Get an array of component data without HTML.
-     *
      * This method returns an array of component data without the HTML representation.
-     * @return array The component data without HTML.
      */
-    private function toArrayWithoutHtml()
+    private function toArrayWithoutHtml(): array
     {
         $fingerprint = $this->fingerprint ?? LifecycleManager::initialFingerprint();
-        $effects     = array_diff_key($this->effects, ['html' => null]) ?: LifecycleManager::initialEffects();
-        $serverMemo  = $this->serveMemo() ?? LifecycleManager::createDataServerMemo();
+        $effects = array_diff_key($this->effects, ['html' => null]) ?: LifecycleManager::initialEffects();
+        $serverMemo = $this->serveMemo() ?? LifecycleManager::createDataServerMemo();
 
         return compact('fingerprint', 'effects', 'serverMemo');
     }
@@ -267,10 +259,8 @@ abstract class Component extends BaseController
      *
      * This method renders the component to a view, which is either returned by 
      * the 'render' method or a default view.
-     * @return string|null The rendered view or null if not found.
-     * @throws \Exception If the "render" method does not return an instance of View.
      */
-    private function renderToView()
+    private function renderToView(): ?string
     {
         $view = $this->getView();
         return $this->preRenderedView = $view;
@@ -281,11 +271,10 @@ abstract class Component extends BaseController
      *
      * This method calls the 'render' method of the component or falls back to a default 
      * view if the 'render' method is not defined.
-     * @return string|null The rendered view or null if not found.
      */
-    private function callRender()
+    private function callRender(): ?string
     {
-        $mergePublicProperties  = View::$tempData = $this->getPublicProperties($this);
+        $mergePublicProperties = View::$tempData = $this->getPublicProperties();
         $this->publicProperties = $mergePublicProperties;
 
         return $this->render();
@@ -296,7 +285,6 @@ abstract class Component extends BaseController
      *
      * This method retrieves the view for the component, either by calling 
      * the 'render' method or using a default view name.
-     * @return string|null The view for the component.
      */
     private function getView(): ?string
     {
@@ -308,40 +296,32 @@ abstract class Component extends BaseController
 
     /**
      * Get the name of the component.
-     *
-     * This method returns the name of the component using the 'componentName' 
-     * method from Raxm.
-     * @return string The name of the component.
      */
-    private function getComponentName()
+    private function getComponentName(): ?string
     {
         return Raxm::componentName();
     }
 
     /**
      * Compile and mount the component.
-     *
-     * @param  mixed $class
-     * @return void
      */
-    public function index(Object $component)
+    public function index(object $component): string 
     {
-        Raxm::mountComponent($component);
+       return Raxm::mountComponent($component);
     }
 
     /**
      * Sets component properties based on provided parameters.
-     *
      * Populates public properties with valid values from the given array.
-     * @param array $params Associative array of property-value pairs.
-     * @return $this Current instance of the component.
      */
-    protected function mount($params = [])
+    protected function mount(array $params = []): self
     {
         $this->publicProperties = ComponentProperties::getPublicProperties($this);
         foreach ($params as $property => $value) {
-            if (isset($this->publicProperties[$property]) && (is_array($value)
-                || is_scalar($value) || is_null($value))) {
+            if (
+                isset($this->publicProperties[$property]) && (is_array($value)
+                    || is_scalar($value) || is_null($value))
+            ) {
                 // Assign the value to the property.
                 $this->{$property} = $value;
             }
@@ -352,12 +332,8 @@ abstract class Component extends BaseController
 
     /**
      * Get the public properties of the component.
-     *
-     * This method retrieves the public properties of the component using 
-     * the 'getPublicProperties' method from ComponentProperties.
-     * @return array The public properties of the component.
      */
-    private function getPublicProperties()
+    private function getPublicProperties(): array
     {
         return ComponentProperties::getPublicProperties($this);
     }
@@ -367,7 +343,6 @@ abstract class Component extends BaseController
      *
      * This method prepares the response data that will be sent to the client, 
      * including effects, server memo, and checksum.
-     * @return array The prepared response data.
      */
     private function prepareResponse(): array
     {
@@ -379,23 +354,19 @@ abstract class Component extends BaseController
 
     /**
      * Generates and serves a memo containing specific information.
-     * @return array The generated memo including a random HTML hash,
-     * a data response, and a checksum.
      */
     private function serveMemo(): array
     {
-        // Create an associative array representing the memo to be served.
         $serverMemo = [
-            'htmlHash' => randomId(8),   // Generate a random HTML hash with 8 characters.
-            'data'     => $this->dataResponse(),  // Get the data response using the dataResponse() method.
+            'htmlHash' => randomId(8),                    // Generate a random HTML hash with 8 characters.
+            'data' => $this->dataResponse(),             // Get the data response using the dataResponse() method.
             'checksum' => $this->checkSumAndGenerate(
                 $this->serverMemo['checksum'] ?? '',   // Get the current checksum of the memo or a default value.
-                $this->fingerprint ?? [],   // Get the fingerprint or an empty array if not defined.
-                $this->serverMemo  ?? []    // Get the current memo or an empty array if not defined.
+                $this->fingerprint ?? [],             // Get the fingerprint or an empty array if not defined.
+                $this->serverMemo ?? []              // Get the current memo or an empty array if not defined.
             )
         ];
 
-        // Return the generated memo.
         return $serverMemo;
     }
 
@@ -404,7 +375,6 @@ abstract class Component extends BaseController
      *
      * This method retrieves the effects data, including HTML, dirty data, events,
      * and listeners, to be sent to the client.
-     * @return array The effects data.
      */
     private function effects(): array
     {
@@ -413,10 +383,10 @@ abstract class Component extends BaseController
         $this->wrapInDiv();
 
         $effects = [
-            'html'  => $this->html(),
+            'html' => $this->html(),
             'dirty' => $this->getChangedData(),
             'emits' => $this->getEventQueue(),
-            'listeners'  => $this->getEventsBeingListenedFor(),
+            'listeners' => $this->getEventsBeingListenedFor(),
             'dispatches' => $this->getDispatchQueue(),
         ];
 
@@ -434,11 +404,7 @@ abstract class Component extends BaseController
 
     /**
      * Add effects data to the component.
-     *
      * This method adds additional effects data to the component's effects array.
-     * @param string $key The key for the effect data.
-     * @param mixed $value The value of the effect data.
-     * @return mixed The updated effects array.
      */
     private function addEffects(string $key, $value)
     {
@@ -447,28 +413,18 @@ abstract class Component extends BaseController
 
     /**
      * Get the URL to redirect to.
-     *
-     * This method determines the URL to which the client should be redirected
-     * based on the 'redirect' method or a default URL.
      */
     private function getRedirectTo()
     {
         if (method_exists($this, 'redirect')) {
-            $pathTo = $this->redirect();
-            return generateUrl($pathTo);
+            return generateUrl($this->redirect());
         }
     }
 
     /**
      * Check and generate the checksum for data integrity.
-     *
-     * This method checks and generates a checksum to ensure the integrity of the component's data.
-     * @param string $checksum The existing checksum.
-     * @param array $fingerprint The component's fingerprint data.
-     * @param array $memo The server memo data.
-     * @return mixed The generated checksum.
      */
-    private function checkSumAndGenerate($checksum, $fingerprint, $memo)
+    private function checkSumAndGenerate(string $checksum, array $fingerprint, ?array $memo): string 
     {
         if (ComponentCheckSum::check($checksum, $fingerprint, $memo))
             throw new RuntimeException("Raxm encountered corrupt data when 
@@ -502,9 +458,8 @@ abstract class Component extends BaseController
      *
      * This method retrieves the data to include in the server response, 
      * excluding any properties that are not part of the component's public properties.
-     * @return array The data to include in the server response.
      */
-    private function dataResponse()
+    private function dataResponse(): array
     {
         return array_filter($this->publicProperties, function ($key) {
             return property_exists($this, $key);
@@ -513,8 +468,6 @@ abstract class Component extends BaseController
 
     /**
      * Prepare and send a JSON response to the client.
-     * This method prepares the response data and sends it as a JSON 
-     * response to the client.
      */
     private function compileResponse()
     {
@@ -531,20 +484,12 @@ abstract class Component extends BaseController
 
     /**
      * Handle dynamic method calls.
-     *
-     * This method handles dynamic method calls on the component,
-     * allowing it to call its methods.
-     * @param string $method The method to call.
-     * @param array $params The method parameters.
-     * @return mixed The result of the method call.
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params)
     {
         $reservedMethods = ['hydrate', 'dehydrate'];
         if (in_array($method, $reservedMethods)) {
-            throw new Exception(
-                sprintf('This method is reserved for Raxm [ %s ] ', implode(', ', $reservedMethods))
-            );
+            throw new Exception(sprintf('This method is reserved for Raxm [ %s ] ', implode(', ', $reservedMethods)));
         }
 
         $className = static::class;
@@ -557,14 +502,10 @@ abstract class Component extends BaseController
 
     /**
      * Magic method to access properties of the class.
-     *
-     * @param string $property The name of the property to access.
-     * @return mixed The value of the property if it exists and is public.
-     * @throws Exception If the property does not exist or is not public.
      */
-    public function __get($property)
+    public function __get(string $property)
     {
-        $publicProperties = $this->getPublicProperties($this);
+        $publicProperties = $this->getPublicProperties();
         if (isset($publicProperties[$property])) {
             return $property;
         }
@@ -574,12 +515,8 @@ abstract class Component extends BaseController
 
     /**
      * Magic method to check if a property is set.
-     *
-     * @param string $property The name of the property to check.
-     * @return bool True if the property is set and is public, false otherwise.
-     * @throws Exception If the property does not exist or is not public.
      */
-    public function __isset($property)
+    public function __isset(string $property): bool
     {
         if (null !== $this->__get($property)) {
             throw new Exception(sprintf('Property [ $%s ] not found on component [ %s ] ', $property, $this->component));

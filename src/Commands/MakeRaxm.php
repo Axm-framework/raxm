@@ -12,43 +12,36 @@ class MakeRaxm extends BaseCommand
 
     /**
      * The Command's Group
-     * @var string
-     */
-    protected $group = 'Raxm';
+      */
+    protected string $group = 'Raxm';
 
     /**
      * The Command's Name
-     * @var string
-     */
-    protected $name = 'make:raxm';
+      */
+    protected string $name = 'make:raxm';
 
     /**
      * The Command's Description
-     * @var string
-     */
-    protected $description = '';
+      */
+    protected string $description = 'Create a Raxm component';
 
     /**
      * The Command's Usage
-     * @var string
-     */
-    protected $usage = 'make:raxm [name]';
+      */
+    protected string $usage = 'make:raxm [name]';
 
     /**
      * The Command's Arguments
-     * @var array
-     */
-    protected $arguments = [];
+      */
+    protected array $arguments = [];
 
     /**
      * The Command's Options
-     * @var array
-     */
-    protected $options = [];
+      */
+    protected array $options = [];
 
     /**
      * Actually execute a command.
-     * @param array $params
      */
     public function run(array $params)
     {
@@ -101,9 +94,6 @@ class MakeRaxm extends BaseCommand
 
     /**
      * Prepare a class name by parsing the template and replacing placeholders.
-     *
-     * @param string $class The fully qualified class name to prepare.
-     * @return string The prepared class name.
      */
     protected function prepare(string $class): string
     {
@@ -121,8 +111,7 @@ class MakeRaxm extends BaseCommand
     public function classBasename(string $class): string
     {
         $parts = explode('\\', $class);
-        $className = end($parts);
-        return $className;
+        return end($parts);
     }
 
     /**

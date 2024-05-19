@@ -2,7 +2,6 @@
 
 namespace Axm\Raxm;
 
-use Axm;
 use Axm\Raxm\Raxm;
 use Axm\Raxm\ComponentCheckSum;
 use Axm\Raxm\ComponentProperties;
@@ -22,23 +21,22 @@ class LifecycleManager extends Raxm
 
 	/**
 	 * Generate the initial fingerprint for the component.
-	 * @return array The initial fingerprint.
 	 */
 	public static function initialFingerprint(): array
 	{
-		$app  = Axm::app();
+		$app = app();
+
 		return [
 			'id'     => hash('sha256', random_bytes(16)),
 			'name'   => strtolower(self::componentName()),
 			'locale' => 'EN',
-			'path'   => $app->request->getUri(),
+			'path'   => $app->router->getUri(),
 			'method' => $app->request->getMethod()
 		];
 	}
 
 	/**
 	 * Generate the initial effects for the component.
-	 * @return array The initial effects.
 	 */
 	public static function initialEffects(): array
 	{
@@ -49,7 +47,6 @@ class LifecycleManager extends Raxm
 
 	/**
 	 * Create the data server memo for the component.
-	 * @return array The data server memo.
 	 */
 	public static function createDataServerMemo(): array
 	{
@@ -65,7 +62,6 @@ class LifecycleManager extends Raxm
 
 	/**
 	 * Generate the initial server memo for the component.
-	 * @return array The initial server memo.
 	 */
 	public static function initialServerMemo(): array
 	{
@@ -80,7 +76,6 @@ class LifecycleManager extends Raxm
 
 	/**
 	 * Add data to the initial response.
-	 * @return array The initial response with added data.
 	 */
 	public static function addDataToInitialResponse(): array
 	{
