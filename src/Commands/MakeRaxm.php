@@ -12,32 +12,32 @@ class MakeRaxm extends BaseCommand
 
     /**
      * The Command's Group
-      */
+     */
     protected string $group = 'Raxm';
 
     /**
      * The Command's Name
-      */
+     */
     protected string $name = 'make:raxm';
 
     /**
      * The Command's Description
-      */
+     */
     protected string $description = 'Create a Raxm component';
 
     /**
      * The Command's Usage
-      */
+     */
     protected string $usage = 'make:raxm [name]';
 
     /**
      * The Command's Arguments
-      */
+     */
     protected array $arguments = [];
 
     /**
      * The Command's Options
-      */
+     */
     protected array $options = [];
 
     /**
@@ -62,8 +62,8 @@ class MakeRaxm extends BaseCommand
 
             $this->call('add:provider', $options);
 
-            $this->createTemplate('component', null, 'App', 'Raxm', 'raxm.component.tpl.php', $params);
-            $this->createTemplate('view', null, 'resources', 'views/raxm', 'raxm.view.tpl.php', $params, false);
+            $this->createTemplate('component', null, config('raxm.class_namespace'), '', 'raxm.component.tpl.php', $params);
+            $this->createTemplate('view', null, config('raxm.view_path'), '', 'raxm.view.tpl.php', $params, false);
         } catch (\Throwable $e) {
             throw $e;
         }
@@ -142,7 +142,7 @@ class MakeRaxm extends BaseCommand
     /**
      * Check if a service already exists in the configuration file.
      */
-    function serviceExists(string $serviceName, string  $configFile): bool
+    function serviceExists(string $serviceName, string $configFile): bool
     {
         // Read the current content of the file
         $currentConfig = file_get_contents($configFile);

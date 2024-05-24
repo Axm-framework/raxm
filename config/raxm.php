@@ -37,7 +37,7 @@ return [
      * file manipulation helper commands like `axm make:raxm`.
      * @var string 
      */
-    'component_path' => ROOT_PATH . DIRECTORY_SEPARATOR . 'Raxm',
+    'component_path' => APP_PATH . DIRECTORY_SEPARATOR . 'Raxm' . DIRECTORY_SEPARATOR,
 
     /**
      --------------------------------------------------------------------------

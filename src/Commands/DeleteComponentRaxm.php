@@ -97,6 +97,6 @@ class DeleteComponentRaxm extends BaseCommand
         $message .= CLI::color(implode("\n", $existingFiles), 'green');
         $message .= "\n\nAre you sure you want to delete the existing files? (y/n)";
 
-        return CLI::prompt($message, ['n', 'y'], 'required|email');
+        return CLI::prompt($message, ['n', 'y'], 'required');
     }
 }
