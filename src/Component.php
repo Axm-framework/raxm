@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Axm\Raxm;
 
 use Exception;
@@ -43,12 +45,12 @@ abstract class Component extends BaseController
     protected bool $ifActionIsNavigate = false;
     public ?string $id;
     public ?array $effects = [];
-    protected $id_p;
+    protected ?int $id_p;
     protected ?string $component;
-    protected $type;
-    protected $method;
-    protected $params;
-    protected $payload;
+    protected ?string $type;
+    protected ?string $method;
+    protected ?array $params;
+    protected ?array $payload;
     protected array $return = [];
     protected array $eventQueue = [];
     protected array $dispatchQueue = [];
@@ -140,7 +142,7 @@ abstract class Component extends BaseController
             $this->payload = $payload['payload'];
 
             $this->type = $payload['type'];
-            $this->id_p = $payload['payload']['id'];
+            $this->id_p = (int) $payload['payload']['id'];
             $this->method = $payload['payload']['method'] ?? null;
             $this->params = $payload['payload']['params'] ?? null;
         }
@@ -304,7 +306,7 @@ abstract class Component extends BaseController
     /**
      * Compile and mount the component.
      */
-    public function index(object $component): string
+    public function index(object $component): ?string
     {
         return Raxm::mountComponent($component);
     }
