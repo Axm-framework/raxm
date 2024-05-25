@@ -9,41 +9,33 @@ class Event
 {
     /**
      * The name of the event.
-     * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * The parameters associated with the event.
-     * @var array
      */
-    protected $params;
+    protected array $params;
 
     /**
      * Flag indicating if the event should propagate up to ancestors only.
-     * @var bool
      */
-    protected $up;
+    protected bool $up;
 
     /**
      * Flag indicating if the event should be limited to the current component.
-     * @var bool
      */
-    protected $self;
+    protected bool $self;
 
     /**
      * The target component for the event.
-     * @var string
      */
-    protected $component;
+    protected object $component;
 
     /**
      * Create a new Event instance.
-     *
-     * @param string $name    The name of the event.
-     * @param array  $params  The parameters associated with the event.
      */
-    public function __construct($name, $params)
+    public function __construct(string $name, array $params)
     {
         $this->name = $name;
         $this->params = $params;
@@ -51,9 +43,8 @@ class Event
 
     /**
      * Set the event to propagate up to ancestors only.
-     * @return $this
      */
-    public function up()
+    public function up(): self
     {
         $this->up = true;
         return $this;
@@ -61,9 +52,8 @@ class Event
 
     /**
      * Set the event to be limited to the current component.
-     * @return $this
      */
-    public function self()
+    public function self(): self
     {
         $this->self = true;
         return $this;
@@ -71,30 +61,25 @@ class Event
 
     /**
      * Set the target component for the event.
-     *
-     * @param string $name The name of the target component.
-     * @return $this
      */
-    public function component($name)
+    public function component(Object $class): self
     {
-        $this->component = $name;
+        $this->component = $class;
         return $this;
     }
 
     /**
      * Specify the target for the event (no actual functionality).
-     * @return $this
      */
-    public function to()
+    public function to(): self
     {
         return $this;
     }
 
     /**
      * Serialize the event to an array.
-     * @return array The serialized event data.
      */
-    public function serialize()
+    public function serialize(): array
     {
         $output = [
             'event'  => $this->name,
@@ -104,7 +89,7 @@ class Event
         if ($this->up) $output['ancestorsOnly'] = true;
         if ($this->self) $output['selfOnly'] = true;
         if ($this->component) $output['to'] = is_subclass_of($this->component, Component::class)
-            ? $this->component->getName()
+            ? $this->component->getComponentName()
             : $this->component;
 
         return $output;

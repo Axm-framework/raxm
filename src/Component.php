@@ -2,20 +2,19 @@
 
 namespace Axm\Raxm;
 
-use Axm;
 use Exception;
 use Views\View;
-use RuntimeException;
 use Http\Request;
 use Http\Response;
+use RuntimeException;
+use Axm\Raxm\ReceivesEvents;
+use Axm\Raxm\LifecycleManager;
 use Axm\Raxm\ComponentCheckSum;
 use Axm\Raxm\ComponentProperties;
-use Axm\Raxm\LifecycleManager;
 use App\Controllers\BaseController;
-use Axm\Raxm\ReceivesEvents;
-use Axm\Raxm\Support\InteractsWithProperties;
 use Axm\Raxm\Support\HandlesActions;
 use Axm\Raxm\Support\ValidatesInput;
+use Axm\Raxm\Support\InteractsWithProperties;
 
 /**
  * Abstract base class for Raxm components.
@@ -45,17 +44,17 @@ abstract class Component extends BaseController
     public ?string $id;
     public ?array $effects = [];
     protected $id_p;
-    protected $component;
+    protected ?string $component;
     protected $type;
     protected $method;
     protected $params;
     protected $payload;
-    protected $return = [];
-    protected $eventQueue = [];
-    protected $dispatchQueue = [];
-    protected $listeners = [];
-    protected $queryString = [];
-    protected $rules = [];
+    protected array $return = [];
+    protected array $eventQueue = [];
+    protected array $dispatchQueue = [];
+    protected array $listeners = [];
+    protected array $queryString = [];
+    protected array $rules = [];
     protected $messages;
     public $tmpfile;
 
@@ -137,8 +136,7 @@ abstract class Component extends BaseController
      */
     private function hydratePayload()
     {
-        $payloads = $this->updates ?? [];
-        foreach ($payloads as $payload) {
+        foreach ($this->updates ?? [] as $payload) {
             $this->payload = $payload['payload'];
 
             $this->type = $payload['type'];
@@ -159,6 +157,7 @@ abstract class Component extends BaseController
             'syncInput' => $this->syncInputData(),
             'callMethod' => $this->callMethod($this->method, $this->params),
             'fireEvent' => $this->fireEvent($this->method, $this->params, $this->id_p),
+
             default => throw new Exception('Unknown event type: ' . $this->type)
         };
     }
@@ -186,9 +185,9 @@ abstract class Component extends BaseController
     private function initialInstance(?string $id = null): string
     {
         $this->id = $id ?? bin2hex(random_bytes(10));   // Generate a random ID if one is not already set.
-        $this->prepareResponse();    // Prepare the response that will be sent to the client.
+        $this->prepareResponse();                      // Prepare the response that will be sent to the client.
 
-        return $this->html();     // Return the response to the client.
+        return $this->html();                        // Return the response to the client.
     }
 
     /**
@@ -212,6 +211,7 @@ abstract class Component extends BaseController
     {
         if (!$html = $this->renderToView())
             return;
+
         $this->effects['html'] = (new HtmlRootTagAttributeAdder)($html, [
             'initial-data' => $this->toArrayWithoutHtml()
         ]);
@@ -227,6 +227,7 @@ abstract class Component extends BaseController
     {
         if (!$html = $this->effects['html'] ?? null)
             return;
+
         $this->effects['html'] = (new HtmlRootTagAttributeAdder)($html, [
             'id' => $this->id,
         ]);
@@ -262,8 +263,7 @@ abstract class Component extends BaseController
      */
     private function renderToView(): ?string
     {
-        $view = $this->getView();
-        return $this->preRenderedView = $view;
+        return $this->preRenderedView = $this->getView();
     }
 
     /**
@@ -274,8 +274,7 @@ abstract class Component extends BaseController
      */
     private function callRender(): ?string
     {
-        $mergePublicProperties = View::$tempData = $this->getPublicProperties();
-        $this->publicProperties = $mergePublicProperties;
+        $this->publicProperties = View::$tempData = $this->getPublicProperties();
 
         return $this->render();
     }
@@ -305,9 +304,9 @@ abstract class Component extends BaseController
     /**
      * Compile and mount the component.
      */
-    public function index(object $component): string 
+    public function index(object $component): string
     {
-       return Raxm::mountComponent($component);
+        return Raxm::mountComponent($component);
     }
 
     /**
@@ -424,7 +423,7 @@ abstract class Component extends BaseController
     /**
      * Check and generate the checksum for data integrity.
      */
-    private function checkSumAndGenerate(string $checksum, array $fingerprint, ?array $memo): string 
+    private function checkSumAndGenerate(string $checksum, array $fingerprint, ?array $memo): string
     {
         if (ComponentCheckSum::check($checksum, $fingerprint, $memo))
             throw new RuntimeException("Raxm encountered corrupt data when 
@@ -441,16 +440,16 @@ abstract class Component extends BaseController
      * This method retrieves the properties of the component's data that have 
      * changed compared to the server memo.
      */
-    private function getChangedData()
+    private function getChangedData(): array
     {
         $changedData = [];
         foreach ($this->serverMemo['data'] ?? [] as $key => $value) {
             if (isset($this->{$key}) && $this->{$key} != $value) {
                 $changedData[] = $key;
             }
-
-            return $changedData;
         }
+
+        return $changedData;
     }
 
     /**
@@ -469,7 +468,7 @@ abstract class Component extends BaseController
     /**
      * Prepare and send a JSON response to the client.
      */
-    private function compileResponse()
+    private function compileResponse(): array
     {
         return $this->return = $this->prepareResponse();
     }

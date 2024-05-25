@@ -29,7 +29,7 @@ class LifecycleManager extends Raxm
 		return [
 			'id'     => hash('sha256', random_bytes(16)),
 			'name'   => strtolower(self::componentName()),
-			'locale' => 'EN',
+			'locale' => $app->getLocale(),
 			'path'   => $app->router->getUri(),
 			'method' => $app->request->getMethod()
 		];

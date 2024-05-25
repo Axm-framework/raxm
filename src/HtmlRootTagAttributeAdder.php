@@ -12,13 +12,8 @@ class HtmlRootTagAttributeAdder
 {
     /**
      * Adds attributes to the root HTML tag in the given DOM string.
-     *
-     * @param string $dom  The original DOM string.
-     * @param array  $data The key-value pairs of attributes to be added.
-     * @return string The modified DOM string with added attributes.
-     * @throws AxmException If a root HTML tag is not found in the DOM string.
      */
-    public function __invoke($dom, $data)
+    public function __invoke(string $dom, array $data): array|string
     {
         // Initialize state with escaped attribute values.
         $stateInitial = [];
@@ -60,11 +55,8 @@ class HtmlRootTagAttributeAdder
 
     /**
      * Escapes a string for safe inclusion in HTML attributes.
-     *
-     * @param mixed $subject The value to be escaped.
-     * @return string The escaped string.
      */
-    protected static function escapeStringForHtml($subject)
+    protected static function escapeStringForHtml($subject): string
     {
         if (is_string($subject) || is_numeric($subject)) {
             return htmlspecialchars($subject, ENT_QUOTES | ENT_SUBSTITUTE);

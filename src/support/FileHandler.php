@@ -12,40 +12,39 @@ namespace Axm\Raxm\Support;
 class FileHandler
 {
     /**
-     * @var array The uploaded file data.
+     * The uploaded file data.
      */
-    protected $file;
+    protected array $file;
 
     /**
-     * @var array The allowed file extensions.
+     * The allowed file extensions.
      */
-    protected $allowedExtensions = [];
+    protected array $allowedExtensions = [];
 
     /**
-     * @var int The maximum allowed file size in bytes.
+     * The maximum allowed file size in bytes.
      */
-    protected $maxFileSize = 5242880; // 5 MB
+    protected int $maxFileSize = 5242880; // 5 MB
 
     /**
-     * @var string The directory where files will be uploaded.
+     * The directory where files will be uploaded.
      */
-    protected $uploadDir = 'uploads/';
+    protected string $uploadDir = 'uploads/';
 
     /**
-     * @var array Errors occurred during validation.
+     * Errors occurred during validation.
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
-     * @var string File destination.
+     *  File destination.
      */
-    protected $destination;
+    protected string $destination;
 
     /**
      * Create a new FileHandler instance.
-     * @param array $file The uploaded file data from $_FILES.
      */
-    public function __construct($file)
+    public function __construct(array $file)
     {
         $this->file = $file;
     }
@@ -61,45 +60,40 @@ class FileHandler
 
     /**
      * Set the upload directory.
-     * @param string $dir The directory path.
      */
-    public function setUploadDir($dir)
+    public function setUploadDir(string $dir)
     {
         $this->uploadDir = rtrim($dir, '/') . '/';
     }
 
     /**
      * Set the maximum allowed file size.
-     * @param int $size The maximum file size in bytes.
      */
-    public function setMaxFileSize($size)
+    public function setMaxFileSize(int $size)
     {
         $this->maxFileSize = $size;
     }
 
     /**
      * Get file.
-     * @return string get file.
      */
-    public function get()
+    public function get(): array
     {
         return $this->file;
     }
 
     /**
      * Get directory file.
-     * @return string get directory file.
      */
-    public function getDir()
+    public function getDir(): string
     {
         return $this->uploadDir;
     }
 
     /**
      * Check if the uploaded file is valid.
-     * @return bool True if the file is valid, false otherwise.
      */
-    public function isValid()
+    public function isValid(): bool
     {
         if (!$this->file || $this->errors() !== UPLOAD_ERR_OK) {
             $this->addError("File upload error.");
@@ -122,11 +116,11 @@ class FileHandler
 
     /**
      * Move the uploaded file to the configured directory.
-     * @return bool True if the file was moved successfully, false otherwise.
      */
     public function move(): bool
     {
-        if (!$this->isValid()) return false;
+        if (!$this->isValid())
+            return false;
 
         $this->destination = str_replace('\\', '/', $this->getDir() . $this->generateUniqueFileName());
         return move_uploaded_file($this->tmpName(), $this->destination);
@@ -134,7 +128,6 @@ class FileHandler
 
     /**
      * Generate a unique file name based on timestamp and unique ID.
-     * @return string The generated unique file name.
      */
     public function generateUniqueFileName(): string
     {
@@ -145,10 +138,7 @@ class FileHandler
     }
 
     /**
-     * extractOriginalFileName
-     *
-     * @param  mixed $generatedFileName
-     * @return string
+     * Extract Original FileName
      */
     public static function extractOriginalFileName(string $generatedFileName): string
     {
@@ -162,9 +152,8 @@ class FileHandler
 
     /**
      * Get the original file name.
-     * @return string The original file name.
      */
-    public function name()
+    public function name(): ?string
     {
         if ($this->ifMultiple()) {
             return data_get($this->getAllFilesMultiples(), 'name');
@@ -175,22 +164,20 @@ class FileHandler
 
     /**
      * Get the file size.
-     * @return int The file size in bytes.
      */
-    public function size()
+    public function size(): int
     {
         if ($this->ifMultiple()) {
-            return data_get($this->getAllFilesMultiples(), 'size');
+            return (int) data_get($this->getAllFilesMultiples(), 'size');
         }
 
-        return $this->file['size'][0];
+        return (int) $this->file['size'][0];
     }
 
     /**
      * Get the temporal name.
-     * @return string The temporal name.
      */
-    public function tmpName()
+    public function tmpName(): string
     {
         if ($this->ifMultiple()) {
             return data_get($this->getAllFilesMultiples(), 'tmp_name');
@@ -201,9 +188,8 @@ class FileHandler
 
     /**
      * Get the MIME type of the file.
-     * @return string The MIME type.
      */
-    public function mime()
+    public function mime(): string
     {
         if ($this->ifMultiple()) {
             return data_get($this->getAllFilesMultiples(), 'type');
@@ -214,9 +200,8 @@ class FileHandler
 
     /**
      * Get the errors file.
-     * @return string The error file.
      */
-    public function errors()
+    public function errors(): string
     {
         if ($this->ifMultiple()) {
             return data_get($this->getAllFilesMultiples(), 'error');
@@ -227,7 +212,6 @@ class FileHandler
 
     /**
      * Get destination file.
-     * @return string The error file.
      */
     public function destination(): string
     {
@@ -236,35 +220,30 @@ class FileHandler
 
     /**
      * Get the errors occurred during validation.
-     * @return array An array of errors.
      */
-    public function getErrorsMessages()
+    public function getErrorsMessages(): array
     {
         return $this->errors;
     }
 
     /**
      * Add an error message to the error array.
-     * @param string $message The error message to add.
      */
-    protected function addError($message)
+    protected function addError(string $message)
     {
         $this->errors[] = $message;
     }
 
     /**
-     * ifMultiple
-     * @return bool
+     * Checks if the file input contains multiple files.
      */
-    public function ifMultiple(): bool
+    public function isMultiple(): bool
     {
-        $count = count($this->file['name']);
-        return $count > 1;
+        return count($this->file['name']) > 1;
     }
 
     /**
-     * getAllFilesMultiples
-     * @return array
+     * Get All FilesMultiples
      */
     private function getAllFilesMultiples(): array
     {
@@ -275,21 +254,19 @@ class FileHandler
 
         return $files;
     }
-    
+
     /**
-     * delete
-     * @return void
+     * Delete file
      */
-    public function delete()
+    public function delete(): bool
     {
         return @unlink($this->file['name']);
     }
-    
+
     /**
      * __invoke
-     * @return void
      */
-    function __invoke()
+    function __invoke(): self
     {
         return $this;
     }

@@ -12,9 +12,9 @@ class Raxm
     protected static string $componentName;
     private static $instances;
     protected static $ucfirstComponentName;
-    public $hasRenderedScripts = false;
-    public $hasRenderedStyles = false;
-    private static $injectedAssets = false;
+    public bool $hasRenderedScripts = false;
+    public bool $hasRenderedStyles = false;
+    private static bool $injectedAssets = false;
     private static App $app;
 
 
@@ -67,7 +67,7 @@ class Raxm
      */
     public static function registerRoutes()
     {
-        $router   = app('router');
+        $router = app('router');
         $assetUrl = config('raxm.asset_url');
 
         $router->addRoute('POST', '/raxm/update/{name}', function ($name) {
@@ -98,7 +98,7 @@ class Raxm
         return self::$app->response->file($file, $headers)->send();
     }
 
-    private static function pretendedResponseIsFileHeaders(string $filename, string $mimeType, string $lastModified)
+    private static function pretendedResponseIsFileHeaders(string $filename, string $mimeType, string $lastModified): array
     {
         $expires = strtotime('+1 year');
         $cacheControl = 'public, max-age=31536000';
@@ -282,7 +282,7 @@ class Raxm
     {
         $app = self::$app;
         $assetUrl = config('raxm.asset_url');
-        $appUrl   = config('raxm.app_url');
+        $appUrl = config('raxm.app_url');
 
         $csrfToken = "'" . $app->getCsrfToken() . "'" ?? 'null';
 
