@@ -51,7 +51,6 @@ class FileHandler
 
     /**
      * Set the allowed file extensions.
-     * @param array $extensions An array of allowed file extensions (without dot).
      */
     public function setAllowedExtensions(array $extensions)
     {

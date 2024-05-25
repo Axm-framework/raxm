@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Axm\Raxm\Support;
 
-use Axm\Validation\Validator;
+use Validation\Validator;
 
 
 /**
@@ -13,52 +13,43 @@ use Axm\Validation\Validator;
 trait ValidatesInput
 {
     /**
-     * @var array The error bag to store validation errors.
+     * The error bag to store validation errors.
      */
-    protected $errorBag;
+    protected array $errorBag;
 
     /**
-     * @var callable|null Callback to execute with the validator.
+     * Callback to execute with the validator.
      */
     protected $withValidatorCallback;
 
     /**
      * Get the error bag containing validation errors.
-     * @return array The error bag.
      */
-    public function getErrorBag()
+    public function getErrorBag(): array
     {
         return $this->errorBag ?? [];
     }
 
     /**
      * Check if there are errors in the error bag.
-     * @return bool Whether the error bag is not empty.
      */
-    public function hasErrorBag()
+    public function hasErrorBag(): bool
     {
         return !empty($this->errorBag);
     }
 
     /**
      * Add an error to the error bag.
-     *
-     * @param string $name    The name of the error.
-     * @param string $message The error message.
-     * @return string The added error message.
      */
-    public function addError($name, $message)
+    public function addError(string $name, string $message): string
     {
         return $this->errorBag[$name] = $message;
     }
 
     /**
      * Set the error bag to a specific value.
-     *
-     * @param array $bag The error bag to set.
-     * @return array The set error bag.
      */
-    public function setErrorBag($bag)
+    public function setErrorBag(array $bag): array
     {
         return $this->errorBag = !empty($bag)
             ? $bag
@@ -68,10 +59,8 @@ trait ValidatesInput
     /**
      * Reset the error bag for a given field or all fields if no field is provided.
      * If a field is provided, only the errors for that field will be removed.
-     *
-     * @param string|array $field The name of the field to reset the errors for. If null or an empty array, the entire error bag will be reset.
      */
-    public function resetErrorBag($field = null)
+    public function resetErrorBag(string|array $field = null)
     {
         $fields = (array) $field;
 
@@ -86,11 +75,8 @@ trait ValidatesInput
 
     /**
      * Remove validation rules for a given field or all fields if no field is provided
-     *
-     * @param  mixed $field
-     * @return void
      */
-    public function removeValidation($field = null)
+    public function removeValidation(mixed $field = null)
     {
         return Validator::getInstance()
             ->removeValidation($field);
@@ -98,22 +84,16 @@ trait ValidatesInput
 
     /**
      * Reset validation errors for a specific field or all fields if no field is provided
-     *
-     * @param  mixed $field
-     * @return void
      */
-    public function resetValidation($field = null)
+    public function resetValidation(mixed $field = null)
     {
         $this->resetErrorBag($field);
     }
 
     /**
      * Filter validation errors and exclude the specified fields
-     *
-     * @param array $fields The fields to exclude from the error bag
-     * @return array The filtered error bag
      */
-    public function errorBagExcept($fields)
+    public function errorBagExcept(array $fields): array
     {
         $filteredErrors = [];
         foreach ($this->errorBag as $key => $messages) {
@@ -127,60 +107,60 @@ trait ValidatesInput
 
     /**
      * Get the validation rules defined by the subclass.
-     * @return array The validation rules.
      */
-    protected function getRules()
+    protected function getRules(): array
     {
-        if (method_exists($this, 'rules')) return $this->rules();
-        if (property_exists($this, 'rules')) return $this->rules;
+        if (method_exists($this, 'rules'))
+            return $this->rules();
+        if (property_exists($this, 'rules'))
+            return $this->rules;
 
         return [];
     }
 
     /**
      * Get the validation messages defined by the subclass.
-     * @return array The validation messages.
      */
-    protected function getMessages()
+    protected function getMessages(): array
     {
-        if (method_exists($this, 'messages')) return $this->messages();
-        if (property_exists($this, 'messages')) return $this->messages;
+        if (method_exists($this, 'messages'))
+            return $this->messages();
+        if (property_exists($this, 'messages'))
+            return $this->messages;
 
         return [];
     }
 
     /**
      * Get the validation attributes defined by the subclass.
-     * @return array The validation attributes.
      */
-    protected function getValidationAttributes()
+    protected function getValidationAttributes(): array
     {
-        if (method_exists($this, 'validationAttributes')) return $this->validationAttributes();
-        if (property_exists($this, 'validationAttributes')) return $this->validationAttributes;
+        if (method_exists($this, 'validationAttributes'))
+            return $this->validationAttributes();
+        if (property_exists($this, 'validationAttributes'))
+            return $this->validationAttributes;
 
         return [];
     }
 
     /**
      * Get the validation custom values defined by the subclass.
-     * @return array The validation custom values.
      */
-    protected function getValidationCustomValues()
+    protected function getValidationCustomValues(): array
     {
-        if (method_exists($this, 'validationCustomValues')) return $this->validationCustomValues();
-        if (property_exists($this, 'validationCustomValues')) return $this->validationCustomValues;
+        if (method_exists($this, 'validationCustomValues'))
+            return $this->validationCustomValues();
+        if (property_exists($this, 'validationCustomValues'))
+            return $this->validationCustomValues;
 
         return [];
     }
 
     /**
      * Perform validation on the provided input data using defined rules.
-     *
-     * @param  mixed $rules
-     * @param  mixed $name
-     * @return array
      */
-    function rulesForModel($rules, $name): array
+    function rulesForModel(mixed $rules, mixed $name): array
     {
         $filteredRules = [];
 
@@ -199,11 +179,8 @@ trait ValidatesInput
 
     /**
      * Check if a rule exists for the given dot-notated property.
-     *
-     * @param  mixed $dotNotatedProperty
-     * @return bool
      */
-    public function hasRuleFor($dotNotatedProperty): bool
+    public function hasRuleFor(mixed $dotNotatedProperty): bool
     {
         $rules = $this->getRules();
         $propertyWithStarsInsteadOfNumbers = $this->ruleWithNumbersReplacedByStars($dotNotatedProperty);
@@ -224,33 +201,24 @@ trait ValidatesInput
 
     /**
      * Replaces numbers in a dot-notated property string with asterisks.
-     *
-     * @param  string $dotNotatedProperty The dot-notated property string.
-     * @return string The modified dot-notated property string with numbers replaced by asterisks.
      */
-    public function ruleWithNumbersReplacedByStars($dotNotatedProperty)
+    public function ruleWithNumbersReplacedByStars(string $dotNotatedProperty): string
     {
         return preg_replace('/\d+/', '*', $dotNotatedProperty);
     }
 
     /**
      * Checks if a rule exists for a given dot-notated property.
-     *
-     * @param  mixed $dotNotatedProperty The dot-notated property string.
-     * @return bool True if a rule exists, false otherwise.
      */
-    public function missingRuleFor($dotNotatedProperty): bool
+    public function missingRuleFor(mixed $dotNotatedProperty): bool
     {
         return !$this->hasRuleFor($dotNotatedProperty);
     }
 
     /**
      * Iterates through the rules and checks if any rule matches the given data.
-     *
-     * @param  array $rules The array of rules.
-     * @param  array $data The array of data to check against the rules.
      */
-    protected function checkRuleMatchesProperty($rules, $data)
+    protected function checkRuleMatchesProperty(array $rules, array $data)
     {
         foreach (array_keys($rules) as $ruleKey) {
             if (!array_key_exists($this->beforeFirstDot($ruleKey), $data)) {
@@ -261,48 +229,46 @@ trait ValidatesInput
 
     /**
      * Perform validation on the provided input data using defined rules.
-     * @return array
      */
     public function validate()
     {
         $packRules = $this->getRules();
 
-        if (empty($packRules)) return [];
+        if (empty($packRules))
+            return [];
 
-        $inputData  = $this->serverMemo['data'] ?? [];
+        $inputData = $this->serverMemo['data'] ?? [];
         $this->validateCompile($inputData, $packRules);
     }
 
     /**
      * Perform validation on a specific field using defined rules.
-     * @param string $field The field to validate.
      */
-    public function validateOnly($field)
+    public function validateOnly(string $field)
     {
         $packRules = $this->getRules();
-        if (empty($packRules)) return [];
+        if (empty($packRules))
+            return [];
 
-        $data  = data_get($this->updates, '0.payload');
+        $data = data_get($this->updates, '0.payload');
 
-        if (!isset($data['name'])) return;
+        if (!isset($data['name']))
+            return;
 
-        $name  = $data['name'];
+        $name = $data['name'];
         $value = $data['value'];
 
-        $inputData  = [$name => $value];
+        $inputData = [$name => $value];
         $this->validateCompile($inputData, $packRules);
     }
 
     /**
      * Compile and execute validation based on provided input data and rules.
-     *
-     * @param array $inputData The input data to validate.
-     * @param array $packRules The validation rules to apply.
      */
-    public function validateCompile($inputData, $packRules)
+    public function validateCompile(array $inputData, array $packRules)
     {
         $matchRules = array_intersect_key($inputData, $packRules);
-        $validator  = Validator::make($packRules, $matchRules);
+        $validator = Validator::make($packRules, $matchRules);
 
         if ($validator->fails()) {
             foreach ($matchRules as $field => $rule) {
@@ -315,9 +281,8 @@ trait ValidatesInput
 
     /**
      * Get the data to be used for validation.
-     * @return array The data for validation.
      */
-    protected function getDataForValidation()
+    protected function getDataForValidation(): array
     {
         return $this->getPublicPropertiesDefinedBySubClass();
     }

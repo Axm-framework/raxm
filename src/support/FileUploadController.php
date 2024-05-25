@@ -5,7 +5,7 @@ namespace Axm\Raxm\Support;
 use DateTime;
 use DateInterval;
 use Axm\Raxm\Component;
-use Axm\Validation\Validator;
+use Validation\Validator;
 use Axm\Raxm\Support\FileHandler;
 use Axm\Raxm\Support\InteractsWithProperties;
 
@@ -18,9 +18,8 @@ class FileUploadController extends Component
 
     /**
      * Handle incoming file uploads.
-     * @return mixed The response containing file paths or an error response.
      */
-    public function handle()
+    public function handle(): mixed
     {
         // Get the current date and time
         $currentDateTime = new DateTime();
@@ -48,12 +47,8 @@ class FileUploadController extends Component
 
     /**
      * Validate and store uploaded files.
-     *
-     * @param mixed $files The uploaded files to validate and store.
-     * @param string|null $disk The target disk for storing files.
-     * @return array An array of validated file paths.
      */
-    public function validateAndStore($files, $disk)
+    public function validateAndStore(object $files, ?string $disk): array
     {
         // Define validation rules for the uploaded files.
         $rules = $this->rules();
@@ -94,11 +89,8 @@ class FileUploadController extends Component
 
     /**
      * Store a validated file.
-     *
-     * @param mixed $files The validated file to store.
-     * @return bool True if the file is successfully stored, otherwise false.
      */
-    protected function storeFile($files): bool
+    protected function storeFile(mixed $files): bool
     {
         if ($files->isValid()) {
             if ($files->move()) {
@@ -111,9 +103,8 @@ class FileUploadController extends Component
 
     /**
      * Define validation rules for uploaded files.
-     * @return mixed The validation rules for uploaded files.
      */
-    protected function rules()
+    protected function rules(): mixed
     {
         $rules = config('raxm.temporary_file_upload.rules');
 

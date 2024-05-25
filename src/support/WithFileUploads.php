@@ -9,11 +9,8 @@ trait WithFileUploads
 {
     /**
      * Start the file upload process.
-     *
-     * @param string $name       The name of the file input.
-     * @param bool   $isMultiple Whether the file input allows multiple files.
      */
-    public function startUpload($name, $isMultiple)
+    public function startUpload(string $name, bool $isMultiple)
     {
         $name = $this->params[0];
         $pathSignedUrl = app()->request->signed('/raxm/upload-file');
@@ -90,11 +87,8 @@ trait WithFileUploads
 
     /**
      * Remove a specific file upload.
-     *
-     * @param string $name        The name of the file input.
-     * @param string $tmpFilename The temporary filename to remove.
      */
-    public function removeUpload($name, $tmpFilename)
+    public function removeUpload(string $name, string $tmpFilename)
     {
         $uploads = $this->getPropertyValue($name);
         if (is_array($uploads) && isset($uploads[0]) && $uploads[0] instanceof FileHandler) {
@@ -119,9 +113,8 @@ trait WithFileUploads
 
     /**
      * Clean up old temporary uploads.
-     * @param array $tmpPath The temporary file paths.
      */
-    protected function cleanupOldUploads($tmpPath)
+    protected function cleanupOldUploads(array $tmpPath)
     {
         if (!isset($tmpPath[1])) return;
 

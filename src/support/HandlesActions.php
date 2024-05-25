@@ -2,7 +2,6 @@
 
 namespace Axm\Raxm\Support;
 
-use Axm;
 use Exception;
 use ReflectionClass;
 use ReflectionMethod;
@@ -156,7 +155,7 @@ trait HandlesActions
         }
     }
 
-    protected function methodIsPublicAndNotDefinedOnBaseClass($methodName)
+    protected function methodIsPublicAndNotDefinedOnBaseClass()
     {
         $class = new ReflectionClass($this);
         $classMethods = $class->getMethods(ReflectionMethod::IS_PUBLIC);

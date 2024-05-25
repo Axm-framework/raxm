@@ -17,18 +17,13 @@ trait InteractsWithProperties
 {
     /**
      * Handles the hydration of a specific property.
-     *
-     * @param string $property The name of the property.
-     * @param mixed  $value    The value to be hydrated.
-     *
-     * @return mixed The hydrated value.
      */
-    public function handleHydrateProperty($property, $value)
+    public function handleHydrateProperty(string $property, $value): mixed
     {
         $newValue = $value;
 
         if (method_exists($this, 'hydrateProperty')) {
-            $newValue = $this->hydrateProperty($property, $newValue);
+            $newValue = $this->hydrateProperty(new $property, $newValue);
         }
 
         foreach (array_diff(class_uses_recursive($this), class_uses(self::class)) as $trait) {
@@ -44,12 +39,8 @@ trait InteractsWithProperties
 
     /**
      * Handles the dehydration of a specific property.
-     *
-     * @param string $property The name of the property.
-     * @param mixed  $value    The value to be dehydrated.
-     * @return mixed The dehydrated value.
      */
-    public function handleDehydrateProperty($property, $value)
+    public function handleDehydrateProperty(string $property, $value): mixed
     {
         $newValue = $value;
 
@@ -70,9 +61,8 @@ trait InteractsWithProperties
 
     /**
      * Retrieves public properties defined by the subclass (excluding the base class).
-     * @return array Associative array of public properties and their values.
      */
-    public function getPublicPropertiesDefinedBySubClass()
+    public function getPublicPropertiesDefinedBySubClass(): array
     {
         $reflection = new ReflectionObject($this);
         $publicProperties = array_filter($reflection->getProperties(), function ($property) {
@@ -91,14 +81,12 @@ trait InteractsWithProperties
 
     /**
      * Retrieves protected or private properties defined by the subclass.
-     * @return array Associative array of protected or private properties 
-     * and their values.
      */
-    public function getProtectedOrPrivatePropertiesDefinedBySubClass()
+    public function getProtectedOrPrivatePropertiesDefinedBySubClass(): array
     {
         $reflection = new ReflectionObject($this);
         $properties = $reflection->getProperties(ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PRIVATE);
-       
+
         $data = [];
         foreach ($properties as $property) {
             if ($property->getDeclaringClass()->getName() !== self::class) {
@@ -112,11 +100,8 @@ trait InteractsWithProperties
 
     /**
      * Gets the initialized value of a property using reflection.
-     *
-     * @param ReflectionProperty $property The reflection property.
-     * @return mixed|null The initialized value of the property.
      */
-    public function getInitializedPropertyValue(ReflectionProperty $property)
+    public function getInitializedPropertyValue(ReflectionProperty $property): mixed
     {
         if (!$property->isInitialized($this)) {
             return null;
@@ -128,22 +113,16 @@ trait InteractsWithProperties
 
     /**
      * Checks if a property exists on the object.
-     *
-     * @param string $prop The name of the property.
-     * @return bool Whether the property exists.
      */
-    public function hasProperty($prop)
+    public function hasProperty(string $property): bool
     {
-        return property_exists($this, $this->beforeFirstDot($prop));
+        return property_exists($this, $this->beforeFirstDot($property));
     }
 
     /**
      * Get the value of a property, supporting dot notation.
-     *
-     * @param string $name The name of the property.
-     * @return mixed The value of the property.
      */
-    public function getPropertyValue($name)
+    public function getPropertyValue(string $name): mixed
     {
         $value = $this->{$this->beforeFirstDot($name)};
 
@@ -156,21 +135,14 @@ trait InteractsWithProperties
 
     /**
      * Set the value of a protected property.
-     *
-     * @param string $name  The name of the property.
-     * @param mixed  $value The value to set.
-     * @return mixed The set value.
      */
-    public function setProtectedPropertyValue($name, $value)
+    public function setProtectedPropertyValue(string $name, $value): mixed
     {
         return $this->{$name} = $value;
     }
 
     /**
      * Check if the string contains dots.
-     *
-     * @param string $subject The string to check.
-     * @return bool Whether the string contains dots.
      */
     public function containsDots(string $subject): bool
     {
@@ -179,33 +151,24 @@ trait InteractsWithProperties
 
     /**
      * Get the substring before the first dot in a string.
-     *
-     * @param string $subject The input string.
-     * @return string The substring before the first dot.
-     */   
- public function beforeFirstDot($subject)
+     */
+    public function beforeFirstDot(string $subject)
     {
         return explode('.', $subject)[0];
     }
 
     /**
      * Get the substring after the first dot in a string.
-     *
-     * @param string $subject The input string.
-     * @return string The substring after the first dot.
      */
-    public function afterFirstDot($subject)
+    public function afterFirstDot(string $subject): string
     {
         return substr($subject, strpos($subject, '.') + 1);
     }
 
     /**
      * Check if a property is public and not defined in the base class.
-     *
-     * @param string $propertyName The name of the property.
-     * @return bool Whether the property is public and not defined in the base class.
      */
-    public function propertyIsPublicAndNotDefinedOnBaseClass($propertyName)
+    public function propertyIsPublicAndNotDefinedOnBaseClass(string $propertyName): bool
     {
         $publicProperties = (new ReflectionObject($this))->getProperties(ReflectionProperty::IS_PUBLIC);
         $propertyNames = array_map(function ($property) {
@@ -217,7 +180,6 @@ trait InteractsWithProperties
 
     /**
      * Fill the object's public properties with values.
-     * @param mixed $values The values to fill.
      */
     public function fill($values)
     {
@@ -236,7 +198,6 @@ trait InteractsWithProperties
 
     /**
      * Reset specified or all public properties to their default values.
-     * @param string ...$properties The properties to reset.
      */
     public function reset(...$properties)
     {
@@ -259,7 +220,6 @@ trait InteractsWithProperties
 
     /**
      * Reset all public properties except the specified ones.
-     * @param string ...$properties The properties to exclude from the reset.
      */
     protected function resetExcept(...$properties)
     {
@@ -273,11 +233,8 @@ trait InteractsWithProperties
 
     /**
      * Get only the specified properties from the object.
-     *
-     * @param array $properties The properties to retrieve.
-     * @return array An associative array of specified properties and their values.
      */
-    public function only($properties)
+    public function only(array $properties = []): array
     {
         $results = [];
 
@@ -290,20 +247,16 @@ trait InteractsWithProperties
 
     /**
      * Exclude the specified properties from all properties of the object.
-     *
-     * @param array $properties The properties to exclude.
-     * @return array An associative array of properties excluding the specified ones.
      */
-    public function except($properties)
+    public function except(array $properties): array
     {
         return array_diff_key($this->all(), array_flip($properties));
     }
 
     /**
      * Get all public properties defined by the subclass.
-     * @return array An associative array of all public properties and their values.
      */
-    public function all()
+    public function all(): array
     {
         return $this->getPublicPropertiesDefinedBySubClass();
     }

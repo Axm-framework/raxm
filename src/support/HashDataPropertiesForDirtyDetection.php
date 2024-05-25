@@ -12,19 +12,13 @@ interface HydrationMiddleware
 {
     /**
      * Hydrates the given instance with data from the request.
-     *
-     * @param object $instance The object to be hydrated.
-     * @param array  $request  The data used for hydration.
      */
-    public static function hydrate($instance, $request);
+    public static function hydrate(object $instance, array $request);
 
     /**
      * Dehydrates the given instance with data from the response.
-     *
-     * @param object $instance The object to be dehydrated.
-     * @param array  $response The data used for dehydrating.
      */
-    public static function dehydrate($instance, $response);
+    public static function dehydrate(object $instance, array $response);
 }
 
 /**
@@ -36,17 +30,14 @@ interface HydrationMiddleware
 class HashDataPropertiesForDirtyDetection implements HydrationMiddleware
 {
     /**
-     * @var array Holds property hashes indexed by component ID.
+     * Holds property hashes indexed by component ID.
      */
-    protected static $propertyHashesByComponentId = [];
+    protected static array $propertyHashesByComponentId = [];
 
     /**
      * Hydrates the instance with data from the request.
-     *
-     * @param object $instance The object to be hydrated.
-     * @param array  $request  The data used for hydration.
      */
-    public static function hydrate($instance, $request)
+    public static function hydrate(object $instance, array $request)
     {
         $data = dataGet($request, 'memo.data', []);
 
@@ -63,11 +54,8 @@ class HashDataPropertiesForDirtyDetection implements HydrationMiddleware
 
     /**
      * Dehydrates the instance with data from the response and tracks dirty properties.
-     *
-     * @param object $instance The object to be dehydrated.
-     * @param array  $response The data used for dehydrating.
      */
-    public static function dehydrate($instance, $response)
+    public static function dehydrate(object $instance, array $response)
     {
         $data = dataGet($response, 'memo.data', []);
 
@@ -88,23 +76,16 @@ class HashDataPropertiesForDirtyDetection implements HydrationMiddleware
 
     /**
      * Rehashes a specific property of the component.
-     *
-     * @param string $name      The name of the property.
-     * @param mixed  $value     The value of the property.
-     * @param object $component The component object.
      */
-    public static function rehashProperty($name, $value, $component)
+    public static function rehashProperty(string $name, $value, object $component)
     {
         static::$propertyHashesByComponentId[$component->id][$name] = static::hash($value);
     }
 
     /**
      * Hashes a value to a unique identifier.
-     *
-     * @param mixed $value The value to be hashed.
-     * @return int|string The hash value.
      */
-    public static function hash($value)
+    public static function hash(mixed $value): int|string
     {
         if (!is_null($value) && !is_string($value) && !is_numeric($value) && !is_bool($value)) {
             if (is_array($value)) {
@@ -121,12 +102,8 @@ class HashDataPropertiesForDirtyDetection implements HydrationMiddleware
 
     /**
      * Recursively flattens a multidimensional array with a given prefix.
-     *
-     * @param array  $array  The array to be flattened.
-     * @param string $prefix The prefix for the flattened keys.
-     * @return array The flattened array.
      */
-    private static function flattenArrayWithPrefix($array, $prefix)
+    private static function flattenArrayWithPrefix(array $array, string $prefix): array
     {
         $result = [];
         foreach ($array as $key => $value) {

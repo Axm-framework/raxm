@@ -128,7 +128,7 @@ abstract class Component extends BaseController
      */
     private function hydrateFromServerMemo(): void
     {
-        $this->mount($this->serverMemo['data']);
+        $this->hydrateProperty($this->serverMemo['data']);
     }
 
     /**
@@ -319,14 +319,12 @@ abstract class Component extends BaseController
      * Sets component properties based on provided parameters.
      * Populates public properties with valid values from the given array.
      */
-    protected function mount(array $params = []): self
+    protected function hydrateProperty(?array $params = [])
     {
         $this->publicProperties = ComponentProperties::getPublicProperties($this);
         foreach ($params as $property => $value) {
-            if (
-                isset($this->publicProperties[$property]) && (is_array($value)
-                    || is_scalar($value) || is_null($value))
-            ) {
+            if (isset($this->publicProperties[$property]) && (is_array($value)
+                || is_scalar($value) || is_null($value))) {
                 // Assign the value to the property.
                 $this->{$property} = $value;
             }
@@ -446,16 +444,16 @@ abstract class Component extends BaseController
      * This method retrieves the properties of the component's data that have 
      * changed compared to the server memo.
      */
-    private function getChangedData(): array
+    private function getChangedData()
     {
         $changedData = [];
         foreach ($this->serverMemo['data'] ?? [] as $key => $value) {
             if (isset($this->{$key}) && $this->{$key} != $value) {
                 $changedData[] = $key;
             }
-        }
 
-        return $changedData;
+            return $changedData;
+        }
     }
 
     /**
