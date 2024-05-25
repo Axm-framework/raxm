@@ -62,7 +62,7 @@ trait ReceivesEvents
      */
     public function emitTo(string $name, string $event, ...$params)
     {
-        $this->emit($event, ...$params)->component($name);
+        $this->emit($event, ...$params)->component(new $name);
     }
 
     /**
