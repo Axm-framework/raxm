@@ -238,11 +238,15 @@ abstract class Component extends BaseController
     /**
      * It is used to wrap the HTML content of the 'effects' array inside a div element.
      */
-    private function wrapInDiv()
+    private function wrapInDiv(): void
     {
-        if (!$html = $this->effects['html'] ?? null)
+        if (!$html = $this->effects['html'] ?? null) {
             return;
-        $this->effects['html'] = sprintf("<div>\n%s\n</div>\n", $html);
+        }
+
+        // Adding line breaks and indentation to HTML before wrapping it in a div
+        $indentedHtml = preg_replace('/^/m', '    ', $html);
+        $this->effects['html'] = sprintf("<div>\n%s\n</div>\n", $indentedHtml);
     }
 
     /**
