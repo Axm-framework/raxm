@@ -12,7 +12,7 @@ class HtmlGenerator
     /**
      * Outputs the RAXM script and style tags.
      */
-    public static function raxmScripts(array $options = [])
+    public static function raxmScripts(array $options = []): string
     {
         // Merge the provided options with default values.
         $options = array_merge(['nonce' => 'nonce-value'], $options);
@@ -21,7 +21,7 @@ class HtmlGenerator
         $scriptTag = static::scripts($options);
 
         // Output the tags.
-        echo $stylesTag . PHP_EOL . $scriptTag . PHP_EOL;
+        return $stylesTag . PHP_EOL . $scriptTag . PHP_EOL;
     }
 
     /**
