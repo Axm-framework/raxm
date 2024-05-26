@@ -67,7 +67,7 @@ abstract class Component extends BaseController
     public function __construct()
     {
         $app = app();
-        $this->request = $app->request ?? null;
+        $this->request  = $app->request  ?? null;
         $this->response = $app->response ?? null;
     }
 

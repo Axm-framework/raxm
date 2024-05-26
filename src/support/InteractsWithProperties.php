@@ -19,7 +19,7 @@ trait InteractsWithProperties
      * Handles the hydration of a specific property.
      */
     public function handleHydrateProperty(array $property, array $value): mixed
-    {
+    { 
         $newValue = $value;
 
         if (method_exists($this, 'hydrateProperty')) {
