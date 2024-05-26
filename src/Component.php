@@ -16,6 +16,7 @@ use Axm\Raxm\ComponentProperties;
 use App\Controllers\BaseController;
 use Axm\Raxm\Support\HandlesActions;
 use Axm\Raxm\Support\ValidatesInput;
+use Axm\Raxm\HtmlRootTagAttributeAdder;
 use Axm\Raxm\Support\InteractsWithProperties;
 
 /**
@@ -128,7 +129,7 @@ abstract class Component extends BaseController
      */
     private function hydrateFromServerMemo(): void
     {
-        $this->hydrateProperty($this->serverMemo['data']);
+        $this->mount($this->serverMemo['data']);
     }
 
     /**
@@ -209,7 +210,7 @@ abstract class Component extends BaseController
      * This method embeds the component's data in the HTML representation 
      * by adding attributes to the HTML root tag.
      */
-    private function embedThyselfInHtml()
+    private function embedThyselfInHtml(): void
     {
         if (!$html = $this->renderToView())
             return;
@@ -225,7 +226,7 @@ abstract class Component extends BaseController
      * This method embeds the component's ID in the HTML representation by adding an 'id' 
      * attribute to the HTML root tag.
      */
-    private function embedIdInHtml()
+    private function embedIdInHtml(): void
     {
         if (!$html = $this->effects['html'] ?? null)
             return;
@@ -302,29 +303,31 @@ abstract class Component extends BaseController
     /**
      * Get the name of the component.
      */
-    private function getComponentName(): ?string
+    private function getComponentName(): string
     {
-        return Raxm::componentName();
+        return ComponentManager::componentName();
     }
 
     /**
      * Compile and mount the component.
      */
-    public function index(object $component): ?string
+    public function index(object $component): string
     {
-        return Raxm::mountComponent($component);
+        return ComponentManager::mountComponent($component);
     }
 
     /**
      * Sets component properties based on provided parameters.
      * Populates public properties with valid values from the given array.
      */
-    protected function hydrateProperty(?array $params = [])
+    protected function mount(?array $params = []): self
     {
         $this->publicProperties = ComponentProperties::getPublicProperties($this);
         foreach ($params as $property => $value) {
-            if (isset($this->publicProperties[$property]) && (is_array($value)
-                || is_scalar($value) || is_null($value))) {
+            if (
+                isset($this->publicProperties[$property]) && (is_array($value)
+                    || is_scalar($value) || is_null($value))
+            ) {
                 // Assign the value to the property.
                 $this->{$property} = $value;
             }
@@ -417,7 +420,7 @@ abstract class Component extends BaseController
     /**
      * Get the URL to redirect to.
      */
-    private function getRedirectTo()
+    private function getRedirectTo(): ?string
     {
         if (method_exists($this, 'redirect')) {
             return generateUrl($this->redirect());
@@ -444,16 +447,16 @@ abstract class Component extends BaseController
      * This method retrieves the properties of the component's data that have 
      * changed compared to the server memo.
      */
-    private function getChangedData()
+    private function getChangedData(): array
     {
         $changedData = [];
         foreach ($this->serverMemo['data'] ?? [] as $key => $value) {
             if (isset($this->{$key}) && $this->{$key} != $value) {
                 $changedData[] = $key;
             }
-
-            return $changedData;
         }
+
+        return $changedData;
     }
 
     /**
@@ -480,9 +483,9 @@ abstract class Component extends BaseController
     /**
      * Sends a JSON response using the response object and the specified data.
      */
-    private function sendJsonResponse()
+    private function sendJsonResponse(): void
     {
-        return $this->response->toJson($this->return);
+        $this->response->toJson($this->return);
     }
 
     /**
@@ -490,9 +493,11 @@ abstract class Component extends BaseController
      */
     public function __call(string $method, array $params)
     {
-        $reservedMethods = ['hydrate', 'dehydrate'];
-        if (in_array($method, $reservedMethods)) {
-            throw new Exception(sprintf('This method is reserved for Raxm [ %s ] ', implode(', ', $reservedMethods)));
+        if (
+            in_array($method, ['mount', 'hydrate', 'dehydrate', 'updating', 'updated'])
+            || str($method)->startsWith(['updating', 'updated', 'hydrate', 'dehydrate'])
+        ) {
+            return;
         }
 
         $className = static::class;

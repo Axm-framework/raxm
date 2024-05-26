@@ -18,12 +18,12 @@ trait InteractsWithProperties
     /**
      * Handles the hydration of a specific property.
      */
-    public function handleHydrateProperty(string $property, $value): mixed
+    public function handleHydrateProperty(array $property, array $value): mixed
     {
         $newValue = $value;
 
         if (method_exists($this, 'hydrateProperty')) {
-            $newValue = $this->hydrateProperty(new $property, $newValue);
+            $newValue = $this->hydrateProperty($property, $newValue);
         }
 
         foreach (array_diff(class_uses_recursive($this), class_uses(self::class)) as $trait) {

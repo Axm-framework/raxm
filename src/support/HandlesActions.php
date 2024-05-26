@@ -143,7 +143,7 @@ trait HandlesActions
         }
 
         // Implementación para verificar método público y no definido en la clase base
-        if (!$this->methodIsPublicAndNotDefinedOnBaseClass($method)) {
+        if (!$this->methodIsPublicAndNotDefinedOnBaseClass()) {
             throw new RuntimeException(sprintf('Unable to set component data. 
             Public method [ %s ] not found on component: [ %s ] ', $method, $component));
         }
