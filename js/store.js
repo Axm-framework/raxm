@@ -1,5 +1,5 @@
 import EventAction from './action/event.js'
-import HookManager from './HookManager.js'
+import HookManager from './hooks.js'
 import { MessageBus }  from './util/utils.js'
 import { PREFIX_REGEX } from './directives.js'
 
