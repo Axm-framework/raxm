@@ -165,8 +165,8 @@
     return [dump2, content2.replace(dump2, "")];
   }
 
-  // js/HookManager.js
-  var HookManager_default = {
+  // js/hooks.js
+  var hooks_default = {
     availableHooks: [
       "component.initialized",
       "directive.initialized",
@@ -204,7 +204,7 @@
     raxmIsOffline: false,
     sessionHasExpired: false,
     sessionHasExpiredCallback: void 0,
-    hooks: HookManager_default,
+    hooks: hooks_default,
     onErrorCallback: () => {
     },
     components() {
