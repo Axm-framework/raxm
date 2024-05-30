@@ -1,29 +1,34 @@
-import { directive, getDirectives } from '../directives.js'
+import { directive } from "../directives.js";
 
-directive('confirm', ({ el, directive }) => {
-    let message = directive.expression
-    let shouldPrompt = directive.modifiers.includes('prompt')
+directive("confirm", ({ el, directive }) => {
+    let message = directive.expression;
+    let shouldPrompt = directive.modifiers.includes("prompt");
 
     // Convert sanitized linebreaks ("\n") to real line breaks...
-    message = message.replaceAll('\\n', '\n')
+    message = message.replaceAll("\\n", "\n");
 
-    if (message === '') message = 'Are you sure?'
+    if (message === "") message = "Are you sure?";
 
     el.__raxm_confirm = (action) => {
         if (shouldPrompt) {
-            let [question, expected] = message.split('|')
+            let [question, expected] = message.split("|");
 
-            if (! expected) {
-                console.warn('Raxm: Must provide expectation with axm:confirm.prompt')
+            if (!expected) {
+                console.warn(
+                    "Raxm: Must provide expectation with axm:confirm.prompt"
+                );
             } else {
-                let input = prompt(question)
+                let input = prompt(question);
 
                 if (input === expected) {
-                    action()
+                    action();
+                } else {
+                    instead();
                 }
             }
         } else {
-            if (confirm(message)) action()
+            if (confirm(message)) action();
+            else instead();
         }
-    }
-})
+    };
+});

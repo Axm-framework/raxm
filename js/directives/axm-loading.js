@@ -1,25 +1,36 @@
-import { toggleBooleanStateDirective } from './shared.js'
-import { directive, getDirectives } from '../directives.js'
-import store from '../store.js'
+import { toggleBooleanStateDirective } from "./shared.js";
+import { directive, getDirectives } from "../directives.js";
+import store from "../store.js";
 
-directive('loading', ({ el, directive, component }) => {
-    let targets = getTargets(el)
+directive("loading", ({ el, directive, component, cleanup }) => {
+    let targets = getTargets(el);
 
-    let [delay, abortDelay] = applyDelay(directive)
-    const start = () =>
-        delay(() => toggleBooleanStateDirective(el, directive, true))
-    const end = () =>
-        abortDelay(() => toggleBooleanStateDirective(el, directive, false))
+    let [delay, abortDelay] = applyDelay(directive);
 
-    whenTargetsArePartOfRequest(component, targets, [start, end])
-    whenTargetsArePartOfFileUpload(component, targets, [start, end])
-})
+    let cleanupA = whenTargetsArePartOfRequest(component, targets, [
+        () => delay(() => toggleBooleanStateDirective(el, directive, true)),
+        () => abortDelay(() => toggleBooleanStateDirective(el, directive, false)),
+    ]);
+
+    let cleanupB = whenTargetsArePartOfFileUpload(component, targets, [
+        () => delay(() => toggleBooleanStateDirective(el, directive, true)),
+        () => abortDelay(() => toggleBooleanStateDirective(el, directive, false)),
+    ]);
+
+    cleanup(() => {
+        cleanupA();
+        cleanupB();
+    });
+});
 
 function applyDelay(directive) {
-    if (!directive.modifiers.includes('delay') || directive.modifiers.includes('none'))
-        return [(i) => i(), (i) => i()]
+    if (
+        !directive.modifiers.includes("delay") ||
+        directive.modifiers.includes("none")
+    )
+        return [(i) => i(), (i) => i()];
 
-    let duration = 200
+    let duration = 200;
 
     let delayModifiers = {
         shortest: 50,
@@ -29,33 +40,33 @@ function applyDelay(directive) {
         long: 300,
         longer: 500,
         longest: 1000,
-    }
+    };
 
     if (Object.keys(delayModifiers).includes(directive.modifiers[0])) {
-        duration = delayModifiers[directive.modifiers[0]]
+        duration = delayModifiers[directive.modifiers[0]];
     }
 
-    let timeout
-    let started = false
+    let timeout;
+    let started = false;
 
     return [
         (callback) => {
             // Initiate delay...
             timeout = setTimeout(() => {
-                callback()
+                callback();
 
-                started = true
-            }, duration)
+                started = true;
+            }, duration);
         },
         (callback) => {
             // Execute or abort...
             if (started) {
-                callback()
+                callback();
             } else {
-                clearTimeout(timeout)
+                clearTimeout(timeout);
             }
         },
-    ]
+    ];
 }
 
 function whenTargetsArePartOfRequest(
@@ -64,20 +75,20 @@ function whenTargetsArePartOfRequest(
     [startLoading, endLoading]
 ) {
     const hookCallbackStart = (message, component) => {
-        if (iComponent !== component) return
-        const payload = message.updateQueue[0].payload
-        if (targets.length > 0 && !containsTargets(payload, targets)) return
-        startLoading()
-    }
+        if (iComponent !== component) return;
+        const payload = message.updateQueue[0].payload;
+        if (targets.length > 0 && !containsTargets(payload, targets)) return;
+        startLoading();
+    };
 
     const hookCallbackEnd = () => {
-        endLoading()
-    }
+        endLoading();
+    };
 
-    store.registerHook('message.sent', hookCallbackStart)
-    store.registerHook('message.failed', hookCallbackEnd)
-    store.registerHook('message.received', hookCallbackEnd)
-    store.registerHook('element.removed', hookCallbackEnd)
+    store.registerHook("message.sent", hookCallbackStart);
+    store.registerHook("message.failed", hookCallbackEnd);
+    store.registerHook("message.received", hookCallbackEnd);
+    store.registerHook("element.removed", hookCallbackEnd);
 }
 
 function whenTargetsArePartOfFileUpload(
@@ -86,104 +97,104 @@ function whenTargetsArePartOfFileUpload(
     [startLoading, endLoading]
 ) {
     let eventMismatch = (e) => {
-        let { id, property } = e.detail
+        let { id, property } = e.detail;
 
-        if (id !== component.id) return true
+        if (id !== component.id) return true;
         if (
             targets.length > 0 &&
             !targets.map((i) => i.target).includes(property)
         )
-            return true
+            return true;
 
-        return false
-    }
+        return false;
+    };
 
-    window.addEventListener('raxm-upload-start', (e) => {
-        if (eventMismatch(e)) return
+    window.addEventListener("raxm-upload-start", (e) => {
+        if (eventMismatch(e)) return;
 
-        startLoading()
-    })
+        startLoading();
+    });
 
-    window.addEventListener('raxm-upload-finish', (e) => {
-        if (eventMismatch(e)) return
+    window.addEventListener("raxm-upload-finish", (e) => {
+        if (eventMismatch(e)) return;
 
-        endLoading()
-    })
+        endLoading();
+    });
 
-    window.addEventListener('raxm-upload-error', (e) => {
-        if (eventMismatch(e)) return
+    window.addEventListener("raxm-upload-error", (e) => {
+        if (eventMismatch(e)) return;
 
-        endLoading()
-    })
+        endLoading();
+    });
 }
 
 function containsTargets(payload, targets) {
-    let { name, method, params } = payload
+    let { name, method, params } = payload;
 
     let target = targets.find(({ target, tparams }) => {
         if (tparams) {
             return (
                 target === method &&
                 tparams === quickHash(JSON.stringify(params))
-            )
+            );
         }
 
-        return name === target || method === target
-    })
+        return name === target || method === target;
+    });
 
-    return target !== undefined
+    return target !== undefined;
 }
 
 function getTargets(el) {
-    let directives = getDirectives(el)
+    let directives = getDirectives(el);
 
-    let targets = []
+    let targets = [];
 
-    if (directives.has('target')) {
-        let directive = directives.get('target')
+    if (directives.has("target")) {
+        let directive = directives.get("target");
 
-        let raw = directive.expression
+        let raw = directive.expression;
 
-        if (raw.includes('(') && raw.includes(')')) {
+        if (raw.includes("(") && raw.includes(")")) {
             targets.push({
                 target: directive.method,
                 params: quickHash(JSON.stringify(directive.params)),
-            })
-        } else if (raw.includes(',')) {
-            raw.split(',')
+            });
+        } else if (raw.includes(",")) {
+            raw.split(",")
                 .map((i) => i.trim())
                 .forEach((target) => {
-                    targets.push({ target })
-                })
+                    targets.push({ target });
+                });
         } else {
-            targets.push({ target: raw })
+            targets.push({ target: raw });
         }
     } else {
         let nonActionOrModelRaxmDirectives = [
-            'init',
-            'dirty',
-            'offline',
-            'target',
-            'loading',
-            'poll',
-            'ignore',
-            'key',
-            'id',
-        ]
+            "init",
+            "dirty",
+            "offline",
+            "target",
+            "loading",
+            "poll",
+            "ignore",
+            "key",
+            "id",
+        ];
 
         targets = directives
             .all()
             .filter(
                 (i) =>
                     !nonActionOrModelRaxmDirectives.includes(i.value) &&
-                    i.expression.split('(')[0]
+                    i.expression.split("(")[0]
             )
-            .map((i) => ({ target: i.expression.split('(')[0] }))
+            .map((i) => ({ target: i.expression.split("(")[0] }));
     }
 
-    return targets
+    return targets;
 }
 
 function quickHash(subject) {
-    return btoa(encodeURIComponent(subject))
+    return btoa(encodeURIComponent(subject));
 }

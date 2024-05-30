@@ -3,7 +3,7 @@ export function toggleBooleanStateDirective(el, directive, isTruthy, cachedDispl
     isTruthy = directive.modifiers.includes('remove') ? ! isTruthy : isTruthy
 
     if (directive.modifiers.includes('class')) {
-        let classes = directive.expression.split(' ')
+        let classes = directive.expression.split(' ').filter(String)
 
         if (isTruthy) {
             el.classList.add(...classes)
@@ -20,14 +20,15 @@ export function toggleBooleanStateDirective(el, directive, isTruthy, cachedDispl
         let cache = cachedDisplay ?? window
             .getComputedStyle(el, null)
             .getPropertyValue('display')
-            
+
         let display = (['inline', 'block', 'table', 'flex', 'grid', 'inline-flex']
             .filter(i => directive.modifiers.includes(i))[0] || 'inline-block')
 
-        // If element is to be removed, set display to it's current value
-        display = directive.modifiers.includes('remove') ? cache : display
+        // If element is to be removed, set display to its current value...
+        // display = (directive.modifiers.includes('remove') && ! isTruthy)
+        display = (directive.modifiers.includes('remove') && ! isTruthy)
+            ? cache : display
 
         el.style.display = isTruthy ? display : 'none'
     }
 }
- 
