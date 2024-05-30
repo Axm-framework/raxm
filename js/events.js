@@ -12,47 +12,19 @@ export function dispatch(event, payload) {
  */
 let listeners = []
 
+
 /**
  * Register a callback to run when an event is triggered...
  */
-// export function on(name, callback) {
-//     if (! listeners[name]) listeners[name] = []
+export function on(name, callback) {
+    if (! listeners[name]) listeners[name] = []
 
-//     listeners[name].push(callback)
+    listeners[name].push(callback)
 
-//     // Return an "off" callback to remove the listener...
-//     return () => {
-//         listeners[name] = listeners[name].filter(i => i !== callback)
-//     }
-// }
-
-/**
- * Register a callback for one or more events. 
- * @param {string|string[]} events - Name or names of the events. 
- * @param {function} callback - Callback to execute when the event is triggered. 
- * @returns {function} - Function to remove the listener.
- */
-export function on(events, callback) {
-    // If events is a string, convert it to an array
-    if (typeof events === 'string') {
-        events = [events];
-    }
-  
-    events.forEach((eventName) => {
-        if (!listeners[eventName]) {
-            listeners[eventName] = [];
-        }
-        listeners[eventName].push(callback);
-    });
-  
-    // Returns a function to delete the listener
+    // Return an "off" callback to remove the listener...
     return () => {
-        events.forEach((eventName) => {
-            if (listeners[eventName]) {
-                listeners[eventName] = listeners[eventName].filter((listener) => listener !== callback);
-            }
-        });
-    };
+        listeners[name] = listeners[name].filter(i => i !== callback)
+    }
 }
 
 /**
@@ -92,21 +64,37 @@ export function trigger(name, ...params) {
     }
 
     return (result) => {
-        let latest = result
-
-        for (let i = 0; i < finishers.length; i++) {
-            let iResult = finishers[i](latest)
-
-            if (iResult !== undefined) {
-                latest = iResult
-            }
-        }
-
-        return latest
+       return runFinishers(finishers, result)
     }
 }
 
-export function hasEvent(name) {
-    return listeners[name] !== false;
+export async function triggerAsync(name, ...params) {
+    let callbacks = listeners[name] || []
+
+    let finishers = []
+
+    for (let i = 0; i < callbacks.length; i++) {
+        let finisher = await callbacks[i](...params)
+
+        if (isFunction(finisher)) finishers.push(finisher)
+    }
+
+    return (result) => {
+       return runFinishers(finishers, result)
+    }
 }
 
+export function runFinishers(finishers, result)
+{
+    let latest = result
+
+    for (let i = 0; i < finishers.length; i++) {
+        let iResult = finishers[i](latest)
+
+        if (iResult !== undefined) {
+            latest = iResult
+        }
+    }
+
+    return latest
+}

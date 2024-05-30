@@ -51,6 +51,7 @@ export default class Component {
         this.prefetchManager = new PrefetchManager(this);
         this.watchers = {};
         this.genericLoadingEls = {};
+        this.cleanups = [];
 
         store.callHook("component.initialized", this);
 
@@ -348,5 +349,17 @@ export default class Component {
 
     tearDown() {
         this.tearDownCallbacks.forEach((callback) => callback());
+    }
+
+    addCleanup(cleanup) {
+        this.cleanups.push(cleanup);
+    }
+
+    cleanup() {
+        delete this.el.__raxm;
+
+        while (this.cleanups.length > 0) {
+            this.cleanups.pop()();
+        }
     }
 }
